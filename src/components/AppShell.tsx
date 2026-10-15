@@ -23,8 +23,8 @@ export function AppShell({
       <aside className="sidebar">
         <a
           className="brand"
-          href={recorded ? '#/recorded/overview' : '#/overview'}
-          aria-label="UndoGraph overview"
+          href="/"
+          aria-label="UndoGraph home"
         >
           <span className="brand-mark">
             <GitBranch size={23} aria-hidden="true" />
@@ -98,7 +98,7 @@ export function AppShell({
             </span>
           </div>
         </header>
-        <main id="workspace-main" className="main-content">
+        <main id="workspace-main" className="main-content" tabIndex={-1}>
           {children}
         </main>
         <footer className="app-footer">

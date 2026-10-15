@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useRef, useState, useSyncExternalStore } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -37,6 +37,10 @@ const readHash = () => window.location.hash
 
 export default function App() {
   const hash = useSyncExternalStore(subscribe, readHash)
+  useEffect(() => {
+    document.getElementById('workspace-main')?.focus({ preventScroll: true })
+    window.scrollTo(0, 0)
+  }, [])
   const recorded = hash.startsWith('#/recorded/')
   const view = views.find((item) => item.id === hash.split('/').at(-1)) ?? views[0]
   const controller = useWorkspace(recorded)
