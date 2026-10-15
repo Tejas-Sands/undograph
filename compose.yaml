@@ -1,0 +1,20 @@
+name: undograph
+
+services:
+  falkordb:
+    image: falkordb/falkordb@sha256:b0bdcac2cbaff989e77cb0610439b7a9289e86de033ccbbd4368b66fb680ae7a
+    ports:
+      - "127.0.0.1:16379:6379"
+    environment:
+      FALKORDB_PASSWORD: ${FALKORDB_PASSWORD:?Run npm run setup:local first}
+      REDIS_ARGS: --requirepass ${FALKORDB_PASSWORD} --appendonly yes
+    volumes:
+      - falkordb-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --no-auth-warning -a \"$$FALKORDB_PASSWORD\" ping | grep -q PONG"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+volumes:
+  falkordb-data:

@@ -1,0 +1,55 @@
+{
+  "name": "undograph",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "wrangler types && tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "npm run build && vite preview",
+    "deploy": "npm run build && wrangler deploy",
+    "cf-typegen": "wrangler types",
+    "setup:local": "node scripts/local-setup.mjs",
+    "db:up": "docker compose --env-file .dev.vars up --detach --wait",
+    "db:stop": "docker compose --env-file .dev.vars stop",
+    "typecheck": "wrangler types && tsc -b && tsc -p tests/tsconfig.json",
+    "test": "npm run test:unit && npm run test:worker && npm run test:graph",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "test:worker": "vitest run --config vitest.worker.config.ts",
+    "test:graph": "vitest run --config vitest.graph.config.ts",
+    "test:e2e": "playwright test",
+    "deploy:preview": "CLOUDFLARE_ENV=preview npm run build && wrangler deploy --env preview",
+    "deploy:production": "CLOUDFLARE_ENV=production npm run build && wrangler deploy --env production",
+    "probe:local": "npm run test:graph -- tests/graph.runtime.test.ts"
+  },
+  "dependencies": {
+    "falkordb": "6.8.0",
+    "hono": "4.13.13",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.64.0",
+    "@cloudflare/vitest-plugin": "1.4.2",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.64.1",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
+    "globals": "^17.12.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.69.0",
+    "vite": "^8.3.0",
+    "vitest": "4.1.11",
+    "wrangler": "^4.151.0"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  }
+}

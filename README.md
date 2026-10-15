@@ -13,7 +13,30 @@ Target deployment: a React application and API on Cloudflare Workers, durable ru
 
 ## Current status
 
-This folder contains preparation notes and an implementation plan. Application code, dependencies, cloud resources, and deployment have not been created. The proposed architecture requires an early verification of the official FalkorDB client in the Workers runtime against the selected database endpoint.
+Local runtime development has started: the React/Workers project, health and database-readiness API, and a password-protected FalkorDB container are implemented. Agent execution, graph-driven repair, and the operations workspace are the next milestones. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
+
+## Local development
+
+Requires Node.js 24 and Docker with Compose. Run commands from this directory:
+
+```sh
+npm ci
+npm run setup:local
+npm run db:up
+npm run dev
+```
+
+The setup command creates ignored `.dev.vars` with fresh local secrets and preserves it on subsequent runs. FalkorDB is exposed only at `127.0.0.1:16379`; its named Docker volume persists data. `npm run db:stop` stops the container without deleting data.
+
+```sh
+npm run typecheck
+npm test
+npm run build
+```
+
+`npm run probe:local` exercises the official database client inside workerd, including parameterized writes, a three-hop graph path, authentication refusal, connection cleanup, and a real local Workflow step. Graph tests use disposable, uniquely named graphs and report skips when database credentials are absent.
+
+`GET /api/health` tests Worker liveness. `GET /api/ready` performs a real database query and returns a sanitized 503 when unavailable. Artifact-schema readiness will be added with the versioned graph store.
 
 The Graph Hacks event starts October 15, 2026 at 12:01 AM IST and closes October 18 at 11:59 PM IST. Its rules permit preparation notes beforehand and require the main coding and design work to start during the event. This application must be implemented as new work during that window. [Official rules](https://www.wemakedevs.org/hackathons/falkordb/rules)
 

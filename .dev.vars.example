@@ -1,0 +1,7 @@
+# npm run setup:local generates .dev.vars with fresh local secrets.
+# This example contains no production credentials.
+FALKORDB_HOST=127.0.0.1
+FALKORDB_PORT=16379
+FALKORDB_USERNAME=default
+FALKORDB_PASSWORD=replace-with-a-local-password
+SESSION_SECRET=replace-with-at-least-32-random-bytes
