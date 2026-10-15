@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import type { Env } from './env'
 import { DatabaseUnavailable, withGraph } from './graph/client'
+import { ensureSchema } from './graph/store'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -13,6 +14,7 @@ app.get('/api/health', (context) => context.json({ ok: true }))
 
 app.get('/api/ready', async (context) => {
   try {
+    await ensureSchema(context.env, `${context.env.GRAPH_PREFIX}control`)
     await withGraph(context.env, `${context.env.GRAPH_PREFIX}control`, async (graph) => {
       const reply = await graph.query<{ ok: number }>('RETURN 1 AS ok', { TIMEOUT: 2_000 })
       if (reply.data?.[0]?.ok !== 1) throw new DatabaseUnavailable()

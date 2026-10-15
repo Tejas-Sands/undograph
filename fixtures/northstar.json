@@ -1,0 +1,32 @@
+{
+  "store": "Northstar Goods",
+  "sources": [
+    {
+      "id": "source_return_policy_v1",
+      "logicalId": "source:return-policy",
+      "body": {
+        "title": "Returns policy",
+        "category": "return-policy",
+        "text": "Northstar Goods return policy (synthetic).\nChange-of-mind returns are accepted within 30 days of delivery.\nOriginal packaging and proof of purchase are required."
+      }
+    },
+    {
+      "id": "source_account_help_v1",
+      "logicalId": "source:account-help",
+      "body": {
+        "title": "Account help",
+        "category": "account-help",
+        "text": "To reset your Northstar Goods password, open the sign-in page, choose Forgot password, and follow the emailed reset link. Never share your password or reset link."
+      }
+    }
+  ],
+  "cases": [
+    { "id": "case_R021_v1", "logicalId": "case:R-021", "body": { "id": "R-021", "daysSinceDelivery": 21, "reason": "change-of-mind return" } },
+    { "id": "case_R007_v1", "logicalId": "case:R-007", "body": { "id": "R-007", "daysSinceDelivery": 7, "reason": "change-of-mind return" } },
+    { "id": "case_A001_v1", "logicalId": "case:A-001", "body": { "id": "A-001", "topic": "password-reset", "message": "I forgot my password. How can I regain access?" } }
+  ],
+  "agents": [
+    { "id": "agent_policy_analyst", "role": "policy-analyst" },
+    { "id": "agent_reply_writer", "role": "reply-agent" }
+  ]
+}

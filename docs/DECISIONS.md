@@ -22,6 +22,12 @@ The initial running-server check failed with `TypeError: e.BigInt is not a funct
 
 ## Gates that remain
 
-Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. The full application also needs real graph schema, agent execution, repair, isolation, and browser acceptance checks before it can be presented as working.
+Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. The full application also needs agent execution, repair, isolation, and browser acceptance checks before it can be presented as working.
 
-Readiness currently verifies a database query. Required application constraints and indexes will join that check when the versioned store is implemented. No in-memory application database or silent inference fallback is used.
+Readiness verifies operational application constraints and indexes alongside a database query. No in-memory application database or silent inference fallback is used.
+
+## Versioned graph storage
+
+Artifacts and dependency links are written together in one guarded, parameterized mutation. Native uniqueness constraints protect IDs and the optional `currentKey` pointer; immutable hashes protect repeated writes. Candidates have no current pointer. Required schema must be operational before readiness succeeds.
+
+Repair planning includes all current stale work, including pending work from earlier corrections. Assessments take explicit case and facts version references; those IDs cannot be inferred from policy content. Audits reject cycles, missing links and excessive depth. Explanation responses have a 1,024-path ceiling and explicitly fail as incomplete when exceeded.

@@ -18,3 +18,11 @@ The graph checks execute in workerd against the authenticated local FalkorDB con
 The health/readiness tests were first observed failing against the generated starter handler. Local-configuration tests were first observed failing before the setup script existed. Socket naming/cleanup was observed failing before invocation names were added. The running-server smoke check caught a Vite/CommonJS loading issue after the unit/runtime suite and bundling had passed; it passed after correcting dependency resolution.
 
 This is runtime-foundation verification. It does not establish agent execution, source correction, selective repair, visitor isolation, browser acceptance, or a deployed cloud service. Those milestones require their own checks. Certificate refusal against a real TLS endpoint and deployed preview/production probes remain pending; they are not represented as passed.
+
+## Artifact and dependency storage — October 15, 2026
+
+`npm test` passes 48 tests with no skips: 26 unit, 4 Worker API and 18 real-database/runtime tests. Type checking, production build, lint and the running-server HTTP smoke check pass. The domain suite first failed 15 assertions before implementation; the initial ten graph integration cases first failed before storage existed.
+
+Checks cover 30/14-day deterministic eligibility, canonical hashes, exact quoted evidence, idempotent initialization and immutable writes, candidate versions, concurrent current-version writes, native unique constraints, exact five-artifact return-policy impact, independent account-reply preservation, fan-in path deduplication, foreign IDs, revision conflicts, cycles and depth thirteen. Initial sources have zero affected outputs before any agent reads them.
+
+Generated support artifacts in these graph tests are explicit test fixtures written through the real store. Production initialization does not seed generated work. These results establish persistence and planning behavior, not actual model execution or completed repairs.

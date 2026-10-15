@@ -13,7 +13,7 @@ Target deployment: a React application and API on Cloudflare Workers, durable ru
 
 ## Current status
 
-Local runtime development has started: the React/Workers project, health and database-readiness API, and a password-protected FalkorDB container are implemented. Agent execution, graph-driven repair, and the operations workspace are the next milestones. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
+The local Cloudflare runtime, immutable artifact store, evidence validation, dependency traversal, and deterministic repair planner are implemented and tested against FalkorDB. Agent execution, correction and repair workflows, and the operations workspace are the next milestones. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
 
 ## Local development
 
@@ -36,7 +36,7 @@ npm run build
 
 `npm run probe:local` exercises the official database client inside workerd, including parameterized writes, a three-hop graph path, authentication refusal, connection cleanup, and a real local Workflow step. Graph tests use disposable, uniquely named graphs and report skips when database credentials are absent.
 
-`GET /api/health` tests Worker liveness. `GET /api/ready` performs a real database query and returns a sanitized 503 when unavailable. Artifact-schema readiness will be added with the versioned graph store.
+`GET /api/health` tests Worker liveness. `GET /api/ready` verifies operational application indexes and constraints, performs a real database query, and returns a sanitized 503 when unavailable. [Graph storage and query contracts](docs/GRAPH.md) describe versioning and audit limits.
 
 The Graph Hacks event starts October 15, 2026 at 12:01 AM IST and closes October 18 at 11:59 PM IST. Its rules permit preparation notes beforehand and require the main coding and design work to start during the event. This application must be implemented as new work during that window. [Official rules](https://www.wemakedevs.org/hackathons/falkordb/rules)
 
