@@ -32,7 +32,7 @@ npm run db:up
 npm run dev
 ```
 
-Open <http://127.0.0.1:5173>. Choose **Start live workspace** to create isolated synthetic inputs, then **Build agent work**. The Sources, Sessions, Replies and Repair history views expose the actual persisted records. [UI and browser verification](docs/UI.md) describes the complete flow.
+Open <http://127.0.0.1:5173> for the landing page. Choose **Open workspace**, then **Start live workspace** to create isolated synthetic inputs, then **Build agent work**. The Sources, Sessions, Replies and Repair history views expose the actual persisted records. [UI and browser verification](docs/UI.md) describes the complete flow.
 
 The read-only recorded example is at <http://127.0.0.1:5173/#/recorded/overview>. To explore it without a Cloudflare connection, run `UNDOGRAPH_OFFLINE=1 npm run dev`. Recorded mode stays labeled and sends no mutation requests; it never substitutes for a failed live run.
 
@@ -51,7 +51,7 @@ npm run build
 node scripts/cloud-smoke.mjs --base-url http://127.0.0.1:5173 --benchmark
 ```
 
-The backend suite passes 111 tests against the real local database/runtime. All nine browser tests pass with live inference enabled. The offline CI path passes eight browser tests and explicitly skips the live-inference test. Full smoke testing creates isolated synthetic visitors and deletes their completed workspaces. Use `--probe` for health/readiness checks alone.
+The backend suite passes 111 tests against the real local database/runtime. All fifteen browser tests pass with live inference enabled, including the landing page and workspace entry. CI explicitly skips its live-inference test. Full smoke testing creates isolated synthetic visitors and deletes their completed workspaces. Use `--probe` for health/readiness checks alone.
 
 In one local comparison using the same corrected source/case content, selective repair used three model calls and 8.899 seconds; a fresh build used four calls and 9.458 seconds. The independent account reply kept its exact ID, hash and content. These are observed measurements, not a performance guarantee; [the verification record](docs/VERIFICATION.md) includes provider usage and an earlier repair that took longer.
 

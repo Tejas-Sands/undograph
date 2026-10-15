@@ -1,6 +1,6 @@
 # Operations workspace
 
-Run the app locally and open `http://127.0.0.1:5173`. Starting a live workspace creates only synthetic source/case inputs. **Build agent work** launches the actual durable build; counters change only when server snapshots contain persisted records. Active runs poll every two seconds, pause requests while the document is hidden and refresh on focus. Reload recovers the same signed visitor workspace.
+Run the app locally and open `http://127.0.0.1:5173`. The root page introduces the product; choose **Open workspace** or go directly to `/#/overview`. Starting a live workspace creates only synthetic source/case inputs. **Build agent work** launches the actual durable build; counters change only when server snapshots contain persisted records. Active runs poll every two seconds, pause requests while the document is hidden and refresh on focus. Reload recovers the same signed visitor workspace.
 
 The five views are Overview, Sources, Sessions, Replies and Repair history. Inspect an artifact to see its exact version, content hash, source quotation, recorded inputs and previous version. The lineage view draws recorded evidence from input to output. Its source filter, fit/zoom controls and keyboard input list complement the graph. Node buttons support keyboard inspection and return focus when their inspector closes.
 
@@ -19,3 +19,12 @@ Reset requires typing `RESET` and creates a fresh workspace generation. A new ma
 `UNDOGRAPH_LIVE_AI=1 npm run test:e2e` runs the actual live flow with the authenticated local Worker and real provider, plus recorded layouts and browser regressions. Without that flag, the live-inference test is reported as skipped. Browser tests still need the local database for owned workspace/correction/dialog checks. They never fake live inference.
 
 Screenshots are reviewed at 375, 768, 1024 and 1440 pixels. Native dialogs support Escape and restore keyboard focus. Visible focus, labels, color-independent statuses, reduced-motion CSS and a keyboard equivalent for graph navigation are included. Automated accessibility checks have bounded scope and complement manual keyboard/visual review.
+
+
+## Landing page
+
+The root page uses the existing self-hosted fonts and blue/ink palette. Its native SVG/CSS illustration steps through Original, Correct and Repair. It is permanently labeled an interactive synthetic illustration, changes only local display state and makes no API requests. It is separate from the captured recorded walkthrough and actual live runs.
+
+Hero and footer links open the read-only demo at `/#/recorded/overview`; **Open workspace** opens `/#/overview`. The workspace brand returns home. Existing hash routes remain directly addressable. Landing sections use ordinary fragment links and the FAQ uses native details/summary controls. The workspace loads as a separate chunk and receives keyboard focus on entry.
+
+Six landing tests cover isolated illustration state, keyboard activation, section navigation, both entry routes, returning home, four viewport sizes without horizontal overflow, reduced-motion layouts and content focus. The complete live browser suite now passes fifteen tests.

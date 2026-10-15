@@ -1,6 +1,6 @@
 # Verification record
 
-Final local status: 111 backend tests pass without skips; all nine browser tests passed with real Workers AI. The offline CI-equivalent browser run passes eight and explicitly skips live inference. The sections below record successive milestones; earlier pending items describe their state at that milestone. Cloud deployment and TLS certificate-refusal proof remain unverified.
+Final local status: 111 backend tests pass without skips; all fifteen browser tests passed with real Workers AI enabled, including six landing-page checks. CI explicitly skips the live-inference case. The sections below record successive milestones; earlier pending items describe their state at that milestone. Cloud deployment and TLS certificate-refusal proof remain unverified.
 
 ## Local runtime — October 15, 2026
 
@@ -111,3 +111,10 @@ The complete backend suite now passes 111 tests without skips: 43 unit, 4 Worker
 After both review fixes, the fresh `UNDOGRAPH_LIVE_AI=1 npm run test:e2e` run passed all nine tests with no skips, including the complete real-inference build/correction/repair flow. The fixes have separate commits: `a75df12` for the publication guard and `4412b8a` for terminal Workflow recovery. [Execution decisions and deferred scope](EXECUTION.md) retain the implementation rulings.
 
 Final production build passes. Scans of tracked files, all Git-history blobs and the browser bundle find no supplied GitHub tokens or local database/session secrets. All commits use Tejas-Sands as both author and committer, without co-author trailers.
+
+
+## Landing page — October 15, 2026
+
+The root landing-page acceptance test first failed against the workspace-only entry. It now passes along with six focused landing checks and all fifteen browser tests, including actual live build/correction/repair through the new homepage. A keyboard-focus regression was observed failing before focus management was added; entry now focuses the workspace main content at the top. Landing illustration changes and recorded-demo entry produce no API requests. The existing backend is unchanged.
+
+Type checking, lint and production build pass. The workspace is split into a lazy chunk; the landing page adds no package dependencies. At 375, 768, 1024 and 1440 pixels, layouts have no horizontal page overflow and respect reduced-motion settings. Desktop and mobile screenshots were inspected. Axe 4.12.1 caught two low-contrast source labels; both were corrected. Final checked original, corrected and repaired states have zero violations. Overlapping SVG/inline-content checks remain incomplete in the automated contrast audit and were complemented with visual review.
