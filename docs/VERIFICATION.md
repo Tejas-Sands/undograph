@@ -93,3 +93,7 @@ Run IDs: initial `run_74469733166c929acce6874e663e25bb`; repair `run_ebf3149b8a6
 The independent reply retained its complete artifact record, including ID `run_74469733166c929acce6874e663e25bb_reply-A001_output` and SHA-256 `1a034ffbda4d28a16ceaa2f805f888c329c30d4025b2c43df0203b4c56a890b9`. ID/hash preservation is separate from elapsed-time comparison. Provider usage was returned for these runs; unknown usage is reported as unavailable elsewhere, never filled in as zero.
 
 The smoke script now defaults to this actual agent scenario; its `--probe` option supplies the liveness/readiness/document-only behavior used in earlier foundation checks. Public cloud deployment, invalid-certificate refusal against a real TLS endpoint, a completed video and event submission are not claimed by these results.
+
+## GitHub Actions
+
+[Checks run 38714172015](https://github.com/Tejas-Sands/undograph/actions/runs/38714172015) completed successfully for commit `638adf995fa109b34a61261fd7c654850ed93619`. The GitHub-hosted Ubuntu runner installed Node 24 and dependencies, generated its own local credentials, started the pinned authenticated FalkorDB container, and passed type checking, lint, all backend tests, offline browser checks and the production build. No Cloudflare credential was supplied to CI; live Workers AI is explicitly outside that job.
