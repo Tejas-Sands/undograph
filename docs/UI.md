@@ -23,8 +23,10 @@ Screenshots are reviewed at 375, 768, 1024 and 1440 pixels. Native dialogs suppo
 
 ## Landing page
 
-The root page uses the existing self-hosted fonts and blue/ink palette. Its native SVG/CSS illustration steps through Original, Correct and Repair. It is permanently labeled an interactive synthetic illustration, changes only local display state and makes no API requests. It is separate from the captured recorded walkthrough and actual live runs.
+The root page uses a graphite canvas, warm-white type and mint accents with the existing self-hosted fonts. Its wide dependency explorer steps through Original, Correct and Repair. The native SVG/CSS graph is permanently labeled an interactive synthetic illustration, changes only local display state and makes no API requests. It is separate from the captured recorded walkthrough and actual live runs. At narrow widths the dependency path reflows vertically, with the independent account reply kept visibly separate.
+
+A return-case comparison shows why the 21-day case changes eligibility while the 7-day case still needs new evidence. The preservation panel describes the documented recorded artifact checks. A separate four-call/three-call comparison is explicitly one observed synthetic run and links to its verification record. [Landing research and direction](research/LANDING_REDESIGN.md) documents the five category comparables, visual references and bounded claims used for the redesign.
 
 Hero and footer links open the read-only demo at `/#/recorded/overview`; **Open workspace** opens `/#/overview`. The workspace brand returns home. Existing hash routes remain directly addressable. Landing sections use ordinary fragment links and the FAQ uses native details/summary controls. The workspace loads as a separate chunk and receives keyboard focus on entry.
 
-Six landing tests cover isolated illustration state, keyboard activation, section navigation, both entry routes, returning home, four viewport sizes without horizontal overflow, reduced-motion layouts and content focus. The complete live browser suite now passes fifteen tests.
+Eight landing tests cover isolated illustration state, keyboard activation, focused skip-link contrast and navigation, section navigation, both entry routes, returning home, five viewport sizes from 320 to 1440 pixels, reduced-motion layouts and content focus. Every viewport checks all three graph states for page overflow and clipped node labels. The complete live browser suite includes seventeen tests.

@@ -51,7 +51,7 @@ npm run build
 node scripts/cloud-smoke.mjs --base-url http://127.0.0.1:5173 --benchmark
 ```
 
-The backend suite passes 111 tests against the real local database/runtime. All fifteen browser tests pass with live inference enabled, including the landing page and workspace entry. CI explicitly skips its live-inference test. Full smoke testing creates isolated synthetic visitors and deletes their completed workspaces. Use `--probe` for health/readiness checks alone.
+The backend suite passes 111 tests against the real local database/runtime. The browser suite contains seventeen tests, including the real-inference workflow, landing page, focused skip link and workspace entry. Verification includes a complete live run and a focused landing rerun after review. CI explicitly skips its live-inference test. Full smoke testing creates isolated synthetic visitors and deletes their completed workspaces. Use `--probe` for health/readiness checks alone.
 
 In one local comparison using the same corrected source/case content, selective repair used three model calls and 8.899 seconds; a fresh build used four calls and 9.458 seconds. The independent account reply kept its exact ID, hash and content. These are observed measurements, not a performance guarantee; [the verification record](docs/VERIFICATION.md) includes provider usage and an earlier repair that took longer.
 
