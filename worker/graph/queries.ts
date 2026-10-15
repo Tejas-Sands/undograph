@@ -61,4 +61,4 @@ export const queries = {
 } as const
 
 export type QueryName = keyof typeof queries
-export const readOnlyQueries = new Set<QueryName>(['snapshot', 'impact', 'runPlan', 'expiredWorkspaces', 'inferenceAvailable'])
+export const readOnlyQueries = new Set<QueryName>(['snapshot', 'impact', 'runPlan', 'expiredWorkspaces', 'inferenceAvailable', 'workspaceRegistration'])

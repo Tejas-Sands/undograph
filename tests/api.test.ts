@@ -6,7 +6,7 @@ import type { Env } from '../worker/env'
 import { ensureSchema } from '../worker/graph/store'
 import { withGraph } from '../worker/graph/client'
 import { visitorIdentity } from '../worker/identity'
-import { beginRun, prepareRun } from '../worker/runs'
+import { beginRun, failRun, prepareRun } from '../worker/runs'
 
 let local: Env
 beforeEach(async () => {
@@ -159,5 +159,32 @@ describe.skipIf(!(env as unknown as Env).FALKORDB_HOST || !(env as unknown as En
     const response = await app.request('http://localhost/api/workspace', { method: 'POST', body: '{', headers: { Origin: 'http://localhost', 'Content-Type': 'application/json' } }, local)
     expect(response.status).toBe(400)
     expect((await request('/api/workspace', 'POST', {}, undefined, { Origin: '' })).status).toBe(403)
+  })
+  it('deletes only the owned terminal workspace and rotates a lost-response cookie on recovery', async () => {
+    const first = await workspace()
+    const other = await workspace()
+    const old = await visitorIdentity(new Request('http://localhost', { headers: { Cookie: first.cookie } }), local)
+    expect((await request('/api/workspace', 'DELETE', {}, first.cookie)).status).toBe(422)
+    const response = await request('/api/workspace', 'DELETE', { confirmation: 'DELETE' }, first.cookie)
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ deleted: true })
+    expect(response.headers.get('Set-Cookie')).toContain('Max-Age=0')
+    expect((await request('/api/workspace', 'GET', undefined, first.cookie)).status).toBe(404)
+    await expect(withGraph(local, old.graphName, (graph) => graph.roQuery('RETURN 1'))).rejects.toThrow()
+    expect(workspaceSnapshotSchema.parse(await (await request('/api/workspace', 'GET', undefined, other.cookie)).json())).toEqual(other.data)
+    const recovered = await request('/api/workspace', 'POST', {}, first.cookie)
+    expect(recovered.status).toBe(200)
+    expect(workspaceSnapshotSchema.parse(await recovered.json()).workspace.id).not.toBe(first.data.workspace.id)
+    const cookie = recovered.headers.get('Set-Cookie')!.split(';')[0]
+    expect((await visitorIdentity(new Request('http://localhost', { headers: { Cookie: cookie } }), local)).id).toBe(old.id)
+  })
+  it('refuses deletion while a saved run is active and allows it after failure', async () => {
+    const first = await workspace()
+    const visitor = await visitorIdentity(new Request('http://localhost', { headers: { Cookie: first.cookie } }), local)
+    const run = await prepareRun(local, visitor.graphName, { kind: 'build', expectedRevision: 0 }, 'close-active-workspace')
+    expect((await request('/api/workspace', 'DELETE', { confirmation: 'DELETE' }, first.cookie)).status).toBe(409)
+    expect((await request('/api/workspace', 'GET', undefined, first.cookie)).status).toBe(200)
+    await failRun(local, visitor.graphName, run.id, new Error('test failure'))
+    expect((await request('/api/workspace', 'DELETE', { confirmation: 'DELETE' }, first.cookie)).status).toBe(200)
   })
 })

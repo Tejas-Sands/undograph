@@ -28,6 +28,12 @@ app.get('/api/health', (context) => context.json({ ok: true }))
 app.post('/api/workspace', async (context) => {
   z.object({}).strict().parse(await readJson(context.req.raw))
   let visitor = await visitorIdentity(context.req.raw, context.env, true)
+  if (!visitor.cookie) {
+    const control = controlGraph(context.env)
+    await ensureSchema(context.env, control)
+    const registered = await queryGraph<{ expiresAt: number }>(context.env, control, 'workspaceRegistration', { id: visitor.graphName })
+    if (!registered[0] || registered[0].expiresAt <= Date.now()) visitor = await rotateWorkspace(context.req.raw, context.env)
+  }
   await registerWorkspace(context.env, visitor.graphName, visitor.expiresAt)
   let snapshot
   try { snapshot = await initializeWorkspace(context.env, visitor.graphName, visitor.workspaceId, visitor.expiresAt) }
@@ -44,6 +50,20 @@ app.post('/api/workspace', async (context) => {
 app.get('/api/workspace', async (context) => {
   const visitor = await visitorIdentity(context.req.raw, context.env)
   return context.json(await loadSnapshot(context.env, visitor.graphName))
+})
+
+app.delete('/api/workspace', async (context) => {
+  z.object({ confirmation: z.literal('DELETE') }).strict().parse(await readJson(context.req.raw))
+  const visitor = await visitorIdentity(context.req.raw, context.env)
+  const snapshot = await loadSnapshot(context.env, visitor.graphName)
+  const closed = await queryGraph(context.env, visitor.graphName, 'closeWorkspace', { revision: snapshot.workspace.revision, now: Date.now() })
+  if (!closed.length) throw new DomainError('WORKSPACE_BUSY', 'The workspace changed or work is still active. Wait for its terminal state before removing it.')
+  const control = controlGraph(context.env)
+  await queryGraph(context.env, control, 'expireRegistry', { id: visitor.graphName, now: Date.now() })
+  await withGraph(context.env, visitor.graphName, (graph) => graph.delete())
+  await queryGraph(context.env, control, 'removeRegistry', { id: visitor.graphName, now: Date.now() })
+  context.header('Set-Cookie', `undograph_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${context.env.ENVIRONMENT === 'local' ? '' : '; Secure'}`)
+  return context.json({ deleted: true })
 })
 
 app.post('/api/runs', async (context) => {

@@ -87,7 +87,12 @@ function decodeArtifact(properties: Properties): Artifact {
 interface SnapshotRow { labels: string[]; node: Properties; relation: string | null; targetId: string | null }
 
 export async function loadSnapshot(env: Env, graphName: string): Promise<WorkspaceSnapshot> {
-  const rows = await queryGraph<SnapshotRow>(env, graphName, 'snapshot')
+  let rows: SnapshotRow[]
+  try { rows = await queryGraph<SnapshotRow>(env, graphName, 'snapshot') }
+  catch (error) {
+    if (error instanceof Error && /empty key|unknown graph|graph.*does not exist/i.test(error.message)) throw new DomainError('NOT_FOUND', 'Workspace not found. Create a fresh workspace to continue.', 404)
+    throw error
+  }
   const groups = new Map<string, Map<string, Properties>>()
   const edges = new Map<string, { from: string; to: string; type: string }>()
   for (const row of rows) {

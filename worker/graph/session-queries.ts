@@ -1,4 +1,7 @@
 export const sessionQueries = {
+  workspaceRegistration: `MATCH (r:WorkspaceRegistry {id:$id}) RETURN r.expiresAt AS expiresAt`,
+  closeWorkspace: `MATCH (w:Workspace) WHERE w.revision = $revision AND w.activeRunId IS NULL
+    SET w.expiresAt = $now, w.revision = w.revision + 1 RETURN w.id AS id`,
   expiredWorkspaces: `MATCH (r:WorkspaceRegistry) WHERE r.expiresAt <= $now RETURN r.id AS id`,
   removeRegistry: `MATCH (r:WorkspaceRegistry {id: $id}) WHERE r.expiresAt <= $now DELETE r`,
   expireRegistry: `MATCH (r:WorkspaceRegistry {id: $id}) SET r.expiresAt = $now`,
