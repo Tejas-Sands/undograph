@@ -22,7 +22,7 @@ The initial running-server check failed with `TypeError: e.BigInt is not a funct
 
 ## Gates that remain
 
-Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. The operations UI and browser acceptance remain before the local application is complete.
+Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. The operations UI and local browser acceptance now pass; repeatable smoke tooling, final packaging and whole-branch review remain.
 
 Readiness verifies operational application constraints and indexes alongside a database query. No in-memory application database or silent inference fallback is used.
 
@@ -55,3 +55,11 @@ The existing `identity.ts` keeps cookie verification and keyed graph naming toge
 API launch checks known quota exhaustion before saving a new run. The authoritative reservation remains an atomic graph mutation before every provider call, including correction attempts and retries. A concurrent quota race can therefore fail an accepted asynchronous run visibly without making an unreserved model call.
 
 Hourly scheduled cleanup selects expired registry entries and accepts only the configured prefix plus the exact server-generated visitor-graph format. It preserves live graphs, unregistered graphs, control graphs and unrelated names. An export contains validated synthetic snapshot records, impact paths and measured run state, without cookies, graph names or connection configuration. Reset requires the explicit `RESET` confirmation field; draft review never sends externally.
+
+## Operations interface
+
+The UI uses native CSS and semantic controls with the approved fonts and palette. React Flow and Dagre render recorded evidence, with graph arrows reversed for human input-to-output reading. Native node buttons and an input list provide keyboard inspection; fitting responds to container resize. Model results and browser progress are never fabricated.
+
+API reads deduplicate ordinary refreshes. After a mutation, a new read queues behind any existing read, preventing an older response from hiding the accepted source revision. Active runs poll every two seconds while visible, stop at terminal state and recover on focus/reload. Locally stored request keys are validated recovery hints; graph records remain canonical.
+
+The read-only walkthrough is a separate, explicitly labeled mode using curated captured records. Offline remote-binding configuration supports that mode and CI without supplying a fake live provider. Asset origins and licenses are documented in ASSETS.md.

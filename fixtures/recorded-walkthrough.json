@@ -1,0 +1,2670 @@
+{
+  "origin": "recorded",
+  "description": "Read-only curated snapshots from a real local synthetic acceptance run. No inference runs in this mode.",
+  "original": {
+    "workspace": {
+      "id": "recorded_northstar",
+      "revision": 0,
+      "createdAt": 1792051102982,
+      "expiresAt": 1792137502725
+    },
+    "artifacts": [
+      {
+        "id": "case_A001_v1",
+        "logicalId": "case:A-001",
+        "version": 1,
+        "kind": "case",
+        "body": {
+          "id": "A-001",
+          "topic": "password-reset",
+          "message": "I forgot my password. How can I regain access?"
+        },
+        "contentHash": "0b15dd13ed6740ca582e858fb756d07d15f3c9a5aecb571f3024a96377566f73",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103130,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "case_R007_v1",
+        "logicalId": "case:R-007",
+        "version": 1,
+        "kind": "case",
+        "body": {
+          "id": "R-007",
+          "daysSinceDelivery": 7,
+          "reason": "change-of-mind return"
+        },
+        "contentHash": "18916c3b8d4f6de0e637170afdbd788d5de997f18d8bd4d5ac507176fad9f003",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103102,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "case_R021_v1",
+        "logicalId": "case:R-021",
+        "version": 1,
+        "kind": "case",
+        "body": {
+          "id": "R-021",
+          "daysSinceDelivery": 21,
+          "reason": "change-of-mind return"
+        },
+        "contentHash": "72294632564b5b41ac087e9a54b7782847fcf3ee9c18f53dea0ac86f7b9f6051",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103077,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "logicalId": "assessment:R007",
+        "version": 1,
+        "kind": "assessment",
+        "body": {
+          "caseArtifactId": "case_R007_v1",
+          "factsArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "decision": "eligible",
+          "explanation": "7 days since delivery; the supported return window is 30 days."
+        },
+        "contentHash": "c33d091e2dbbbe0c02ddfbd1062ea7565ee5738ff3b3b37a333b3e2c5d9e633a",
+        "dependencyHash": "9603acd3ab8987e9b0ba328bdc2cb0a05d7a02d29b92dd3ca7abe908b39b6058",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "case_R007_v1"
+        ],
+        "depth": 2,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051254443,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "assess-R007",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "logicalId": "assessment:R021",
+        "version": 1,
+        "kind": "assessment",
+        "body": {
+          "caseArtifactId": "case_R021_v1",
+          "factsArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "decision": "eligible",
+          "explanation": "21 days since delivery; the supported return window is 30 days."
+        },
+        "contentHash": "75169725de6750acbb5d550629b37146db4e9bd9c2dab1a3e04985e45f11c922",
+        "dependencyHash": "a0f3821103a60e2bf3c41a6dbeb6ab3492500889a3c133319d3163ba9a8f98d9",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "case_R021_v1"
+        ],
+        "depth": 2,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051252057,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "assess-R021",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "logicalId": "facts:return-policy",
+        "version": 1,
+        "kind": "policy-facts",
+        "body": {
+          "status": "supported",
+          "returnWindowDays": 30,
+          "sourceArtifactId": "source_return_policy_v1",
+          "evidenceQuote": "Change-of-mind returns are accepted within 30 days of delivery",
+          "evidenceStart": 43,
+          "evidenceEnd": 105
+        },
+        "contentHash": "8fca04eeb122a94d12f28b50d2ebf631004207ba69f4801a0e43efdd1a4225b8",
+        "dependencyHash": "aa43fa5591cf22baaa1b6cb15a0a37344ba24781757bd7a88e76c29c7193a7b0",
+        "inputIds": [
+          "source_return_policy_v1"
+        ],
+        "depth": 1,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051251977,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "stage": "extract-policy",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "logicalId": "reply:A001",
+        "version": 1,
+        "kind": "reply",
+        "body": {
+          "sourceArtifactId": "source_account_help_v1",
+          "decision": "account-help",
+          "text": "To reset your Northstar Goods password, open the sign-in page, choose Forgot password, and follow the emailed reset link. Never share your password or reset link.",
+          "citations": [
+            "source_account_help_v1"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "1a034ffbda4d28a16ceaa2f805f888c329c30d4025b2c43df0203b4c56a890b9",
+        "dependencyHash": "63bdc7aa8c8c47c9bf8ed5f28992050a4b6fc6de85f97084992f3bd4b3cc1111",
+        "inputIds": [
+          "source_account_help_v1",
+          "case_A001_v1"
+        ],
+        "depth": 1,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051258541,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "reply-A001",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "logicalId": "reply:R007",
+        "version": 1,
+        "kind": "reply",
+        "body": {
+          "assessmentArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+          "decision": "eligible",
+          "text": "Your return request has been approved. Please ensure original packaging and proof of purchase are included.",
+          "citations": [
+            "source_return_policy_v1"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "7407ae25551e9af3d04e89bb5244604f78b21457af24a6c52855ff7c40d3f28a",
+        "dependencyHash": "1b9ea9ac509d08c31da0c8c251a8c9aa477c83046ac096af5308b6e1a3de855e",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+          "case_R007_v1",
+          "source_return_policy_v1"
+        ],
+        "depth": 3,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051256202,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "reply-R007",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "logicalId": "reply:R021",
+        "version": 1,
+        "kind": "reply",
+        "body": {
+          "assessmentArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+          "decision": "eligible",
+          "text": "Your return request has been approved as it is within the 30-day return window.",
+          "citations": [
+            "source_return_policy_v1"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "714f47a76a89e4125c0ab4467ebce6b1e4e22a7abd7b5a25a37f866de45c5145",
+        "dependencyHash": "47893c89483abec35b0cc8b4d46720906e846df7210a212cbfdf42de0b3d3481",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+          "case_R021_v1",
+          "source_return_policy_v1"
+        ],
+        "depth": 3,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051254343,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "reply-R021",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "source_account_help_v1",
+        "logicalId": "source:account-help",
+        "version": 1,
+        "kind": "source",
+        "body": {
+          "title": "Account help",
+          "category": "account-help",
+          "text": "To reset your Northstar Goods password, open the sign-in page, choose Forgot password, and follow the emailed reset link. Never share your password or reset link."
+        },
+        "contentHash": "69ad7b139f920e72c7eeda7b70b681714506fc1ee72cffaf705e58efa83daa85",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103028,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "source_return_policy_v1",
+        "logicalId": "source:return-policy",
+        "version": 1,
+        "kind": "source",
+        "body": {
+          "title": "Returns policy",
+          "category": "return-policy",
+          "text": "Northstar Goods return policy (synthetic).\nChange-of-mind returns are accepted within 30 days of delivery.\nOriginal packaging and proof of purchase are required."
+        },
+        "contentHash": "d3e9cd43aa1f90d7e01d75ec32f4f14feff3948f91ee7400e20d3c255b007495",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103002,
+        "stage": "seed",
+        "promptVersion": "v1"
+      }
+    ],
+    "sessions": [
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "createdAt": 1792051250310,
+        "label": "Policy analysis"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "createdAt": 1792051250310,
+        "label": "Reply drafting"
+      }
+    ],
+    "agents": [
+      {
+        "id": "agent_policy_analyst",
+        "role": "policy-analyst"
+      },
+      {
+        "id": "agent_reply_writer",
+        "role": "reply-agent"
+      }
+    ],
+    "runs": [
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "type": "build",
+        "status": "succeeded",
+        "baseRevision": 0,
+        "requestHash": "7edac98a4e4743a46e68e8f50e5b1ff529cbf1a4ab15b75c34f626e58f7f4fe3",
+        "createdAt": 1792051250227,
+        "completedAt": 1792051258644,
+        "modelCalls": 4,
+        "origin": "recorded"
+      }
+    ],
+    "steps": [
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "assess-R007",
+        "status": "succeeded",
+        "attempts": 0,
+        "startedAt": 1792051254374,
+        "completedAt": 1792051254466
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "assess-R021",
+        "status": "succeeded",
+        "attempts": 0,
+        "startedAt": 1792051252009,
+        "completedAt": 1792051252066
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "extract-policy",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051250357,
+        "completedAt": 1792051251986,
+        "inputTokens": 196,
+        "outputTokens": 35
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "reply-A001",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051256230,
+        "completedAt": 1792051258567,
+        "inputTokens": 242,
+        "outputTokens": 62
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "reply-R007",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051254499,
+        "completedAt": 1792051256211,
+        "inputTokens": 335,
+        "outputTokens": 46
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "reply-R021",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051252084,
+        "completedAt": 1792051254352,
+        "inputTokens": 335,
+        "outputTokens": 45
+      }
+    ],
+    "changes": [],
+    "reports": [],
+    "edges": [
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "source_return_policy_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "agent_policy_analyst",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "to": "source_return_policy_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "case_R021_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "to": "case_R021_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "source_return_policy_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "case_R021_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "source_return_policy_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "case_R021_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "case_R007_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "to": "case_R007_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "source_return_policy_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "case_R007_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "source_return_policy_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "case_R007_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "source_account_help_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "case_A001_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "to": "source_account_help_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "to": "case_A001_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      }
+    ]
+  },
+  "corrected": {
+    "workspace": {
+      "id": "recorded_northstar",
+      "revision": 1,
+      "createdAt": 1792051102982,
+      "expiresAt": 1792137502725
+    },
+    "artifacts": [
+      {
+        "id": "case_A001_v1",
+        "logicalId": "case:A-001",
+        "version": 1,
+        "kind": "case",
+        "body": {
+          "id": "A-001",
+          "topic": "password-reset",
+          "message": "I forgot my password. How can I regain access?"
+        },
+        "contentHash": "0b15dd13ed6740ca582e858fb756d07d15f3c9a5aecb571f3024a96377566f73",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103130,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "case_R007_v1",
+        "logicalId": "case:R-007",
+        "version": 1,
+        "kind": "case",
+        "body": {
+          "id": "R-007",
+          "daysSinceDelivery": 7,
+          "reason": "change-of-mind return"
+        },
+        "contentHash": "18916c3b8d4f6de0e637170afdbd788d5de997f18d8bd4d5ac507176fad9f003",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103102,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "case_R021_v1",
+        "logicalId": "case:R-021",
+        "version": 1,
+        "kind": "case",
+        "body": {
+          "id": "R-021",
+          "daysSinceDelivery": 21,
+          "reason": "change-of-mind return"
+        },
+        "contentHash": "72294632564b5b41ac087e9a54b7782847fcf3ee9c18f53dea0ac86f7b9f6051",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103077,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "logicalId": "assessment:R007",
+        "version": 1,
+        "kind": "assessment",
+        "body": {
+          "caseArtifactId": "case_R007_v1",
+          "factsArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "decision": "eligible",
+          "explanation": "7 days since delivery; the supported return window is 30 days."
+        },
+        "contentHash": "c33d091e2dbbbe0c02ddfbd1062ea7565ee5738ff3b3b37a333b3e2c5d9e633a",
+        "dependencyHash": "9603acd3ab8987e9b0ba328bdc2cb0a05d7a02d29b92dd3ca7abe908b39b6058",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "case_R007_v1"
+        ],
+        "depth": 2,
+        "status": "stale",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051254443,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "assess-R007",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "logicalId": "assessment:R021",
+        "version": 1,
+        "kind": "assessment",
+        "body": {
+          "caseArtifactId": "case_R021_v1",
+          "factsArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "decision": "eligible",
+          "explanation": "21 days since delivery; the supported return window is 30 days."
+        },
+        "contentHash": "75169725de6750acbb5d550629b37146db4e9bd9c2dab1a3e04985e45f11c922",
+        "dependencyHash": "a0f3821103a60e2bf3c41a6dbeb6ab3492500889a3c133319d3163ba9a8f98d9",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "case_R021_v1"
+        ],
+        "depth": 2,
+        "status": "stale",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051252057,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "assess-R021",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "logicalId": "facts:return-policy",
+        "version": 1,
+        "kind": "policy-facts",
+        "body": {
+          "status": "supported",
+          "returnWindowDays": 30,
+          "sourceArtifactId": "source_return_policy_v1",
+          "evidenceQuote": "Change-of-mind returns are accepted within 30 days of delivery",
+          "evidenceStart": 43,
+          "evidenceEnd": 105
+        },
+        "contentHash": "8fca04eeb122a94d12f28b50d2ebf631004207ba69f4801a0e43efdd1a4225b8",
+        "dependencyHash": "aa43fa5591cf22baaa1b6cb15a0a37344ba24781757bd7a88e76c29c7193a7b0",
+        "inputIds": [
+          "source_return_policy_v1"
+        ],
+        "depth": 1,
+        "status": "stale",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051251977,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "stage": "extract-policy",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "logicalId": "reply:A001",
+        "version": 1,
+        "kind": "reply",
+        "body": {
+          "sourceArtifactId": "source_account_help_v1",
+          "decision": "account-help",
+          "text": "To reset your Northstar Goods password, open the sign-in page, choose Forgot password, and follow the emailed reset link. Never share your password or reset link.",
+          "citations": [
+            "source_account_help_v1"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "1a034ffbda4d28a16ceaa2f805f888c329c30d4025b2c43df0203b4c56a890b9",
+        "dependencyHash": "63bdc7aa8c8c47c9bf8ed5f28992050a4b6fc6de85f97084992f3bd4b3cc1111",
+        "inputIds": [
+          "source_account_help_v1",
+          "case_A001_v1"
+        ],
+        "depth": 1,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051258541,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "reply-A001",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "logicalId": "reply:R007",
+        "version": 1,
+        "kind": "reply",
+        "body": {
+          "assessmentArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+          "decision": "eligible",
+          "text": "Your return request has been approved. Please ensure original packaging and proof of purchase are included.",
+          "citations": [
+            "source_return_policy_v1"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "7407ae25551e9af3d04e89bb5244604f78b21457af24a6c52855ff7c40d3f28a",
+        "dependencyHash": "1b9ea9ac509d08c31da0c8c251a8c9aa477c83046ac096af5308b6e1a3de855e",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+          "case_R007_v1",
+          "source_return_policy_v1"
+        ],
+        "depth": 3,
+        "status": "stale",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051256202,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "reply-R007",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "logicalId": "reply:R021",
+        "version": 1,
+        "kind": "reply",
+        "body": {
+          "assessmentArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+          "decision": "eligible",
+          "text": "Your return request has been approved as it is within the 30-day return window.",
+          "citations": [
+            "source_return_policy_v1"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "714f47a76a89e4125c0ab4467ebce6b1e4e22a7abd7b5a25a37f866de45c5145",
+        "dependencyHash": "47893c89483abec35b0cc8b4d46720906e846df7210a212cbfdf42de0b3d3481",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+          "case_R021_v1",
+          "source_return_policy_v1"
+        ],
+        "depth": 3,
+        "status": "stale",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051254343,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "reply-R021",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "source_account_help_v1",
+        "logicalId": "source:account-help",
+        "version": 1,
+        "kind": "source",
+        "body": {
+          "title": "Account help",
+          "category": "account-help",
+          "text": "To reset your Northstar Goods password, open the sign-in page, choose Forgot password, and follow the emailed reset link. Never share your password or reset link."
+        },
+        "contentHash": "69ad7b139f920e72c7eeda7b70b681714506fc1ee72cffaf705e58efa83daa85",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103028,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "source_return_policy_v1",
+        "logicalId": "source:return-policy",
+        "version": 1,
+        "kind": "source",
+        "body": {
+          "title": "Returns policy",
+          "category": "return-policy",
+          "text": "Northstar Goods return policy (synthetic).\nChange-of-mind returns are accepted within 30 days of delivery.\nOriginal packaging and proof of purchase are required."
+        },
+        "contentHash": "d3e9cd43aa1f90d7e01d75ec32f4f14feff3948f91ee7400e20d3c255b007495",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "superseded",
+        "isCurrent": false,
+        "needsReview": false,
+        "createdAt": 1792051103002,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "source_9982b92cefed4c739454bae2b3cca579",
+        "logicalId": "source:return-policy",
+        "version": 2,
+        "kind": "source",
+        "body": {
+          "title": "Returns policy",
+          "category": "return-policy",
+          "text": "Northstar Goods return policy (synthetic).\nChange-of-mind returns are accepted within 14 days of delivery.\nOriginal packaging and proof of purchase are required."
+        },
+        "contentHash": "63e33c79b951a8c7bfce0e0aabd37c21f6db7c4032aee613a5a3894cdcb72c15",
+        "dependencyHash": "39273efd05cacb2f62b8fbdb267f0aa31c1502b893194b3caee243b0afc81c3b",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051260832,
+        "stage": "operator-correction",
+        "promptVersion": "v1"
+      }
+    ],
+    "sessions": [
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "createdAt": 1792051250310,
+        "label": "Policy analysis"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "createdAt": 1792051250310,
+        "label": "Reply drafting"
+      }
+    ],
+    "agents": [
+      {
+        "id": "agent_policy_analyst",
+        "role": "policy-analyst"
+      },
+      {
+        "id": "agent_reply_writer",
+        "role": "reply-agent"
+      }
+    ],
+    "runs": [
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "type": "build",
+        "status": "succeeded",
+        "baseRevision": 0,
+        "requestHash": "7edac98a4e4743a46e68e8f50e5b1ff529cbf1a4ab15b75c34f626e58f7f4fe3",
+        "createdAt": 1792051250227,
+        "completedAt": 1792051258644,
+        "modelCalls": 4,
+        "origin": "recorded"
+      }
+    ],
+    "steps": [
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "assess-R007",
+        "status": "succeeded",
+        "attempts": 0,
+        "startedAt": 1792051254374,
+        "completedAt": 1792051254466
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "assess-R021",
+        "status": "succeeded",
+        "attempts": 0,
+        "startedAt": 1792051252009,
+        "completedAt": 1792051252066
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "extract-policy",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051250357,
+        "completedAt": 1792051251986,
+        "inputTokens": 196,
+        "outputTokens": 35
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "reply-A001",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051256230,
+        "completedAt": 1792051258567,
+        "inputTokens": 242,
+        "outputTokens": 62
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "reply-R007",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051254499,
+        "completedAt": 1792051256211,
+        "inputTokens": 335,
+        "outputTokens": 46
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "reply-R021",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051252084,
+        "completedAt": 1792051254352,
+        "inputTokens": 335,
+        "outputTokens": 45
+      }
+    ],
+    "changes": [
+      {
+        "id": "change_4d9821695b414f889ee40eaf44671a95",
+        "oldSourceId": "source_return_policy_v1",
+        "newSourceId": "source_9982b92cefed4c739454bae2b3cca579",
+        "reason": "Local acceptance: verified fourteen-day policy.",
+        "createdAt": 1792051260832,
+        "revision": 1
+      }
+    ],
+    "reports": [],
+    "edges": [
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "source_return_policy_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "agent_policy_analyst",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "to": "source_return_policy_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "case_R021_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "to": "case_R021_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "source_return_policy_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "case_R021_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "source_return_policy_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "case_R021_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "case_R007_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "to": "case_R007_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "source_return_policy_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "case_R007_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "source_return_policy_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "case_R007_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "source_account_help_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "case_A001_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "to": "source_account_help_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "to": "case_A001_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "source_9982b92cefed4c739454bae2b3cca579",
+        "to": "source_return_policy_v1",
+        "type": "SUPERSEDES"
+      },
+      {
+        "from": "change_4d9821695b414f889ee40eaf44671a95",
+        "to": "source_return_policy_v1",
+        "type": "REPLACES"
+      },
+      {
+        "from": "change_4d9821695b414f889ee40eaf44671a95",
+        "to": "source_9982b92cefed4c739454bae2b3cca579",
+        "type": "INTRODUCES"
+      }
+    ]
+  },
+  "repaired": {
+    "workspace": {
+      "id": "recorded_northstar",
+      "revision": 1,
+      "createdAt": 1792051102982,
+      "expiresAt": 1792137502725
+    },
+    "artifacts": [
+      {
+        "id": "case_A001_v1",
+        "logicalId": "case:A-001",
+        "version": 1,
+        "kind": "case",
+        "body": {
+          "id": "A-001",
+          "topic": "password-reset",
+          "message": "I forgot my password. How can I regain access?"
+        },
+        "contentHash": "0b15dd13ed6740ca582e858fb756d07d15f3c9a5aecb571f3024a96377566f73",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103130,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "case_R007_v1",
+        "logicalId": "case:R-007",
+        "version": 1,
+        "kind": "case",
+        "body": {
+          "id": "R-007",
+          "daysSinceDelivery": 7,
+          "reason": "change-of-mind return"
+        },
+        "contentHash": "18916c3b8d4f6de0e637170afdbd788d5de997f18d8bd4d5ac507176fad9f003",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103102,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "case_R021_v1",
+        "logicalId": "case:R-021",
+        "version": 1,
+        "kind": "case",
+        "body": {
+          "id": "R-021",
+          "daysSinceDelivery": 21,
+          "reason": "change-of-mind return"
+        },
+        "contentHash": "72294632564b5b41ac087e9a54b7782847fcf3ee9c18f53dea0ac86f7b9f6051",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103077,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+        "logicalId": "facts:return-policy",
+        "version": 2,
+        "kind": "policy-facts",
+        "body": {
+          "status": "supported",
+          "returnWindowDays": 14,
+          "sourceArtifactId": "source_9982b92cefed4c739454bae2b3cca579",
+          "evidenceQuote": "Change-of-mind returns are accepted within 14 days of delivery",
+          "evidenceStart": 43,
+          "evidenceEnd": 105
+        },
+        "contentHash": "fbc9281db74e5fc4dd704e0f95b224a8b47ef9ec7ef13ac4a7b2de2be480fde7",
+        "dependencyHash": "59c68d68c05dd44c5af284d46aef445e9bdff5b40ebd83d7ec7cd67a4354b401",
+        "inputIds": [
+          "source_9982b92cefed4c739454bae2b3cca579"
+        ],
+        "depth": 1,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051263484,
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "stepId": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts",
+        "sessionId": "run_4cf2f886ca77acbc7ad22367f2609f45_analyst",
+        "stage": "repair-0-policy-facts",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment_output",
+        "logicalId": "assessment:R007",
+        "version": 2,
+        "kind": "assessment",
+        "body": {
+          "caseArtifactId": "case_R007_v1",
+          "factsArtifactId": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+          "decision": "eligible",
+          "explanation": "7 days since delivery; the supported return window is 14 days."
+        },
+        "contentHash": "a0ad26b985acdd7b579a60d009ec51b6d920f5477e7d2d2b10fcc87609cf19e7",
+        "dependencyHash": "c83a98855b8654e6f69dcaecbbd2daa696139c6e5faea0faf0c79e76a0df3885",
+        "inputIds": [
+          "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+          "case_R007_v1"
+        ],
+        "depth": 2,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051263588,
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "stepId": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment",
+        "sessionId": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "stage": "repair-1-assessment",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment_output",
+        "logicalId": "assessment:R021",
+        "version": 2,
+        "kind": "assessment",
+        "body": {
+          "caseArtifactId": "case_R021_v1",
+          "factsArtifactId": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+          "decision": "ineligible",
+          "explanation": "21 days since delivery; the supported return window is 14 days."
+        },
+        "contentHash": "5f99042204b06bb7bb61957e6e4b88106665e382dc6e7af1f511efad9221f647",
+        "dependencyHash": "a8612a1af20470763de105aab8c821a2402f99567b765173fb74929b0723ac0a",
+        "inputIds": [
+          "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+          "case_R021_v1"
+        ],
+        "depth": 2,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051263690,
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "stepId": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment",
+        "sessionId": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "stage": "repair-2-assessment",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply_output",
+        "logicalId": "reply:R007",
+        "version": 2,
+        "kind": "reply",
+        "body": {
+          "assessmentArtifactId": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment_output",
+          "decision": "eligible",
+          "text": "Your return request has been approved as it is within the 14-day return window.",
+          "citations": [
+            "source_9982b92cefed4c739454bae2b3cca579"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "0fdadfb2e4849e5f5ff038c4622e726820737fa6fb96c1cb0850112cb26d863f",
+        "dependencyHash": "b96c2f4a0ccb6613f6d5100a10ac9acea2a7264e81d01cd95052a63c50db547f",
+        "inputIds": [
+          "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment_output",
+          "case_R007_v1",
+          "source_9982b92cefed4c739454bae2b3cca579"
+        ],
+        "depth": 3,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051266044,
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "stepId": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply",
+        "sessionId": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "stage": "repair-3-reply",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply_output",
+        "logicalId": "reply:R021",
+        "version": 2,
+        "kind": "reply",
+        "body": {
+          "assessmentArtifactId": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment_output",
+          "decision": "ineligible",
+          "text": "Your return request is ineligible because it has been 21 days since delivery, which exceeds the 14-day return window.",
+          "citations": [
+            "source_9982b92cefed4c739454bae2b3cca579"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "a98b58a06212fba925e2760df278a3d0e50506520f1f3d46ca7b5a891dd454fd",
+        "dependencyHash": "1161613377092f517e945977b2b8136fbae8512cf21d6921ebc52ff72b999952",
+        "inputIds": [
+          "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment_output",
+          "case_R021_v1",
+          "source_9982b92cefed4c739454bae2b3cca579"
+        ],
+        "depth": 3,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051269723,
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "stepId": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply",
+        "sessionId": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "stage": "repair-4-reply",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "logicalId": "assessment:R007",
+        "version": 1,
+        "kind": "assessment",
+        "body": {
+          "caseArtifactId": "case_R007_v1",
+          "factsArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "decision": "eligible",
+          "explanation": "7 days since delivery; the supported return window is 30 days."
+        },
+        "contentHash": "c33d091e2dbbbe0c02ddfbd1062ea7565ee5738ff3b3b37a333b3e2c5d9e633a",
+        "dependencyHash": "9603acd3ab8987e9b0ba328bdc2cb0a05d7a02d29b92dd3ca7abe908b39b6058",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "case_R007_v1"
+        ],
+        "depth": 2,
+        "status": "superseded",
+        "isCurrent": false,
+        "needsReview": false,
+        "createdAt": 1792051254443,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "assess-R007",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "logicalId": "assessment:R021",
+        "version": 1,
+        "kind": "assessment",
+        "body": {
+          "caseArtifactId": "case_R021_v1",
+          "factsArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "decision": "eligible",
+          "explanation": "21 days since delivery; the supported return window is 30 days."
+        },
+        "contentHash": "75169725de6750acbb5d550629b37146db4e9bd9c2dab1a3e04985e45f11c922",
+        "dependencyHash": "a0f3821103a60e2bf3c41a6dbeb6ab3492500889a3c133319d3163ba9a8f98d9",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+          "case_R021_v1"
+        ],
+        "depth": 2,
+        "status": "superseded",
+        "isCurrent": false,
+        "needsReview": false,
+        "createdAt": 1792051252057,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "assess-R021",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "logicalId": "facts:return-policy",
+        "version": 1,
+        "kind": "policy-facts",
+        "body": {
+          "status": "supported",
+          "returnWindowDays": 30,
+          "sourceArtifactId": "source_return_policy_v1",
+          "evidenceQuote": "Change-of-mind returns are accepted within 30 days of delivery",
+          "evidenceStart": 43,
+          "evidenceEnd": 105
+        },
+        "contentHash": "8fca04eeb122a94d12f28b50d2ebf631004207ba69f4801a0e43efdd1a4225b8",
+        "dependencyHash": "aa43fa5591cf22baaa1b6cb15a0a37344ba24781757bd7a88e76c29c7193a7b0",
+        "inputIds": [
+          "source_return_policy_v1"
+        ],
+        "depth": 1,
+        "status": "superseded",
+        "isCurrent": false,
+        "needsReview": false,
+        "createdAt": 1792051251977,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "stage": "extract-policy",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "logicalId": "reply:A001",
+        "version": 1,
+        "kind": "reply",
+        "body": {
+          "sourceArtifactId": "source_account_help_v1",
+          "decision": "account-help",
+          "text": "To reset your Northstar Goods password, open the sign-in page, choose Forgot password, and follow the emailed reset link. Never share your password or reset link.",
+          "citations": [
+            "source_account_help_v1"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "1a034ffbda4d28a16ceaa2f805f888c329c30d4025b2c43df0203b4c56a890b9",
+        "dependencyHash": "63bdc7aa8c8c47c9bf8ed5f28992050a4b6fc6de85f97084992f3bd4b3cc1111",
+        "inputIds": [
+          "source_account_help_v1",
+          "case_A001_v1"
+        ],
+        "depth": 1,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051258541,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "reply-A001",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "logicalId": "reply:R007",
+        "version": 1,
+        "kind": "reply",
+        "body": {
+          "assessmentArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+          "decision": "eligible",
+          "text": "Your return request has been approved. Please ensure original packaging and proof of purchase are included.",
+          "citations": [
+            "source_return_policy_v1"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "7407ae25551e9af3d04e89bb5244604f78b21457af24a6c52855ff7c40d3f28a",
+        "dependencyHash": "1b9ea9ac509d08c31da0c8c251a8c9aa477c83046ac096af5308b6e1a3de855e",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+          "case_R007_v1",
+          "source_return_policy_v1"
+        ],
+        "depth": 3,
+        "status": "superseded",
+        "isCurrent": false,
+        "needsReview": false,
+        "createdAt": 1792051256202,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "reply-R007",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "logicalId": "reply:R021",
+        "version": 1,
+        "kind": "reply",
+        "body": {
+          "assessmentArtifactId": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+          "decision": "eligible",
+          "text": "Your return request has been approved as it is within the 30-day return window.",
+          "citations": [
+            "source_return_policy_v1"
+          ],
+          "reviewRequired": true
+        },
+        "contentHash": "714f47a76a89e4125c0ab4467ebce6b1e4e22a7abd7b5a25a37f866de45c5145",
+        "dependencyHash": "47893c89483abec35b0cc8b4d46720906e846df7210a212cbfdf42de0b3d3481",
+        "inputIds": [
+          "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+          "case_R021_v1",
+          "source_return_policy_v1"
+        ],
+        "depth": 3,
+        "status": "superseded",
+        "isCurrent": false,
+        "needsReview": false,
+        "createdAt": 1792051254343,
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stepId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "sessionId": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "stage": "reply-R021",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "source_9982b92cefed4c739454bae2b3cca579",
+        "logicalId": "source:return-policy",
+        "version": 2,
+        "kind": "source",
+        "body": {
+          "title": "Returns policy",
+          "category": "return-policy",
+          "text": "Northstar Goods return policy (synthetic).\nChange-of-mind returns are accepted within 14 days of delivery.\nOriginal packaging and proof of purchase are required."
+        },
+        "contentHash": "63e33c79b951a8c7bfce0e0aabd37c21f6db7c4032aee613a5a3894cdcb72c15",
+        "dependencyHash": "39273efd05cacb2f62b8fbdb267f0aa31c1502b893194b3caee243b0afc81c3b",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051260832,
+        "stage": "operator-correction",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "source_account_help_v1",
+        "logicalId": "source:account-help",
+        "version": 1,
+        "kind": "source",
+        "body": {
+          "title": "Account help",
+          "category": "account-help",
+          "text": "To reset your Northstar Goods password, open the sign-in page, choose Forgot password, and follow the emailed reset link. Never share your password or reset link."
+        },
+        "contentHash": "69ad7b139f920e72c7eeda7b70b681714506fc1ee72cffaf705e58efa83daa85",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "current",
+        "isCurrent": true,
+        "needsReview": false,
+        "createdAt": 1792051103028,
+        "stage": "seed",
+        "promptVersion": "v1"
+      },
+      {
+        "id": "source_return_policy_v1",
+        "logicalId": "source:return-policy",
+        "version": 1,
+        "kind": "source",
+        "body": {
+          "title": "Returns policy",
+          "category": "return-policy",
+          "text": "Northstar Goods return policy (synthetic).\nChange-of-mind returns are accepted within 30 days of delivery.\nOriginal packaging and proof of purchase are required."
+        },
+        "contentHash": "d3e9cd43aa1f90d7e01d75ec32f4f14feff3948f91ee7400e20d3c255b007495",
+        "dependencyHash": "51b214fd98c18d9cded4690bf4db9e193d1cd55622c9b70e1df289283b6bcb3a",
+        "inputIds": [],
+        "depth": 0,
+        "status": "superseded",
+        "isCurrent": false,
+        "needsReview": false,
+        "createdAt": 1792051103002,
+        "stage": "seed",
+        "promptVersion": "v1"
+      }
+    ],
+    "sessions": [
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_analyst",
+        "createdAt": 1792051261291,
+        "label": "Policy analysis"
+      },
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "createdAt": 1792051261291,
+        "label": "Reply drafting"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "createdAt": 1792051250310,
+        "label": "Policy analysis"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "createdAt": 1792051250310,
+        "label": "Reply drafting"
+      }
+    ],
+    "agents": [
+      {
+        "id": "agent_policy_analyst",
+        "role": "policy-analyst"
+      },
+      {
+        "id": "agent_reply_writer",
+        "role": "reply-agent"
+      }
+    ],
+    "runs": [
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "type": "repair",
+        "status": "succeeded",
+        "baseRevision": 1,
+        "requestHash": "cf315b1dca38b6e9e540598ff336bf8c2f2bafccb5dd9144fd6e347cf359ac79",
+        "createdAt": 1792051261104,
+        "completedAt": 1792051269902,
+        "modelCalls": 3,
+        "sourceArtifactId": "source_return_policy_v1",
+        "origin": "recorded"
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "type": "build",
+        "status": "succeeded",
+        "baseRevision": 0,
+        "requestHash": "7edac98a4e4743a46e68e8f50e5b1ff529cbf1a4ab15b75c34f626e58f7f4fe3",
+        "createdAt": 1792051250227,
+        "completedAt": 1792051258644,
+        "modelCalls": 4,
+        "origin": "recorded"
+      }
+    ],
+    "steps": [
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts",
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "stage": "repair-0-policy-facts",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051261454,
+        "completedAt": 1792051263495,
+        "inputTokens": 210,
+        "outputTokens": 35
+      },
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment",
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "stage": "repair-1-assessment",
+        "status": "succeeded",
+        "attempts": 0,
+        "startedAt": 1792051263517,
+        "completedAt": 1792051263597
+      },
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment",
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "stage": "repair-2-assessment",
+        "status": "succeeded",
+        "attempts": 0,
+        "startedAt": 1792051263616,
+        "completedAt": 1792051263702
+      },
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply",
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "stage": "repair-3-reply",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051263724,
+        "completedAt": 1792051266056,
+        "inputTokens": 352,
+        "outputTokens": 59
+      },
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply",
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "stage": "repair-4-reply",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051266085,
+        "completedAt": 1792051269770,
+        "inputTokens": 356,
+        "outputTokens": 68
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "assess-R007",
+        "status": "succeeded",
+        "attempts": 0,
+        "startedAt": 1792051254374,
+        "completedAt": 1792051254466
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "assess-R021",
+        "status": "succeeded",
+        "attempts": 0,
+        "startedAt": 1792051252009,
+        "completedAt": 1792051252066
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "extract-policy",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051250357,
+        "completedAt": 1792051251986,
+        "inputTokens": 196,
+        "outputTokens": 35
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "reply-A001",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051256230,
+        "completedAt": 1792051258567,
+        "inputTokens": 242,
+        "outputTokens": 62
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "reply-R007",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051254499,
+        "completedAt": 1792051256211,
+        "inputTokens": 335,
+        "outputTokens": 46
+      },
+      {
+        "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "runId": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "stage": "reply-R021",
+        "status": "succeeded",
+        "attempts": 1,
+        "startedAt": 1792051252084,
+        "completedAt": 1792051254352,
+        "inputTokens": 335,
+        "outputTokens": 45
+      }
+    ],
+    "changes": [
+      {
+        "id": "change_4d9821695b414f889ee40eaf44671a95",
+        "oldSourceId": "source_return_policy_v1",
+        "newSourceId": "source_9982b92cefed4c739454bae2b3cca579",
+        "reason": "Local acceptance: verified fourteen-day policy.",
+        "createdAt": 1792051260832,
+        "revision": 1
+      }
+    ],
+    "reports": [
+      {
+        "id": "run_4cf2f886ca77acbc7ad22367f2609f45_report",
+        "runId": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "revision": 1,
+        "createdAt": 1792051269902,
+        "repairedLogicalIds": [
+          "assessment:R007",
+          "assessment:R021",
+          "facts:return-policy",
+          "reply:R007",
+          "reply:R021"
+        ],
+        "preserved": [
+          {
+            "id": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+            "contentHash": "1a034ffbda4d28a16ceaa2f805f888c329c30d4025b2c43df0203b4c56a890b9"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "source_return_policy_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "agent_policy_analyst",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "to": "source_return_policy_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "case_R021_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "to": "case_R021_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "source_return_policy_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "case_R021_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "source_return_policy_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "case_R021_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "case_R007_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "to": "case_R007_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "source_return_policy_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "case_R007_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "source_return_policy_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "case_R007_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "source_account_help_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "case_A001_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "to": "source_account_help_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "to": "case_A001_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-A001_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "source_9982b92cefed4c739454bae2b3cca579",
+        "to": "source_return_policy_v1",
+        "type": "SUPERSEDES"
+      },
+      {
+        "from": "change_4d9821695b414f889ee40eaf44671a95",
+        "to": "source_return_policy_v1",
+        "type": "REPLACES"
+      },
+      {
+        "from": "change_4d9821695b414f889ee40eaf44671a95",
+        "to": "source_9982b92cefed4c739454bae2b3cca579",
+        "type": "INTRODUCES"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply",
+        "type": "HAS_STEP"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts",
+        "to": "agent_policy_analyst",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts",
+        "to": "source_9982b92cefed4c739454bae2b3cca579",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_extract-policy_output",
+        "type": "SUPERSEDES"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+        "to": "source_9982b92cefed4c739454bae2b3cca579",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_analyst",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment",
+        "to": "case_R007_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment_output",
+        "to": "case_R007_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R007_output",
+        "type": "SUPERSEDES"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment_output",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment_output",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment",
+        "to": "case_R021_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment_output",
+        "to": "case_R021_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_assess-R021_output",
+        "type": "SUPERSEDES"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment_output",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment_output",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-0-policy-facts_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply",
+        "to": "case_R007_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply",
+        "to": "source_9982b92cefed4c739454bae2b3cca579",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply_output",
+        "to": "case_R007_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R007_output",
+        "type": "SUPERSEDES"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply_output",
+        "to": "source_9982b92cefed4c739454bae2b3cca579",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply_output",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-3-reply_output",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-1-assessment_output",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply",
+        "to": "case_R021_v1",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply",
+        "to": "agent_reply_writer",
+        "type": "EXECUTED_BY"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply",
+        "to": "source_9982b92cefed4c739454bae2b3cca579",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment_output",
+        "type": "READ"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply_output",
+        "type": "PRODUCED"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply_output",
+        "to": "case_R021_v1",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply_output",
+        "to": "run_9a4f135a59eab7c46b3eac968dfa1218_reply-R021_output",
+        "type": "SUPERSEDES"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply_output",
+        "to": "source_9982b92cefed4c739454bae2b3cca579",
+        "type": "DEPENDS_ON"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply_output",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_reply",
+        "type": "IN_SESSION"
+      },
+      {
+        "from": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-4-reply_output",
+        "to": "run_4cf2f886ca77acbc7ad22367f2609f45_repair-2-assessment_output",
+        "type": "DEPENDS_ON"
+      }
+    ]
+  }
+}

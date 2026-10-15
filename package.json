@@ -13,7 +13,7 @@
     "setup:local": "node scripts/local-setup.mjs",
     "db:up": "docker compose --env-file .dev.vars up --detach --wait",
     "db:stop": "docker compose --env-file .dev.vars stop",
-    "typecheck": "wrangler types && tsc -b && tsc -p tests/tsconfig.json",
+    "typecheck": "wrangler types && tsc -b && tsc -p tests/tsconfig.json && tsc -p tests/e2e/tsconfig.json",
     "test": "npm run test:unit && npm run test:worker && npm run test:graph",
     "test:unit": "vitest run --config vitest.config.ts",
     "test:worker": "vitest run --config vitest.worker.config.ts",
@@ -24,8 +24,13 @@
     "probe:local": "npm run test:graph -- tests/graph.runtime.test.ts"
   },
   "dependencies": {
+    "@dagrejs/dagre": "3.1.1",
+    "@fontsource/ibm-plex-sans": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@xyflow/react": "12.12.0",
     "falkordb": "6.8.0",
     "hono": "4.13.13",
+    "lucide-react": "1.57.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "zod": "4.6.7"

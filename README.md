@@ -2,7 +2,7 @@
 
 UndoGraph repairs an agent's stored context and pending work after an operator corrects a source. FalkorDB records the input dependencies that determine which artifacts become stale and which work must run again.
 
-The proposed first demo is a fictional customer-support workspace. Correct a return window from 30 days to 14 days, inspect affected work from two agent sessions, regenerate pending replies, and verify that an unrelated password-reset reply retains its original version and content.
+The demo is a fictional customer-support workspace. Correct a return window from 30 days to 14 days, inspect affected work from two agent sessions, regenerate pending replies, and verify that an unrelated password-reset reply retains its original version and content.
 
 ## Project documents
 
@@ -13,7 +13,7 @@ Target deployment: a React application and API on Cloudflare Workers, durable ru
 
 ## Current status
 
-The local backend is implemented: immutable graph storage, durable agent builds, source correction, selective repair, stale-release guards, visitor isolation, quotas, reset, expiry cleanup and audit export. The complete local scenario has passed with real Workers AI, including exact preservation of independent work. The operations UI is next. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
+The local application is implemented: the operations workspace, immutable graph storage, durable agent builds, source correction, selective repair, stale-release guards, visitor isolation, quotas, reset, expiry cleanup and audit export. The complete local browser scenario has passed with real Workers AI, including exact preservation of independent work. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
 
 ## Local development
 
@@ -26,9 +26,15 @@ npm run db:up
 npm run dev
 ```
 
+Open <http://127.0.0.1:5173>. Choose **Start live workspace** to create isolated synthetic inputs, then **Build agent work**. The Sources, Sessions, Replies and Repair history views expose the actual persisted records. [UI and browser verification](docs/UI.md) describes the complete flow.
+
+The read-only recorded example is at <http://127.0.0.1:5173/#/recorded/overview>. To explore it without a Cloudflare connection, run `UNDOGRAPH_OFFLINE=1 npm run dev`. Recorded mode stays labeled and sends no mutation requests; it never substitutes for a failed live run.
+
+![Recorded UndoGraph workspace after selective repair](docs/images/workspace.png)
+
 The setup command creates ignored `.dev.vars` with fresh local secrets and preserves it on subsequent runs. FalkorDB is exposed only at `127.0.0.1:16379`; its named Docker volume persists data. `npm run db:stop` stops the container without deleting data.
 
-Live runs use the remote Workers AI binding while the Worker, Workflows and database run locally. Authenticate Wrangler with `npx wrangler login` using your Cloudflare account. Inference attempts are bounded by visitor/hour and global/day quotas. A failed live run stays visibly failed; it never switches to recorded output. The operations UI is still being built. APIs support workspace recovery, build/repair runs, source corrections, artifact impact and internal draft review. Mutation requests require the app's exact Origin and a valid JSON body; runs also require an `Idempotency-Key`.
+Live runs use the remote Workers AI binding while the Worker, Workflows and database run locally. Authenticate Wrangler with `npx wrangler login` using your Cloudflare account. Inference attempts are bounded by visitor/hour and global/day quotas. A failed live run stays visibly failed; it never switches to recorded output. APIs support workspace recovery, build/repair runs, source corrections, artifact impact and internal draft review. Mutation requests require the app's exact Origin and a valid JSON body; runs also require an `Idempotency-Key`.
 
 ```sh
 npm run typecheck
