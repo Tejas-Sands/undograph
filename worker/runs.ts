@@ -41,8 +41,33 @@ export async function prepareRun(env: Env, graphName: string, request: RunReques
   return (await loadRun(env, graphName, id)).run
 }
 
-export async function loadRun(env: Env, graphName: string, runId: string): Promise<RunResult> {
+async function workflowStatus(instance: WorkflowInstance): Promise<InstanceStatus> {
+  try { return await instance.status() }
+  finally { (instance as unknown as { [Symbol.dispose]?: () => void })[Symbol.dispose]?.() }
+}
+
+async function settleTerminalWorkflow(env: Env, graphName: string, run: Run, status: InstanceStatus): Promise<boolean> {
+  if (!['queued', 'running'].includes(run.status) || !['errored', 'terminated', 'complete'].includes(status.status)) return false
+  // Publication and failure recording normally settle the graph before the engine ends.
+  // Definitive engine termination repairs a missed failure write without exposing its error.
+  await failRun(env, graphName, run.id, new DomainError(status.status === 'complete' ? 'WORKFLOW_INCOMPLETE' : 'WORKFLOW_FAILED', 'The Workflow ended before its saved run was settled.'))
+  return true
+}
+
+export async function loadWorkspace(env: Env, graphName: string) {
   const snapshot = await loadSnapshot(env, graphName)
+  const active = snapshot.runs.find((run) => run.id === snapshot.workspace.activeRunId)
+  if (!active || !['queued', 'running'].includes(active.status)) return snapshot
+  const binding = active.type === 'build' ? env.BUILD_WORKFLOW : env.REPAIR_WORKFLOW
+  if (!binding) return snapshot
+  let status: InstanceStatus
+  try { status = await workflowStatus(await binding.get(active.id)) }
+  catch { return snapshot } // Missing/unreachable status is not proof that work ended.
+  return await settleTerminalWorkflow(env, graphName, active, status) ? loadSnapshot(env, graphName) : snapshot
+}
+
+export async function loadRun(env: Env, graphName: string, runId: string): Promise<RunResult> {
+  const snapshot = await loadWorkspace(env, graphName)
   const run = snapshot.runs.find((value) => value.id === runId)
   if (!run) throw new DomainError('NOT_FOUND', 'Run not found.', 404)
   return { run, steps: snapshot.steps.filter((step) => step.runId === runId), ...(snapshot.reports.find((report) => report.runId === runId) ? { report: snapshot.reports.find((report) => report.runId === runId) } : {}) }
@@ -57,8 +82,7 @@ export async function launchRun(env: Env, graphName: string, run: Run, visitorId
     let instance: WorkflowInstance
     try { instance = await binding.create({ id: run.id, params }) }
     catch { instance = await binding.get(run.id) }
-    try { await instance.status() }
-    finally { (instance as unknown as { [Symbol.dispose]?: () => void })[Symbol.dispose]?.() }
+    await settleTerminalWorkflow(env, graphName, run, await workflowStatus(instance))
   } catch {
     throw new DomainError('RUN_LAUNCH_PENDING', 'The run is saved but launch could not be confirmed. Retry using the same request key.', 503)
   }

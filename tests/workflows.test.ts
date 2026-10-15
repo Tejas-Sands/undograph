@@ -3,7 +3,7 @@ import { WorkflowStep } from 'cloudflare:workers'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { withGraph } from '../worker/graph/client'
 import { ensureSchema, initializeWorkspace, loadSnapshot } from '../worker/graph/store'
-import { launchRun, loadRun, prepareRun, promoteBuild } from '../worker/runs'
+import { launchRun, loadRun, loadWorkspace, prepareRun, promoteBuild } from '../worker/runs'
 import { executeBuild } from '../worker/workflows'
 import type { Env, WorkflowParams } from '../worker/env'
 import { syntheticAI } from './helpers/synthetic-ai'
@@ -103,6 +103,35 @@ describe.skipIf(!bindings.FALKORDB_HOST || !bindings.FALKORDB_PASSWORD)('durable
     const instance = await binding.create({ id: run.id, params: { graphName, runId: run.id, baseRevision: 0, visitorId: 'visitor', controlGraph: localEnv.CONTROL_GRAPH } })
     await expect.poll(async () => (await instance.status()).status, { timeout: 30_000 }).toBe('errored')
     expect((await loadRun(localEnv, graphName, run.id)).run).toMatchObject({ status: 'failed', errorCode: 'MODEL_UNAVAILABLE', modelCalls: 1 })
+  })
+  for (const recovery of ['launch', 'workspace', 'run'] as const) it(`reconciles an ended Workflow after failure recording was unavailable through ${recovery}`, async () => {
+    const run = await prepareRun(localEnv, graphName, request, `failure-recording-${recovery}`)
+    const scheduler = { do: async (stage: string, _config: unknown, callback: () => Promise<unknown>) => {
+      if (['extract-policy.read', 'record run failure'].includes(stage)) throw new Error('Database retries exhausted')
+      return callback()
+    } } as unknown as WorkflowStep
+    await expect(executeBuild(localEnv, { graphName, runId: run.id, baseRevision: 0, visitorId: 'visitor' }, scheduler)).rejects.toThrow('Database retries exhausted')
+    expect((await loadSnapshot(localEnv, graphName)).runs[0].status).toBe('running')
+    const binding = {
+      create: async () => { throw new Error('Already exists') },
+      get: async () => ({ status: async () => ({ status: 'errored', error: { name: 'Error', message: 'private provider/database details' } }) }),
+    } as unknown as Workflow<WorkflowParams>
+    const restored = { ...localEnv, BUILD_WORKFLOW: binding }
+    if (recovery === 'launch') await launchRun(restored, graphName, run, 'visitor')
+    else if (recovery === 'workspace') await loadWorkspace(restored, graphName)
+    else await loadRun(restored, graphName, run.id)
+    const snapshot = await loadSnapshot(localEnv, graphName)
+    expect(snapshot.runs[0]).toMatchObject({ status: 'failed', errorCode: 'WORKFLOW_FAILED' })
+    expect(snapshot.workspace.activeRunId).toBeUndefined()
+    expect(JSON.stringify(snapshot)).not.toContain('private provider/database details')
+    expect((await prepareRun(localEnv, graphName, request, `replacement-${recovery}`)).status).toBe('queued')
+  })
+  it('preserves active graph state when Workflow status is unavailable', async () => {
+    const run = await prepareRun(localEnv, graphName, request, 'unknown-workflow-status')
+    const binding = { get: async () => { throw new Error('Status unavailable') } } as unknown as Workflow<WorkflowParams>
+    const restored = { ...localEnv, BUILD_WORKFLOW: binding }
+    expect((await loadWorkspace(restored, graphName)).workspace.activeRunId).toBe(run.id)
+    expect((await loadRun(restored, graphName, run.id)).run.status).toBe('queued')
   })
   it('retains provider usage for rejected structured output', async () => {
     const run = await prepareRun(localEnv, graphName, request, 'invalid-usage')

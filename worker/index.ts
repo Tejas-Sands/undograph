@@ -8,7 +8,7 @@ import { DatabaseUnavailable, withGraph } from './graph/client'
 import { ensureSchema, findImpact, initializeWorkspace, loadSnapshot, queryGraph } from './graph/store'
 import { readJson, rotateWorkspace, visitorIdentity } from './identity'
 import { cleanupExpiredWorkspaces, controlGraph, registerWorkspace } from './limits'
-import { launchRun, loadRun, prepareRun } from './runs'
+import { launchRun, loadRun, loadWorkspace, prepareRun } from './runs'
 import { commitCorrection, releaseDraft } from './repair'
 
 export { BuildWorkflow, RepairWorkflow } from './workflows'
@@ -49,7 +49,7 @@ app.post('/api/workspace', async (context) => {
 
 app.get('/api/workspace', async (context) => {
   const visitor = await visitorIdentity(context.req.raw, context.env)
-  return context.json(await loadSnapshot(context.env, visitor.graphName))
+  return context.json(await loadWorkspace(context.env, visitor.graphName))
 })
 
 app.delete('/api/workspace', async (context) => {

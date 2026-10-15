@@ -187,4 +187,15 @@ describe.skipIf(!(env as unknown as Env).FALKORDB_HOST || !(env as unknown as En
     await failRun(local, visitor.graphName, run.id, new Error('test failure'))
     expect((await request('/api/workspace', 'DELETE', { confirmation: 'DELETE' }, first.cookie)).status).toBe(200)
   })
+  for (const status of ['errored', 'terminated', 'complete'] as const) it(`recovers the owned polling snapshot when a Workflow is ${status}`, async () => {
+    const first = await workspace()
+    const visitor = await visitorIdentity(new Request('http://localhost', { headers: { Cookie: first.cookie } }), local)
+    await prepareRun(local, visitor.graphName, { kind: 'build', expectedRevision: 0 }, `terminal-poll-${status}`)
+    local.BUILD_WORKFLOW = { get: async () => ({ status: async () => ({ status }) }) } as unknown as Env['BUILD_WORKFLOW']
+    const response = await request('/api/workspace', 'GET', undefined, first.cookie)
+    expect(response.status).toBe(200)
+    const snapshot = workspaceSnapshotSchema.parse(await response.json())
+    expect(snapshot.workspace.activeRunId).toBeUndefined()
+    expect(snapshot.runs[0]).toMatchObject({ status: 'failed', errorCode: status === 'complete' ? 'WORKFLOW_INCOMPLETE' : 'WORKFLOW_FAILED' })
+  })
 })
