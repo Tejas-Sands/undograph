@@ -43,7 +43,7 @@ function CorrectionExample() {
           <FileText size={18} aria-hidden="true" />
           <div><span>SOURCE · {corrected ? 'v2' : 'v1'}</span><strong>Returns policy</strong></div>
           <div className="lp-source-value">
-            {corrected && <s aria-label="Previously 30 days">30</s>}
+            {corrected && <><s aria-hidden="true">30</s><span className="sr-only">Previously 30 days. Now </span></>}
             <strong>{corrected ? '14' : '30'} days</strong>
           </div>
         </div>
