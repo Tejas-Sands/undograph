@@ -22,7 +22,7 @@ The initial running-server check failed with `TypeError: e.BigInt is not a funct
 
 ## Gates that remain
 
-Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. The operations UI and local browser acceptance now pass; repeatable smoke tooling, final packaging and whole-branch review remain.
+Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. The operations UI, local browser acceptance and repeatable full smoke now pass. Cloud verification remains separate from these local results.
 
 Readiness verifies operational application constraints and indexes alongside a database query. No in-memory application database or silent inference fallback is used.
 
@@ -40,7 +40,7 @@ Each model result and provider usage are checkpointed separately from database p
 
 Model generation uses temperature zero, 600 output tokens, one structured-output correction, and at most one transient Workflow retry after three seconds with a sixty-second attempt timeout. Authorization, validation and quota failures are fatal. Unknown token measurements remain absent. Live failure has no recorded-data fallback.
 
-Signed visitor cookies and inference quota reservations were brought forward from the isolation milestone because live APIs need bounded, owned execution immediately. Native graph mutations enforce limits of 24 attempts per visitor hour, 400 globally per UTC day, and 100 workspace allocations per day. Full cleanup, reset and export remain later work.
+Signed visitor cookies and inference quota reservations were brought forward from the isolation milestone because live APIs need bounded, owned execution immediately. Native graph mutations enforce limits of 24 attempts per visitor hour, 400 globally per UTC day, and 100 workspace allocations per day. Cleanup, reset and export were completed in the visitor-lifecycle milestone.
 
 ## Source correction and selective repair
 
@@ -63,3 +63,12 @@ The UI uses native CSS and semantic controls with the approved fonts and palette
 API reads deduplicate ordinary refreshes. After a mutation, a new read queues behind any existing read, preventing an older response from hiding the accepted source revision. Active runs poll every two seconds while visible, stop at terminal state and recover on focus/reload. Locally stored request keys are validated recovery hints; graph records remain canonical.
 
 The read-only walkthrough is a separate, explicitly labeled mode using curated captured records. Offline remote-binding configuration supports that mode and CI without supplying a fake live provider. Asset origins and licenses are documented in ASSETS.md.
+
+
+## Repeatable smoke and cleanup
+
+The smoke script uses fresh in-memory cookie jars and validates actual builds, reloads, duplicate requests, correction conflicts, dependency paths, stale review refusal, selective repair, preservation, export and foreign-visitor refusal. The optional benchmark performs a new full build on matching corrected source/case content; absent usage remains unavailable.
+
+An owned `DELETE /api/workspace` operation closes and deletes only the authenticated terminal workspace. It requires explicit confirmation and refuses active or concurrently changed work. Reopening a closed or removed registration rotates the signed generation, preventing old Workflow IDs from being reused if a deletion response was lost. Reading a removed graph returns 404 so the client can offer recovery.
+
+CI uses its own local authenticated database and offline browser execution. It does not provision a cloud service or claim to exercise real Workers AI. Public hosting, a three-minute recording and submission remain separate operator work; the demo guide prepares that walkthrough.

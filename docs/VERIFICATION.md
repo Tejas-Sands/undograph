@@ -1,5 +1,7 @@
 # Verification record
 
+Final local status: 102 backend tests pass without skips; all nine browser tests passed with real Workers AI. The offline CI-equivalent browser run passes eight and explicitly skips live inference. The sections below record successive milestones; earlier pending items describe their state at that milestone. Cloud deployment and TLS certificate-refusal proof remain unverified.
+
 ## Local runtime — October 15, 2026
 
 Environment: Node.js 24.17.0, npm 11.13.0, Docker 29.8.2, Wrangler 4.151.0, Vite 8.3.4, official FalkorDB client 6.8.0, Vitest 4.1.11 and Cloudflare Vitest plugin 1.4.2. The database image is pinned by digest in `compose.yaml`.
@@ -70,3 +72,24 @@ Four browser regressions were observed failing before fixes: a delayed older rea
 Agent-browser/axe 4.12.1 initially found three contrast failures. Those and unsupported label roles were corrected; checked final desktop, mobile and live-source views report zero violations. A transformed-canvas contrast check remains classified incomplete by the tool, so visual review and the equivalent keyboard input list complement the automated result. Reduced-motion emulation reports zero-duration transitions. No application runtime errors were observed in the successful browser flows.
 
 Type checking, lint and the production build pass. The graph renderer and recorded fixture load in separate chunks; fonts are self-hosted with license notices. Browser and recorded-fixture scans find no local database password or session secret. Public cloud hosting and TLS checks remain deferred by the local-first scope.
+
+
+## Repeatable complete smoke and fair comparison — October 15, 2026
+
+The final backend run passes 102 tests without skips: 43 unit, 4 Worker and 55 real graph/API/Workflow tests. Type checking, lint and the production build pass. The offline browser path passes eight tests and explicitly skips its one real-inference case. The earlier live browser run passed all nine.
+
+Cleanup tests were observed failing before the owned deletion route existed, then passed. A further regression first returned 500 for an old cookie reading its deleted graph; it now returns 404 and can recover a fresh signed generation. Deletion refuses active work, requires confirmation, preserves another visitor's complete snapshot and cannot reset the visitor quota identity.
+
+The full `cloud-smoke.mjs --base-url http://127.0.0.1:5173 --benchmark` scenario passed using real Workers AI, local Workflows and the local FalkorDB container. It verified all five affected/repaired artifacts, a multi-hop dependency path, duplicate request recovery, reload persistence, competing correction 409, stale review 409, new source citations, eligibility changes, current internal review, safe export and foreign run 404. All script-owned terminal workspace graphs were deleted afterward.
+
+| Observed operation | Model calls | Persisted duration | Input tokens | Output tokens |
+| --- | ---: | ---: | ---: | ---: |
+| Initial 30-day build | 4 | 9.421 s | 1,088 | 187 |
+| Selective 14-day repair | 3 | 8.899 s | 921 | 174 |
+| Fresh build on the same corrected policy/cases | 4 | 9.458 s | 1,145 | 226 |
+
+Run IDs: initial `run_74469733166c929acce6874e663e25bb`; repair `run_ebf3149b8a627d6160faa904a68832c3`; corrected-fixture build `run_5913a439d3c7036171530f43e7277289`. The comparison asserts identical corrected source content hash and all case hashes. This is one observation, not a statistical performance claim. An earlier repair was slower than its original build, as recorded above.
+
+The independent reply retained its complete artifact record, including ID `run_74469733166c929acce6874e663e25bb_reply-A001_output` and SHA-256 `1a034ffbda4d28a16ceaa2f805f888c329c30d4025b2c43df0203b4c56a890b9`. ID/hash preservation is separate from elapsed-time comparison. Provider usage was returned for these runs; unknown usage is reported as unavailable elsewhere, never filled in as zero.
+
+The smoke script now defaults to this actual agent scenario; its `--probe` option supplies the liveness/readiness/document-only behavior used in earlier foundation checks. Public cloud deployment, invalid-certificate refusal against a real TLS endpoint, a completed video and event submission are not claimed by these results.

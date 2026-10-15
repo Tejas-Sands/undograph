@@ -29,3 +29,21 @@ The persisted repair plan contains exact old artifact IDs, source replacements a
 `releaseDraft` marks internal review state only. Its graph mutation verifies the expected revision, current reply, review flags and every recorded ancestor up to the validated depth bound. Any stale or superseded evidence blocks release with 409. It never sends a customer message.
 
 `session-queries.ts` contains the bounded work-session mutation, quota-availability read and expiry registry queries. Atomic reservation increments visitor-hour and global-day counters together; workspace allocation increments a separate global-day counter only for a new registered graph. Reset closes the previous workspace and invalidates its active run, then future requests use a newly signed generation. Cleanup never enumerates and deletes arbitrary database graphs; only expired, registry-confirmed visitor names are eligible.
+
+
+The smoke-only cleanup operation requires the owning signed visitor cookie and an explicit `DELETE` confirmation. It guards the workspace revision and absence of an active run, expires that registration, deletes only the derived graph and clears the cookie. Reopening a missing/closed registration rotates generation while retaining visitor quota identity.
+
+## Central impact query
+
+This is the bounded traversal in the fixed query registry; preceding clauses verify workspace revision and audited artifact count. `$sourceId` is a validated artifact version ID, never query text.
+
+```cypher
+MATCH (source:Artifact {id: $sourceId})
+OPTIONAL MATCH p=(derived:Artifact)-[:DEPENDS_ON*1..12]->(source)
+WHERE derived.isCurrent = true OR derived.status = 'released'
+RETURN w.revision AS revision, properties(derived) AS artifact,
+  CASE WHEN p IS NULL THEN [] ELSE [node IN nodes(p) | node.id] END AS path
+LIMIT 1025
+```
+
+The extra path detects overflow above 1,024 explanations. Domain validation rejects incomplete lineage before correction, planning or internal review. See `worker/graph/repair-queries.ts` for the guarded correction and atomic promotion queries.
