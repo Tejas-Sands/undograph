@@ -6,7 +6,7 @@ test('landing illustration stays local and opens the recorded and live workspace
     if (new URL(request.url()).pathname.startsWith('/api/')) apiRequests.push(request.url())
   })
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Context changes.Keep the right work.')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/Agent memory\.\s*With a way back\./)
   await expect(page.getByText('Interactive illustration · Synthetic example')).toBeVisible()
   const example = page.getByRole('region', { name: 'Interactive correction example' })
   await expect(example.getByText('30 days', { exact: true })).toBeVisible()
@@ -25,22 +25,32 @@ test('landing illustration stays local and opens the recorded and live workspace
   await expect(page.getByTestId('current-output-count')).toHaveText('6')
   expect(apiRequests).toEqual([])
   await page.getByRole('link', { name: 'UndoGraph home', exact: true }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Context changes.')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Agent memory.')
   await page.getByRole('link', { name: 'Open workspace', exact: true }).click()
   await expect(page).toHaveURL(/#\/overview$/)
   await expect(page.getByRole('button', { name: 'Start live workspace', exact: true })).toBeVisible()
 })
 
-for (const width of [375, 768, 1024, 1440]) {
+for (const width of [320, 375, 768, 1024, 1440]) {
   test(`landing fits ${width}px with reduced motion`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 1000 })
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto('/')
     await page.evaluate(() => document.fonts.ready)
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Context changes.')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Agent memory.')
     await expect(page.getByRole('link', { name: 'Explore the demo', exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Open workspace', exact: true })).toBeVisible()
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    const example = page.getByRole('region', { name: 'Interactive correction example' })
+    for (const name of ['1. Original', '2. Correct', '3. Repair']) {
+      const stage = example.getByRole('button', { name })
+      await stage.click()
+      await expect(stage).toHaveAttribute('aria-pressed', 'true')
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      const clippedLabels = await example.locator('.lp-node-label, .lp-flow-node > strong, .lp-source-value').evaluateAll(
+        (labels) => labels.filter((label) => label.scrollWidth > label.clientWidth + 1).map((label) => label.textContent),
+      )
+      expect(clippedLabels).toEqual([])
+    }
     await page.screenshot({ path: testInfo.outputPath(`landing-${width}.png`), fullPage: true })
   })
 }
