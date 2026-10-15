@@ -22,7 +22,7 @@ The initial running-server check failed with `TypeError: e.BigInt is not a funct
 
 ## Gates that remain
 
-Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. The full application also needs repair, full isolation and browser acceptance checks before it can be presented as working.
+Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. Reset, expiry cleanup, audit export and browser acceptance remain before the local application is complete.
 
 Readiness verifies operational application constraints and indexes alongside a database query. No in-memory application database or silent inference fallback is used.
 
@@ -41,3 +41,9 @@ Each model result and provider usage are checkpointed separately from database p
 Model generation uses temperature zero, 600 output tokens, one structured-output correction, and at most one transient Workflow retry after three seconds with a sixty-second attempt timeout. Authorization, validation and quota failures are fatal. Unknown token measurements remain absent. Live failure has no recorded-data fallback.
 
 Signed visitor cookies and inference quota reservations were brought forward from the isolation milestone because live APIs need bounded, owned execution immediately. Native graph mutations enforce limits of 24 attempts per visitor hour, 400 globally per UTC day, and 100 workspace allocations per day. Full cleanup, reset and export remain later work.
+
+## Source correction and selective repair
+
+A correction versions only the synthetic return-window field and requires an operator reason. It atomically invalidates pending descendants, flags released history and makes an active older run obsolete. A repair persists its graph-derived plan and stages replacements with exact version mapping. Final promotion verifies the complete set, source revision and preserved ID/hash pairs. Consecutive corrections still repair all earlier pending stale work. Released historical replies require review and are not regenerated as external actions.
+
+A real inference response exposed an overly strict punctuation check: a supporting quotation contained the complete numerical statement without its terminal period. The validator now accepts that exact substring while retaining exact offsets, the complete statement, unique source evidence and the matching numerical window. Regression checks still reject fabricated or unsupported quotations. Returned usage from rejected structured responses is checkpointed and saved separately before the run is marked failed.

@@ -1,7 +1,7 @@
 import { runRequestSchema, type Artifact, type ArtifactWrite, type Run, type RunRequest, type RunResult } from '../shared/contracts'
-import { DomainError, hashCanonical, validateLineage } from './domain'
+import { DomainError, hashCanonical, planRepair, validateLineage } from './domain'
 import type { Env } from './env'
-import { loadSnapshot, queryGraph, recordArtifact } from './graph/store'
+import { findImpact, loadSnapshot, queryGraph, recordArtifact } from './graph/store'
 import { reserveInference } from './limits'
 import type { Usage } from './agents'
 
@@ -22,8 +22,15 @@ export async function prepareRun(env: Env, graphName: string, request: RunReques
   if (input.kind === 'build' && snapshot.artifacts.some((artifact) => artifact.isCurrent && !['source', 'case'].includes(artifact.kind))) {
     throw new DomainError('ALREADY_BUILT', 'This workspace already contains generated work. Correct a source and repair it, or reset the workspace.')
   }
-  if (input.kind === 'repair') throw new DomainError('REPAIR_UNAVAILABLE', 'Repair execution is not implemented yet.', 409)
-  const rows = await queryGraph(env, graphName, 'prepareRun', { id, type: input.kind, revision: input.expectedRevision, requestHash, now: Date.now(), sourceArtifactId: input.sourceArtifactId ?? null })
+  const sourceArtifactId = input.sourceArtifactId ?? [...snapshot.changes].sort((a, b) => b.revision - a.revision)[0]?.oldSourceId
+  let planJson: string | null = null
+  if (input.kind === 'repair') {
+    if (!sourceArtifactId || !snapshot.artifacts.some((a) => a.id === sourceArtifactId && a.kind === 'source')) throw new DomainError('NOT_FOUND', 'A corrected source version is required for repair.', 404)
+    const plan = planRepair(snapshot, await findImpact(env, graphName, sourceArtifactId))
+    if (!plan.artifactIds.length) throw new DomainError('NO_REPAIR_NEEDED', 'There is no stale pending work to repair.')
+    planJson = JSON.stringify(plan)
+  }
+  const rows = await queryGraph(env, graphName, 'prepareRun', { id, type: input.kind, revision: input.expectedRevision, requestHash, now: Date.now(), sourceArtifactId: input.kind === 'repair' ? sourceArtifactId! : null, planJson })
   if (!rows.length) {
     const concurrent = (await loadSnapshot(env, graphName)).runs.find((run) => run.id === id)
     if (concurrent?.requestHash === requestHash) return concurrent

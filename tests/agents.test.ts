@@ -47,6 +47,10 @@ describe('bounded policy interpretation', () => {
     const { env, beforeCall } = provider([{ status: 'needs-review', reason: 'Conflicting policy statements.' }])
     expect((await extractPolicy(env, source, beforeCall)).value).toEqual({ status: 'needs-review', reason: 'Conflicting policy statements.', sourceArtifactId: source.id })
   })
+  it('accepts the complete supporting statement quoted without its terminal period', async () => {
+    const { env, beforeCall } = provider([{ ...valid, evidenceQuote: text.slice(0, -1) }])
+    expect((await extractPolicy(env, source, beforeCall)).value).toMatchObject({ status: 'supported', returnWindowDays: 30, evidenceQuote: text.slice(0, -1), evidenceStart: 0, evidenceEnd: text.length - 1 })
+  })
   it('makes provider failure visible without a recorded fallback', async () => {
     const { env, run, beforeCall } = provider([Object.assign(new Error('private provider details'), { status: 503 })])
     await expect(extractPolicy(env, source, beforeCall)).rejects.toMatchObject({ code: 'MODEL_UNAVAILABLE', retryable: true })

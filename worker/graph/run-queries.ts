@@ -2,7 +2,7 @@ export const runQueries = {
   prepareRun: `MATCH (w:Workspace) WHERE w.revision = $revision AND w.activeRunId IS NULL
     MERGE (r:Run {id: $id}) ON CREATE SET r.type = $type, r.status = 'queued',
       r.baseRevision = $revision, r.requestHash = $requestHash, r.createdAt = $now,
-      r.modelCalls = 0, r.origin = 'live', r.sourceArtifactId = $sourceArtifactId
+      r.modelCalls = 0, r.origin = 'live', r.sourceArtifactId = $sourceArtifactId, r.planJson = $planJson
     SET w.activeRunId = r.id RETURN r.id AS id`,
   beginRun: `MATCH (w:Workspace), (r:Run {id: $id})
     WHERE w.revision = r.baseRevision AND w.activeRunId = r.id AND r.status IN ['queued', 'running']
@@ -31,6 +31,7 @@ export const runQueries = {
     WHERE s.runId = a.runId SET s.status = 'succeeded', s.completedAt = $now,
       s.inputTokens = $inputTokens, s.outputTokens = $outputTokens
     MERGE (s)-[:PRODUCED]->(a) MERGE (a)-[:IN_SESSION]->(session) RETURN s.id AS id`,
+  recordUsage: `MATCH (s:Step {id: $stepId}) SET s.inputTokens = $inputTokens, s.outputTokens = $outputTokens RETURN s.id AS id`,
   promoteRun: `MATCH (w:Workspace), (r:Run {id: $runId})
     WHERE w.revision = $revision AND r.baseRevision = $revision AND w.activeRunId = r.id AND r.status = 'running'
     MATCH (candidate:Artifact) WHERE candidate.runId = r.id AND candidate.status = 'candidate'

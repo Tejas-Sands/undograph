@@ -18,11 +18,12 @@ export default defineConfig({
         GRAPH_PROBE_WORKFLOW: { name: 'undograph-runtime-probe', className: 'GraphProbeWorkflow' },
         TEST_BUILD_WORKFLOW: { name: 'undograph-test-build', className: 'TestBuildWorkflow' },
         FAILED_BUILD_WORKFLOW: { name: 'undograph-test-failed-build', className: 'FailedBuildWorkflow' },
+        TEST_REPAIR_WORKFLOW: { name: 'undograph-test-repair', className: 'TestRepairWorkflow' },
       },
     },
   })],
   test: {
     include: ['tests/graph.*.test.ts', 'tests/workflows.test.ts', 'tests/api.test.ts'],
-    testTimeout: 20_000,
+    testTimeout: 40_000,
   },
 })

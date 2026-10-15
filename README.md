@@ -13,7 +13,7 @@ Target deployment: a React application and API on Cloudflare Workers, durable ru
 
 ## Current status
 
-The local Cloudflare runtime, immutable artifact store, evidence validation, dependency traversal, deterministic repair planner, and durable support-agent builds are implemented. A real local build has completed using Workers AI. Correction and repair workflows and the operations workspace are next. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
+The local runtime, immutable graph store, durable agent builds, source correction, selective repair and stale-release guards are implemented. The complete local scenario has passed with real Workers AI, including exact preservation of independent work. Workspace reset/cleanup/export and the operations UI are next. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
 
 ## Local development
 
@@ -28,7 +28,7 @@ npm run dev
 
 The setup command creates ignored `.dev.vars` with fresh local secrets and preserves it on subsequent runs. FalkorDB is exposed only at `127.0.0.1:16379`; its named Docker volume persists data. `npm run db:stop` stops the container without deleting data.
 
-Live agent builds use the remote Workers AI binding while the Worker, Workflows and database run locally. Authenticate Wrangler with `npx wrangler login` using your Cloudflare account. Inference attempts are bounded by visitor/hour and global/day quotas. A failed live run stays visibly failed; it never switches to recorded output. The operations UI is still being built; current build endpoints are `POST /api/workspace`, `GET /api/workspace`, `POST /api/runs` and `GET /api/runs/:id`. Mutation requests require the app's exact Origin, a valid JSON body, and the run endpoint requires an `Idempotency-Key`.
+Live runs use the remote Workers AI binding while the Worker, Workflows and database run locally. Authenticate Wrangler with `npx wrangler login` using your Cloudflare account. Inference attempts are bounded by visitor/hour and global/day quotas. A failed live run stays visibly failed; it never switches to recorded output. The operations UI is still being built. APIs support workspace recovery, build/repair runs, source corrections, artifact impact and internal draft review. Mutation requests require the app's exact Origin and a valid JSON body; runs also require an `Idempotency-Key`.
 
 ```sh
 npm run typecheck

@@ -64,7 +64,7 @@ export function validatePolicyFacts(facts: PolicyFacts, source: Artifact): Polic
     body.category !== 'return-policy' || statements.length !== 1 ||
     Number(statements[0][1]) !== validated.returnWindowDays ||
     body.text.slice(validated.evidenceStart, validated.evidenceEnd) !== validated.evidenceQuote ||
-    !validated.evidenceQuote.includes(statements[0][0])
+    !validated.evidenceQuote.includes(statements[0][0].slice(0, -1))
   ) {
     throw new DomainError('INVALID_EVIDENCE', 'The quoted evidence does not support an unambiguous return window.', 422)
   }

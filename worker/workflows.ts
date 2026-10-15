@@ -1,11 +1,12 @@
 import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep, type WorkflowStepConfig } from 'cloudflare:workers'
 import { NonRetryableError } from 'cloudflare:workflows'
 import { assessmentSchema, jsonSchema, policyFactsSchema, returnCaseSchema, type Artifact } from '../shared/contracts'
-import { draftReply, extractPolicy, ModelUnavailable, type ModelResult } from './agents'
-import { assessReturn, DomainError } from './domain'
+import { draftReply, extractPolicy, InvalidModelOutput, ModelUnavailable, type ModelResult } from './agents'
+import { assessReturn, DomainError, validateLineage } from './domain'
 import type { Env, WorkflowParams } from './env'
-import { loadSnapshot } from './graph/store'
+import { loadSnapshot, queryGraph } from './graph/store'
 import { beginRun, failRun, logAttempt, openStep, promoteBuild, saveOutput } from './runs'
+import { loadRepairPlan, promoteRepair } from './repair'
 
 const databaseStep = { retries: { limit: 2, delay: '1 second' as const }, timeout: '30 seconds' as const }
 const modelStep = { retries: { limit: 1, delay: '3 seconds' as const }, timeout: '60 seconds' as const }
@@ -26,6 +27,46 @@ async function nonRetryable<T>(work: () => Promise<T>): Promise<T> {
   }
 }
 
+function outputRunner(env: Env, params: WorkflowParams, step: WorkflowStep) {
+  const { graphName, runId, baseRevision } = params
+  return async (stage: string, logicalId: string, kind: Artifact['kind'], inputIds: string[], inference: ((inputs: Artifact[]) => Promise<ModelResult<unknown>>) | undefined, deterministic?: (inputs: Artifact[]) => unknown, supersedesId?: string) => {
+    const analyst = kind === 'policy-facts'
+    const inputs = await checkpoint(step, `${stage}.read`, databaseStep, () => nonRetryable(() => openStep(env, graphName, runId, stage, inputIds, analyst)))
+    const generated = inference
+      ? await checkpoint(step, `${stage}.model`, modelStep, () => nonRetryable(async () => {
+        try {
+          const result = await inference(inputs)
+          return { valid: true as const, value: jsonSchema.parse(result.value), usage: result.usage }
+        } catch (error) {
+          if (error instanceof InvalidModelOutput) return { valid: false as const, usage: error.usage }
+          throw error
+        }
+      }))
+      : { valid: true as const, value: jsonSchema.parse(deterministic!(inputs)), usage: {} }
+    if (!generated.valid) {
+      await step.do(`${stage}.usage`, databaseStep, async () => {
+        await queryGraph(env, graphName, 'recordUsage', { stepId: `${runId}_${stage}`, inputTokens: generated.usage.inputTokens ?? null, outputTokens: generated.usage.outputTokens ?? null })
+        return stage
+      })
+      throw new InvalidModelOutput(generated.usage)
+    }
+    return checkpoint(step, `${stage}.save`, databaseStep, () => nonRetryable(() => saveOutput(env, graphName, {
+      id: `${runId}_${stage}_output`, logicalId, kind, body: generated.value, inputIds, expectedRevision: baseRevision,
+      status: 'candidate', stage, promptVersion: 'v1', runId, stepId: `${runId}_${stage}`,
+      sessionId: `${runId}_${analyst ? 'analyst' : 'reply'}`, ...(supersedesId ? { supersedesId } : {}),
+    }, generated.usage)))
+  }
+}
+
+async function recordFailure(env: Env, params: WorkflowParams, step: WorkflowStep, error: unknown) {
+  await step.do('record run failure', databaseStep, async () => {
+    // Workflow RPC preserves message text; keep the required NonRetryableError name intact.
+    const code = error instanceof Error ? error.message.match(/(?:^|NonRetryableError: )([A-Z][A-Z_]{1,79}): /)?.[1] : undefined
+    await failRun(env, params.graphName, params.runId, error instanceof DomainError ? error : new DomainError(code ?? 'RUN_FAILED', 'The run failed.'))
+    return params.runId
+  })
+}
+
 export async function executeBuild(env: Env, params: WorkflowParams, step: WorkflowStep): Promise<string> {
   const { graphName, runId, baseRevision, visitorId } = params
   try {
@@ -38,21 +79,7 @@ export async function executeBuild(env: Env, params: WorkflowParams, step: Workf
       if (!artifact) throw new DomainError('NOT_FOUND', 'Required synthetic input is missing.', 404)
       return artifact
     }
-    async function output(stage: string, logicalId: string, kind: Artifact['kind'], inputIds: string[], inference: ((inputs: Artifact[]) => Promise<ModelResult<unknown>>) | undefined, deterministic?: (inputs: Artifact[]) => unknown) {
-      const analyst = stage === 'extract-policy'
-      const inputs = await checkpoint(step, `${stage}.read`, databaseStep, () => nonRetryable(() => openStep(env, graphName, runId, stage, inputIds, analyst)))
-      const generated = inference
-        ? await checkpoint(step, `${stage}.model`, modelStep, () => nonRetryable(async () => {
-          const result = await inference(inputs)
-          return { value: jsonSchema.parse(result.value), usage: result.usage }
-        }))
-        : { value: jsonSchema.parse(deterministic!(inputs)), usage: {} }
-      return checkpoint(step, `${stage}.save`, databaseStep, () => nonRetryable(() => saveOutput(env, graphName, {
-        id: `${runId}_${stage}_output`, logicalId, kind, body: generated.value, inputIds, expectedRevision: baseRevision,
-        status: 'candidate', stage, promptVersion: 'v1', runId, stepId: `${runId}_${stage}`,
-        sessionId: `${runId}_${analyst ? 'analyst' : 'reply'}`,
-      }, generated.usage)))
-    }
+    const output = outputRunner(env, params, step)
     const policy = root('source:return-policy')
     const facts = await output('extract-policy', 'facts:return-policy', 'policy-facts', [policy.id],
       (inputs) => extractPolicy(env, inputs[0], () => logAttempt(env, graphName, visitorId, runId, 'extract-policy')))
@@ -71,16 +98,49 @@ export async function executeBuild(env: Env, params: WorkflowParams, step: Workf
     await step.do('publish build', databaseStep, () => nonRetryable(async () => { await promoteBuild(env, graphName, runId, baseRevision); return runId }))
     return runId
   } catch (error) {
-    await step.do('record build failure', databaseStep, async () => {
-      // Workflow RPC preserves message text; keep the required NonRetryableError name intact.
-      const code = error instanceof Error ? error.message.match(/(?:^|NonRetryableError: )([A-Z][A-Z_]{1,79}): /)?.[1] : undefined
-      const domain = error instanceof DomainError ? error : new DomainError(code ?? 'RUN_FAILED', 'The run failed.')
-      await failRun(env, graphName, runId, domain)
-      return runId
-    })
+    await recordFailure(env, params, step, error)
     throw error
   }
 }
 export class BuildWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
   async run(event: WorkflowEvent<WorkflowParams>, step: WorkflowStep) { return executeBuild(this.env, event.payload, step) }
+}
+export async function executeRepair(env: Env, params: WorkflowParams, step: WorkflowStep): Promise<string> {
+  const { graphName, runId, baseRevision, visitorId } = params
+  try {
+    const { plan, artifacts } = await checkpoint(step, 'begin repair', databaseStep, () => nonRetryable(async () => {
+      await beginRun(env, graphName, runId)
+      const snapshot = await loadSnapshot(env, graphName)
+      validateLineage(snapshot)
+      return { plan: await loadRepairPlan(env, graphName, runId), artifacts: snapshot.artifacts }
+    }))
+    const mapping = new Map(Object.entries(plan.sourceReplacements))
+    const output = outputRunner(env, params, step)
+    for (const [index, id] of plan.artifactIds.entries()) {
+      const old = artifacts.find((a) => a.id === id)
+      if (!old) throw new DomainError('INCOMPLETE_AUDIT', 'A planned artifact is missing.')
+      const inputIds = old.inputIds.map((inputId) => mapping.get(inputId) ?? inputId)
+      const stage = `repair-${index}-${old.kind}`
+      const beforeCall = () => logAttempt(env, graphName, visitorId, runId, stage)
+      const infer = old.kind === 'policy-facts'
+        ? (inputs: Artifact[]) => extractPolicy(env, inputs.find((a) => a.kind === 'source')!, beforeCall)
+        : old.kind === 'reply' ? (inputs: Artifact[]) => draftReply(env, { artifacts: inputs }, beforeCall) : undefined
+      const assess = (inputs: Artifact[]) => {
+        const ticket = inputs.find((a) => a.kind === 'case')!
+        const facts = inputs.find((a) => a.kind === 'policy-facts')!
+        return assessReturn(returnCaseSchema.parse(ticket.body), policyFactsSchema.parse(facts.body), { caseArtifactId: ticket.id, factsArtifactId: facts.id })
+      }
+      if (!['policy-facts', 'assessment', 'reply'].includes(old.kind)) throw new DomainError('INCOMPLETE_AUDIT', 'Only derived work can be repaired.')
+      const replacement = await output(stage, old.logicalId, old.kind, inputIds, infer, assess, old.id)
+      mapping.set(old.id, replacement.id)
+    }
+    await step.do('publish repair', databaseStep, () => nonRetryable(async () => { await promoteRepair(env, graphName, runId, baseRevision); return runId }))
+    return runId
+  } catch (error) {
+    await recordFailure(env, params, step, error)
+    throw error
+  }
+}
+export class RepairWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
+  async run(event: WorkflowEvent<WorkflowParams>, step: WorkflowStep) { return executeRepair(this.env, event.payload, step) }
 }

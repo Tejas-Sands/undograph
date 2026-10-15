@@ -6,6 +6,13 @@ import type { Env } from './env'
 export interface ReplyInput { artifacts: Artifact[] }
 export interface Usage { inputTokens?: number; outputTokens?: number }
 export interface ModelResult<T> { value: T; usage: Usage }
+export class InvalidModelOutput extends DomainError {
+  readonly usage: Usage
+  constructor(usage: Usage) {
+    super('INVALID_MODEL_OUTPUT', 'Live inference returned invalid structured evidence after one correction attempt.', 422)
+    this.usage = { ...usage }
+  }
+}
 export class ModelUnavailable extends DomainError {
   readonly retryable: boolean
   constructor(retryable: boolean) {
@@ -42,7 +49,7 @@ async function generate<T>(env: Env, instruction: string, data: unknown, validat
       const value: unknown = typeof parsed.response === 'string' ? JSON.parse(parsed.response) : parsed.response
       return { value: validate(value), usage }
     } catch {
-      if (correction === 1) throw new DomainError('INVALID_MODEL_OUTPUT', 'Live inference returned invalid structured evidence after one correction attempt.', 422)
+      if (correction === 1) throw new InvalidModelOutput(usage)
     }
   }
   throw new DomainError('INVALID_MODEL_OUTPUT', 'No validated model output was produced.', 422)

@@ -8,7 +8,8 @@
   ],
   "ai": { "binding": "AI", "remote": true },
   "workflows": [
-    { "binding": "BUILD_WORKFLOW", "name": "undograph-local-build", "class_name": "BuildWorkflow" }
+    { "binding": "BUILD_WORKFLOW", "name": "undograph-local-build", "class_name": "BuildWorkflow" },
+    { "binding": "REPAIR_WORKFLOW", "name": "undograph-local-repair", "class_name": "RepairWorkflow" }
   ],
   "assets": {
     "binding": "ASSETS",
@@ -27,7 +28,8 @@
       "name": "undograph-preview",
       "ai": { "binding": "AI", "remote": true },
       "workflows": [
-        { "binding": "BUILD_WORKFLOW", "name": "undograph-preview-build", "class_name": "BuildWorkflow" }
+        { "binding": "BUILD_WORKFLOW", "name": "undograph-preview-build", "class_name": "BuildWorkflow" },
+        { "binding": "REPAIR_WORKFLOW", "name": "undograph-preview-repair", "class_name": "RepairWorkflow" }
       ],
       "vars": {
         "ENVIRONMENT": "preview",
@@ -39,7 +41,8 @@
       "name": "undograph",
       "ai": { "binding": "AI", "remote": true },
       "workflows": [
-        { "binding": "BUILD_WORKFLOW", "name": "undograph-production-build", "class_name": "BuildWorkflow" }
+        { "binding": "BUILD_WORKFLOW", "name": "undograph-production-build", "class_name": "BuildWorkflow" },
+        { "binding": "REPAIR_WORKFLOW", "name": "undograph-production-repair", "class_name": "RepairWorkflow" }
       ],
       "vars": {
         "ENVIRONMENT": "production",

@@ -92,6 +92,7 @@ export const runSchema = z.object({
   completedAt: timestamp.optional(),
   errorCode: z.string().optional(),
   modelCalls: z.number().int().nonnegative(),
+  sourceArtifactId: id.optional(),
   origin: z.enum(['live', 'recorded']),
 })
 export type Run = z.infer<typeof runSchema>
@@ -150,12 +151,8 @@ export const impactReportSchema = z.object({
   complete: z.literal(true),
 })
 export type ImpactReport = z.infer<typeof impactReportSchema>
-export interface RepairPlan {
-  baseRevision: number
-  artifactIds: string[]
-  sourceReplacements: Record<string, string>
-  preserved: { id: string; contentHash: string }[]
-}
+export const repairPlanSchema = z.object({ baseRevision: z.number().int().nonnegative(), artifactIds: z.array(id), sourceReplacements: z.record(id, id), preserved: z.array(preservedArtifactSchema) })
+export type RepairPlan = z.infer<typeof repairPlanSchema>
 
 export const artifactWriteSchema = z.object({
   id, logicalId: id, kind: artifactKindSchema, body: jsonSchema,

@@ -1,16 +1,17 @@
 import { Hono } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { ZodError, z } from 'zod'
-import { runRequestSchema } from '../shared/contracts'
+import { correctionRequestSchema, runRequestSchema } from '../shared/contracts'
 import { DomainError } from './domain'
 import type { Env } from './env'
 import { DatabaseUnavailable, withGraph } from './graph/client'
-import { ensureSchema, initializeWorkspace, loadSnapshot } from './graph/store'
+import { ensureSchema, findImpact, initializeWorkspace, loadSnapshot } from './graph/store'
 import { readJson, visitorIdentity } from './identity'
 import { registerWorkspace } from './limits'
 import { launchRun, loadRun, prepareRun } from './runs'
+import { commitCorrection, releaseDraft } from './repair'
 
-export { BuildWorkflow } from './workflows'
+export { BuildWorkflow, RepairWorkflow } from './workflows'
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -49,6 +50,23 @@ app.post('/api/runs', async (context) => {
 app.get('/api/runs/:id', async (context) => {
   const visitor = await visitorIdentity(context.req.raw, context.env)
   return context.json(await loadRun(context.env, visitor.graphName, context.req.param('id')))
+})
+
+app.get('/api/artifacts/:id/impact', async (context) => {
+  const visitor = await visitorIdentity(context.req.raw, context.env)
+  return context.json(await findImpact(context.env, visitor.graphName, context.req.param('id')))
+})
+
+app.post('/api/sources/:id/corrections', async (context) => {
+  const visitor = await visitorIdentity(context.req.raw, context.env)
+  const input = correctionRequestSchema.omit({ sourceArtifactId: true }).strict().parse(await readJson(context.req.raw))
+  return context.json(await commitCorrection(context.env, visitor.graphName, { ...input, sourceArtifactId: context.req.param('id') }))
+})
+
+app.post('/api/artifacts/:id/release', async (context) => {
+  const visitor = await visitorIdentity(context.req.raw, context.env)
+  const input = z.object({ expectedRevision: z.number().int().nonnegative() }).strict().parse(await readJson(context.req.raw))
+  return context.json(await releaseDraft(context.env, visitor.graphName, context.req.param('id'), input.expectedRevision))
 })
 
 app.get('/api/ready', async (context) => {

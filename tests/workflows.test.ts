@@ -104,4 +104,13 @@ describe('durable build lifecycle', () => {
     await expect.poll(async () => (await instance.status()).status, { timeout: 30_000 }).toBe('errored')
     expect((await loadRun(localEnv, graphName, run.id)).run).toMatchObject({ status: 'failed', errorCode: 'MODEL_UNAVAILABLE', modelCalls: 1 })
   })
+  it('retains provider usage for rejected structured output', async () => {
+    const run = await prepareRun(localEnv, graphName, request, 'invalid-usage')
+    const ai = { run: async () => ({ response: 'invalid JSON', usage: { prompt_tokens: 11, completion_tokens: 7 } }) } as unknown as Ai
+    const scheduler = { do: async (_name: string, _config: unknown, callback: () => Promise<unknown>) => callback() } as unknown as WorkflowStep
+    await expect(executeBuild({ ...localEnv, AI: ai }, { graphName, runId: run.id, baseRevision: 0, visitorId: 'visitor' }, scheduler)).rejects.toThrow()
+    const result = await loadRun(localEnv, graphName, run.id)
+    expect(result.run).toMatchObject({ status: 'failed', modelCalls: 2 })
+    expect(result.steps[0]).toMatchObject({ inputTokens: 22, outputTokens: 14 })
+  })
 })

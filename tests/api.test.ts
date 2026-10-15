@@ -8,8 +8,8 @@ import { withGraph } from '../worker/graph/client'
 
 let local: Env
 beforeEach(async () => {
-  const bindings = env as unknown as Env & { TEST_BUILD_WORKFLOW: Env['BUILD_WORKFLOW'] }
-  local = { ...bindings, BUILD_WORKFLOW: bindings.TEST_BUILD_WORKFLOW, CONTROL_GRAPH: `${bindings.GRAPH_PREFIX}api_${crypto.randomUUID().replaceAll('-', '')}` }
+  const bindings = env as unknown as Env & { TEST_BUILD_WORKFLOW: Env['BUILD_WORKFLOW']; TEST_REPAIR_WORKFLOW: Env['REPAIR_WORKFLOW'] }
+  local = { ...bindings, BUILD_WORKFLOW: bindings.TEST_BUILD_WORKFLOW, REPAIR_WORKFLOW: bindings.TEST_REPAIR_WORKFLOW, CONTROL_GRAPH: `${bindings.GRAPH_PREFIX}api_${crypto.randomUUID().replaceAll('-', '')}` }
   await ensureSchema(local, local.CONTROL_GRAPH!)
 })
 afterEach(async () => {
@@ -69,5 +69,27 @@ describe('owned local build API', () => {
     const { cookie } = await workspace()
     expect((await request('/api/runs', 'POST', { extra: 'x'.repeat(17_000) }, cookie)).status).toBe(413)
     expect((await request('/api/runs', 'POST', { kind: 'build', expectedRevision: 0 }, cookie)).status).toBe(400)
+  })
+  it('corrects, audits and repairs through owned HTTP routes', async () => {
+    const { cookie } = await workspace()
+    const build = runResultSchema.parse(await (await request('/api/runs', 'POST', { kind: 'build', expectedRevision: 0 }, cookie, { 'Idempotency-Key': 'api-full-build' })).json())
+    await expect.poll(async () => runResultSchema.parse(await (await request(`/api/runs/${build.run.id}`, 'GET', undefined, cookie)).json()).run.status, { timeout: 20_000 }).toBe('succeeded')
+    const before = workspaceSnapshotSchema.parse(await (await request('/api/workspace', 'GET', undefined, cookie)).json())
+    const account = before.artifacts.find((a) => a.logicalId === 'reply:A001' && a.isCurrent)!
+    const source = before.artifacts.find((a) => a.logicalId === 'source:return-policy' && a.isCurrent)!
+    const changed = await request(`/api/sources/${source.id}/corrections`, 'POST', { expectedRevision: 0, returnWindowDays: 14, reason: 'Verified policy window.' }, cookie)
+    expect(changed.status).toBe(200)
+    const impact = await changed.json() as { affected: unknown[] }
+    expect(impact.affected).toHaveLength(5)
+    expect((await request('/api/artifacts/foreign/impact', 'GET', undefined, cookie)).status).toBe(404)
+    const reply = before.artifacts.find((a) => a.logicalId === 'reply:R021')!
+    expect((await request(`/api/artifacts/${reply.id}/release`, 'POST', { expectedRevision: 1 }, cookie)).status).toBe(409)
+    const repairResponse = await request('/api/runs', 'POST', { kind: 'repair', expectedRevision: 1, sourceArtifactId: source.id }, cookie, { 'Idempotency-Key': 'api-full-repair' })
+    expect(repairResponse.status).toBe(202)
+    const repair = runResultSchema.parse(await repairResponse.json())
+    await expect.poll(async () => runResultSchema.parse(await (await request(`/api/runs/${repair.run.id}`, 'GET', undefined, cookie)).json()).run.status, { timeout: 20_000 }).toBe('succeeded')
+    const after = workspaceSnapshotSchema.parse(await (await request('/api/workspace', 'GET', undefined, cookie)).json())
+    expect(after.reports[0].repairedLogicalIds).toHaveLength(5)
+    expect(after.artifacts.find((a) => a.logicalId === 'reply:A001' && a.isCurrent)).toEqual(account)
   })
 })
