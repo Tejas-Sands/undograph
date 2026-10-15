@@ -1,14 +1,15 @@
 import { env } from 'cloudflare:workers'
 import type { WorkflowStep } from 'cloudflare:workers'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { assessmentSchema, replyDraftSchema, sourceBodySchema } from '../shared/contracts'
 import { planRepair } from '../worker/domain'
 import type { Env, WorkflowParams } from '../worker/env'
 import { withGraph } from '../worker/graph/client'
 import { ensureSchema, findImpact, initializeWorkspace, loadSnapshot } from '../worker/graph/store'
+import * as graphStore from '../worker/graph/store'
 import { commitCorrection, promoteRepair, releaseDraft } from '../worker/repair'
 import { launchRun, loadRun, prepareRun } from '../worker/runs'
-import { executeRepair } from '../worker/workflows'
+import { executeBuild, executeRepair } from '../worker/workflows'
 import { supportWork } from './helpers/support-work'
 import { syntheticAI } from './helpers/synthetic-ai'
 
@@ -57,6 +58,41 @@ describe.skipIf(!bindings.FALKORDB_HOST || !bindings.FALKORDB_PASSWORD)('atomic 
     const snapshot = await loadSnapshot(local, name)
     expect(snapshot.changes).toHaveLength(1)
     expect(snapshot.artifacts).toHaveLength(12)
+  })
+  for (const kind of ['build', 'repair'] as const) it(`rejects a correction whose impact was read before ${kind} publication`, async () => {
+    if (kind === 'build') {
+      await withGraph(local, name, (graph) => graph.delete())
+      await initializeWorkspace(local, name, 'workspace', Date.now() + 86_400_000)
+    } else await commitCorrection(local, name, correction)
+    const revision = kind === 'build' ? 0 : 1
+    const run = await prepareRun(local, name, { kind, expectedRevision: revision }, `publication-race-${kind}`)
+    let reached!: () => void, resume!: () => void
+    const atPublication = new Promise<void>((resolve) => { reached = resolve })
+    const publicationGate = new Promise<void>((resolve) => { resume = resolve })
+    const scheduler = { do: async (stage: string, _config: unknown, work: () => Promise<unknown>) => {
+      if (stage === `publish ${kind}`) { reached(); await publicationGate }
+      return work()
+    } } as unknown as WorkflowStep
+    const execute = kind === 'build' ? executeBuild : executeRepair
+    const execution = execute(local, { graphName: name, runId: run.id, baseRevision: revision, visitorId: 'visitor' }, scheduler)
+    await atPublication
+    const before = await loadSnapshot(local, name)
+    const source = before.artifacts.find((a) => a.isCurrent && a.logicalId === 'source:return-policy')!
+    const request = { ...correction, sourceArtifactId: source.id, expectedRevision: revision, returnWindowDays: kind === 'build' ? 14 : 10 }
+    const query = graphStore.queryGraph
+    const intercept = vi.spyOn(graphStore, 'queryGraph').mockImplementation((async (...args: Parameters<typeof query>) => {
+      if (args[2] === 'commitCorrection') { resume(); await execution }
+      return query(...args)
+    }) as typeof query)
+    try {
+      await expect(commitCorrection(local, name, request)).rejects.toMatchObject({ code: 'REVISION_CONFLICT', status: 409 })
+    } finally { intercept.mockRestore(); resume(); await execution }
+    const published = await loadSnapshot(local, name)
+    expect(published.workspace.revision).toBe(revision)
+    expect(published.runs.find((value) => value.id === run.id)?.status).toBe('succeeded')
+    expect((await commitCorrection(local, name, request)).affected).toHaveLength(5)
+    const corrected = await loadSnapshot(local, name)
+    expect(corrected.artifacts.filter((a) => a.isCurrent && a.status === 'stale')).toHaveLength(5)
   })
   it('retains historical releases and flags them for review', async () => {
     expect((await releaseDraft(local, name, 'reply_R021_v1', 0)).status).toBe('released')

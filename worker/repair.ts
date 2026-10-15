@@ -19,7 +19,7 @@ export async function commitCorrection(env: Env, graphName: string, request: Cor
   const impact = await findImpact(env, graphName, source.id)
   const id = `source_${crypto.randomUUID().replaceAll('-', '')}`
   const result = await queryGraph(env, graphName, 'commitCorrection', {
-    revision: input.expectedRevision, artifactCount: snapshot.artifacts.length, oldId: source.id, id,
+    revision: input.expectedRevision, artifactCount: snapshot.artifacts.length, activeRunId: snapshot.workspace.activeRunId ?? null, oldId: source.id, id,
     logicalId: source.logicalId, bodyJson: JSON.stringify(nextBody), contentHash: await hashCanonical({ kind: 'source', body: nextBody }),
     dependencyHash: await hashCanonical({ inputs: [], stage: 'operator-correction', promptVersion: 'v1' }),
     now: Date.now(), reason: input.reason, changeId: `change_${crypto.randomUUID().replaceAll('-', '')}`, affectedIds: impact.affected.map((a) => a.id),

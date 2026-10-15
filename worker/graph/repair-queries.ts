@@ -1,5 +1,6 @@
 export const repairQueries = {
   commitCorrection: `MATCH (w:Workspace) WHERE w.revision = $revision
+    AND (w.activeRunId = $activeRunId OR (w.activeRunId IS NULL AND $activeRunId IS NULL))
     OPTIONAL MATCH (a:Artifact) WITH w, count(a) AS total WHERE total = $artifactCount AND total < 250
     MATCH (old:Artifact {id: $oldId}) WHERE old.isCurrent = true AND old.currentKey = $logicalId AND old.kind = 'source'
     OPTIONAL MATCH (affected:Artifact) WHERE affected.id IN $affectedIds
