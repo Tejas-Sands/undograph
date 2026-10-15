@@ -14,6 +14,7 @@
 }
 .lp-container { width: min(1280px, calc(100% - 112px)); margin-inline: auto; }
 .landing a { color: inherit; }
+.landing .skip-link { color: #10291e; background: var(--lp-mint); border-color: var(--lp-mint); }
 .landing :focus-visible { outline: 2px solid var(--lp-mint); outline-offset: 5px; }
 .landing ::selection { background: #b5e7cf; color: #0b0e12; }
 .lp-header { min-height: 88px; display: flex; align-items: center; gap: 36px; border-bottom: 1px solid #ffffff0e; }

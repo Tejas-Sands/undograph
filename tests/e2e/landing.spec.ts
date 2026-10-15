@@ -31,6 +31,28 @@ test('landing illustration stays local and opens the recorded and live workspace
   await expect(page.getByRole('button', { name: 'Start live workspace', exact: true })).toBeVisible()
 })
 
+test('landing skip link is readable on focus and moves focus to main content', async ({ page }) => {
+  await page.goto('/')
+  await page.keyboard.press('Tab')
+  const skip = page.getByRole('link', { name: 'Skip to content', exact: true })
+  await expect(skip).toBeFocused()
+  await expect(skip).toBeInViewport()
+  const contrast = await skip.evaluate((link) => {
+    const style = getComputedStyle(link)
+    const luminance = (rgb: string) => rgb.match(/\d+/g)!.slice(0, 3).reduce((sum, channel, index) => {
+      const value = Number(channel) / 255
+      const linear = value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
+      return sum + linear * [0.2126, 0.7152, 0.0722][index]
+    }, 0)
+    const [dark, light] = [luminance(style.color), luminance(style.backgroundColor)].sort((a, b) => a - b)
+    return (light + 0.05) / (dark + 0.05)
+  })
+  expect(contrast).toBeGreaterThanOrEqual(4.5)
+  await page.keyboard.press('Enter')
+  await expect(page.locator('#landing-main')).toBeFocused()
+  await expect(page).toHaveURL(/#landing-main$/)
+})
+
 for (const width of [320, 375, 768, 1024, 1440]) {
   test(`landing fits ${width}px with reduced motion`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 1000 })
