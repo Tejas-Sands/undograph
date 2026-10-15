@@ -22,7 +22,7 @@ The initial running-server check failed with `TypeError: e.BigInt is not a funct
 
 ## Gates that remain
 
-Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. The full application also needs agent execution, repair, isolation, and browser acceptance checks before it can be presented as working.
+Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. The full application also needs repair, full isolation and browser acceptance checks before it can be presented as working.
 
 Readiness verifies operational application constraints and indexes alongside a database query. No in-memory application database or silent inference fallback is used.
 
@@ -31,3 +31,13 @@ Readiness verifies operational application constraints and indexes alongside a d
 Artifacts and dependency links are written together in one guarded, parameterized mutation. Native uniqueness constraints protect IDs and the optional `currentKey` pointer; immutable hashes protect repeated writes. Candidates have no current pointer. Required schema must be operational before readiness succeeds.
 
 Repair planning includes all current stale work, including pending work from earlier corrections. Assessments take explicit case and facts version references; those IDs cannot be inferred from policy content. Audits reject cycles, missing links and excessive depth. Explanation responses have a 1,024-path ceiling and explicitly fail as incomplete when exceeded.
+
+## Durable live builds
+
+Workers AI receives only recorded source/case/assessment inputs. Policy quotations must match one unambiguous numerical statement. The server derives character offsets from the exact quotation and rejects conflicting offsets if supplied. Eligibility remains application code. Replies must agree with that decision and cite supplied input versions; operator review is always required.
+
+Each model result and provider usage are checkpointed separately from database persistence. Persistence retries reuse the validated response and stable artifact ID. The graph records supplied reads before inference, actual attempt counts, six output steps and two role sessions. Builds publish the complete candidate set in one guarded mutation. Failed candidates stay inspectable and unpublished.
+
+Model generation uses temperature zero, 600 output tokens, one structured-output correction, and at most one transient Workflow retry after three seconds with a sixty-second attempt timeout. Authorization, validation and quota failures are fatal. Unknown token measurements remain absent. Live failure has no recorded-data fallback.
+
+Signed visitor cookies and inference quota reservations were brought forward from the isolation milestone because live APIs need bounded, owned execution immediately. Native graph mutations enforce limits of 24 attempts per visitor hour, 400 globally per UTC day, and 100 workspace allocations per day. Full cleanup, reset and export remain later work.

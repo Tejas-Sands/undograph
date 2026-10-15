@@ -42,7 +42,7 @@ async function schemaRows(graph: Graph) {
 }
 
 export async function ensureSchema(env: Env, graphName: string): Promise<void> {
-  const unique = [...labels.map((label) => [label, 'id'] as const), ['Artifact', 'currentKey'] as const]
+  const unique = [...[...labels, 'Quota', 'WorkspaceRegistry'].map((label) => [label, 'id'] as const), ['Artifact', 'currentKey'] as const]
   const indexed = [...unique, ['Artifact', 'logicalId'] as const, ['Run', 'status'] as const]
   await withGraph(env, graphName, async (graph) => {
     await graph.query('MERGE (s:Schema {id: $id}) ON CREATE SET s.version = 1', { params: { id: 'undograph' }, TIMEOUT: 2_000 })
@@ -173,7 +173,7 @@ export async function recordArtifact(env: Env, graphName: string, write: Artifac
   const parents = input.inputIds.map((id) => {
     const parent = snapshot.artifacts.find((artifact) => artifact.id === id)
     if (!parent) throw new DomainError('NOT_FOUND', 'An input artifact version was not found.', 404)
-    if (!((parent.isCurrent && ['current', 'released'].includes(parent.status)) ||
+    if (!((parent.isCurrent && !parent.needsReview && ['current', 'released'].includes(parent.status)) ||
       (input.status === 'candidate' && input.runId && parent.status === 'candidate' && parent.runId === input.runId))) {
       throw new DomainError('STALE_INPUT', 'Work cannot be created from a stale or unpublished input.')
     }
@@ -214,7 +214,8 @@ export async function recordArtifact(env: Env, graphName: string, write: Artifac
     contentHash, dependencyHash, inputIds: input.inputIds, inputIdsJson: JSON.stringify(input.inputIds),
     expectedRevision: input.expectedRevision, depth, status: input.status, isCurrent: input.status === 'current',
     needsReview: (input.kind === 'policy-facts' && policyFactsSchema.parse(body).status === 'needs-review') ||
-      (input.kind === 'assessment' && assessmentSchema.parse(body).decision === 'needs-review'),
+      (input.kind === 'assessment' && assessmentSchema.parse(body).decision === 'needs-review') ||
+      (input.kind === 'reply' && replyDraftSchema.parse(body).decision === 'needs-review'),
     createdAt: Date.now(), stage: input.stage, promptVersion: input.promptVersion,
     runId: input.runId ?? null, stepId: input.stepId ?? null, sessionId: input.sessionId ?? null, supersedesId: input.supersedesId ?? null,
   })

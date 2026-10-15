@@ -26,3 +26,15 @@ This is runtime-foundation verification. It does not establish agent execution, 
 Checks cover 30/14-day deterministic eligibility, canonical hashes, exact quoted evidence, idempotent initialization and immutable writes, candidate versions, concurrent current-version writes, native unique constraints, exact five-artifact return-policy impact, independent account-reply preservation, fan-in path deduplication, foreign IDs, revision conflicts, cycles and depth thirteen. Initial sources have zero affected outputs before any agent reads them.
 
 Generated support artifacts in these graph tests are explicit test fixtures written through the real store. Production initialization does not seed generated work. These results establish persistence and planning behavior, not actual model execution or completed repairs.
+
+## Durable support builds — October 15, 2026
+
+`npm test` passes 77 tests with no skips: 42 unit, 4 Worker API and 31 real-database/runtime/API/Workflow tests. Type checking, lint and production build pass. The local HTTP health/readiness/document smoke passes. A browser-bundle scan confirms local database/session secrets are absent.
+
+The sixteen model-validation tests first failed before implementation. Workflow and API suites first failed before their implementation. Additional tests exposed two recovery defects before fixes: concurrent identical requests conflicted, and repeating finalization after publication rejected an already successful run. Both now pass.
+
+Native Workflow tests cover successful publication and visible authorization failure; the latter caught an unintended retry caused by changing the required `NonRetryableError` name. Authorization failure now records one model attempt and the correct error code. The local engine emits diagnostics for this intentionally failed native instance and caught duplicate-instance creation. Assertions verify persisted terminal state rather than treating those diagnostics as a successful run.
+
+A real local HTTP build, using the remote Workers AI binding and the selected Llama model, succeeded as `run_0a76222896b827ded646e62e8e6da75e`. It produced six current outputs, two work sessions, six completed steps and thirteen recorded reads. Four provider calls reported 1,100 input and 188 output tokens in total. Persisted elapsed time was 9.049 seconds. This was live inference, not test-provider or recorded-walkthrough output.
+
+Other checks cover a saved run whose Workflow launch fails, same-key recovery, foreign run refusal, signed cookie recovery/tampering, separate visitor graphs, exact-origin writes, bounded request bodies, and persistence retries that reuse model output. Full correction/repair, reset/cleanup/export and browser acceptance remain pending. The live build used a local database and local durable engine; it is not deployed-cloud or TLS verification.

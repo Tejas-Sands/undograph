@@ -13,7 +13,7 @@ Target deployment: a React application and API on Cloudflare Workers, durable ru
 
 ## Current status
 
-The local Cloudflare runtime, immutable artifact store, evidence validation, dependency traversal, and deterministic repair planner are implemented and tested against FalkorDB. Agent execution, correction and repair workflows, and the operations workspace are the next milestones. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
+The local Cloudflare runtime, immutable artifact store, evidence validation, dependency traversal, deterministic repair planner, and durable support-agent builds are implemented. A real local build has completed using Workers AI. Correction and repair workflows and the operations workspace are next. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
 
 ## Local development
 
@@ -27,6 +27,8 @@ npm run dev
 ```
 
 The setup command creates ignored `.dev.vars` with fresh local secrets and preserves it on subsequent runs. FalkorDB is exposed only at `127.0.0.1:16379`; its named Docker volume persists data. `npm run db:stop` stops the container without deleting data.
+
+Live agent builds use the remote Workers AI binding while the Worker, Workflows and database run locally. Authenticate Wrangler with `npx wrangler login` using your Cloudflare account. Inference attempts are bounded by visitor/hour and global/day quotas. A failed live run stays visibly failed; it never switches to recorded output. The operations UI is still being built; current build endpoints are `POST /api/workspace`, `GET /api/workspace`, `POST /api/runs` and `GET /api/runs/:id`. Mutation requests require the app's exact Origin, a valid JSON body, and the run endpoint requires an `Idempotency-Key`.
 
 ```sh
 npm run typecheck

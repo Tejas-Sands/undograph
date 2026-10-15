@@ -6,6 +6,10 @@
   "compatibility_flags": [
     "nodejs_compat"
   ],
+  "ai": { "binding": "AI", "remote": true },
+  "workflows": [
+    { "binding": "BUILD_WORKFLOW", "name": "undograph-local-build", "class_name": "BuildWorkflow" }
+  ],
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
@@ -21,6 +25,10 @@
   "env": {
     "preview": {
       "name": "undograph-preview",
+      "ai": { "binding": "AI", "remote": true },
+      "workflows": [
+        { "binding": "BUILD_WORKFLOW", "name": "undograph-preview-build", "class_name": "BuildWorkflow" }
+      ],
       "vars": {
         "ENVIRONMENT": "preview",
         "FALKORDB_TLS": "true",
@@ -29,6 +37,10 @@
     },
     "production": {
       "name": "undograph",
+      "ai": { "binding": "AI", "remote": true },
+      "workflows": [
+        { "binding": "BUILD_WORKFLOW", "name": "undograph-production-build", "class_name": "BuildWorkflow" }
+      ],
       "vars": {
         "ENVIRONMENT": "production",
         "FALKORDB_TLS": "true",

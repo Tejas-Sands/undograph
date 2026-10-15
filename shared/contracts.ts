@@ -178,4 +178,5 @@ export const runRequestSchema = z.object({
   kind: z.enum(['build', 'repair']), expectedRevision: z.number().int().nonnegative(), sourceArtifactId: id.optional(),
 })
 export type RunRequest = z.infer<typeof runRequestSchema>
-export interface RunResult { run: Run; steps: Step[]; report?: RepairReport }
+export const runResultSchema = z.object({ run: runSchema, steps: z.array(stepSchema), report: repairReportSchema.optional() })
+export type RunResult = z.infer<typeof runResultSchema>

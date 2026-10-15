@@ -1,8 +1,10 @@
 import type { JsonValue } from '../../shared/contracts'
+import { runQueries } from './run-queries'
 
 export type QueryParams = Record<string, JsonValue>
 
 export const queries = {
+  ...runQueries,
   bootstrapWorkspace: `OPTIONAL MATCH (existing:Workspace)
     WITH existing WHERE existing IS NULL OR existing.id = $id
     MERGE (w:Workspace {id: $id})
@@ -31,7 +33,7 @@ export const queries = {
     OPTIONAL MATCH (parent:Artifact) WHERE parent.id IN $inputIds
     WITH w, existing, previous, nextVersion, collect(parent) AS parents
     WHERE size(parents) = size($inputIds) AND all(parent IN parents WHERE
-      (parent.isCurrent = true AND parent.status IN ['current', 'released']) OR
+      (parent.isCurrent = true AND parent.needsReview = false AND parent.status IN ['current', 'released']) OR
       ($status = 'candidate' AND parent.status = 'candidate' AND parent.runId = $runId))
     MERGE (a:Artifact {id: $id}) ON CREATE SET
       a.logicalId = $logicalId, a.version = nextVersion, a.kind = $kind, a.bodyJson = $bodyJson,

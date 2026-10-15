@@ -3,6 +3,7 @@ export interface WorkflowParams {
   runId: string
   baseRevision: number
   visitorId: string
+  controlGraph?: string
 }
 
 export interface Env {
@@ -18,4 +19,5 @@ export interface Env {
   FALKORDB_USERNAME?: string
   FALKORDB_PASSWORD?: string
   SESSION_SECRET?: string
+  CONTROL_GRAPH?: string
 }
