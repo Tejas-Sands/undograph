@@ -72,3 +72,10 @@ The smoke script uses fresh in-memory cookie jars and validates actual builds, r
 An owned `DELETE /api/workspace` operation closes and deletes only the authenticated terminal workspace. It requires explicit confirmation and refuses active or concurrently changed work. Reopening a closed or removed registration rotates the signed generation, preventing old Workflow IDs from being reused if a deletion response was lost. Reading a removed graph returns 404 so the client can offer recovery.
 
 CI uses its own local authenticated database and offline browser execution. It does not provision a cloud service or claim to exercise real Workers AI. Public hosting, a three-minute recording and submission remain separate operator work; the demo guide prepares that walkthrough.
+
+
+## Final review recovery guards
+
+The final review found a publication/correction interleaving that revision and artifact count alone could not detect. Correction now compares the initial snapshot's active-run ID inside its mutation; both publication queries clear that ID atomically. A conflict returns 409, and retrying audits the newly published set.
+
+If an outage also prevents the Workflow's failure-recording step, ordinary owned progress reads and launch recovery reconcile definitive terminal Workflow states back into the graph. Missing/unreachable status leaves the saved graph state intact; private engine errors are not persisted. Existing guarded failure writes preserve successful publication and any different active run.

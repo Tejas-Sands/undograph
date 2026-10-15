@@ -22,7 +22,7 @@ Repair planning orders current stale derived artifacts by their recorded depende
 
 `run-queries.ts` records runs, role sessions and steps. A step records `READ` edges before returning its supplied inputs, and `PRODUCED` edges after output persistence. A stable run ID derives from the workspace and idempotency key. Canonical request hashes reject reuse with a different request; concurrent identical requests recover the existing run. Model responses have separate durable checkpoints from idempotent database writes.
 
-`repair-queries.ts` contains three central guarded mutations. `commitCorrection` verifies the revision, current source and audited artifact count, creates the new source and `Change`, writes `SUPERSEDES`, `REPLACES` and `INTRODUCES` edges, invalidates affected pending work and increments the revision together. Historical releases retain their status and receive a review flag. An active older run becomes obsolete.
+`repair-queries.ts` contains three central guarded mutations. `commitCorrection` verifies the revision, current source, audited artifact count and captured active-run identity, creates the new source and `Change`, writes `SUPERSEDES`, `REPLACES` and `INTRODUCES` edges, invalidates affected pending work and increments the revision together. Historical releases retain their status and receive a review flag. An active older run becomes obsolete.
 
 The persisted repair plan contains exact old artifact IDs, source replacements and preserved ID/hash pairs. Each candidate supersedes its planned old version and depends on remapped input versions. `promoteRepair` verifies revision, active run, the entire candidate/predecessor set, fresh parents and preserved hashes in one mutation, then changes all current pointers and writes the report. Repeating successful promotion returns the stored report. Failed or obsolete candidates remain unpublished.
 
@@ -47,3 +47,6 @@ LIMIT 1025
 ```
 
 The extra path detects overflow above 1,024 explanations. Domain validation rejects incomplete lineage before correction, planning or internal review. See `worker/graph/repair-queries.ts` for the guarded correction and atomic promotion queries.
+
+
+Workspace progress reads reconcile graph-active runs against their own Workflow binding. Definitive terminal engine states settle missed failure writes with existing revision/state guards; an unavailable status never invents failure. Published success is never downgraded. This recovers after a database outage also prevented the Workflow's failure-recording step.

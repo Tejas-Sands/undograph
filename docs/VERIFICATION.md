@@ -1,6 +1,6 @@
 # Verification record
 
-Final local status: 102 backend tests pass without skips; all nine browser tests passed with real Workers AI. The offline CI-equivalent browser run passes eight and explicitly skips live inference. The sections below record successive milestones; earlier pending items describe their state at that milestone. Cloud deployment and TLS certificate-refusal proof remain unverified.
+Final local status: 111 backend tests pass without skips; all nine browser tests passed with real Workers AI. The offline CI-equivalent browser run passes eight and explicitly skips live inference. The sections below record successive milestones; earlier pending items describe their state at that milestone. Cloud deployment and TLS certificate-refusal proof remain unverified.
 
 ## Local runtime — October 15, 2026
 
@@ -76,7 +76,7 @@ Type checking, lint and the production build pass. The graph renderer and record
 
 ## Repeatable complete smoke and fair comparison — October 15, 2026
 
-The final backend run passes 102 tests without skips: 43 unit, 4 Worker and 55 real graph/API/Workflow tests. Type checking, lint and the production build pass. The offline browser path passes eight tests and explicitly skips its one real-inference case. The earlier live browser run passed all nine.
+Before final review, the backend run passed 102 tests without skips: 43 unit, 4 Worker and 55 real graph/API/Workflow tests. Type checking, lint and the production build pass. The offline browser path passes eight tests and explicitly skips its one real-inference case. The earlier live browser run passed all nine.
 
 Cleanup tests were observed failing before the owned deletion route existed, then passed. A further regression first returned 500 for an old cookie reading its deleted graph; it now returns 404 and can recover a fresh signed generation. Deletion refuses active work, requires confirmation, preserves another visitor's complete snapshot and cannot reset the visitor quota identity.
 
@@ -97,3 +97,17 @@ The smoke script now defaults to this actual agent scenario; its `--probe` optio
 ## GitHub Actions
 
 [Checks run 38714172015](https://github.com/Tejas-Sands/undograph/actions/runs/38714172015) completed successfully for commit `638adf995fa109b34a61261fd7c654850ed93619`. The GitHub-hosted Ubuntu runner installed Node 24 and dependencies, generated its own local credentials, started the pinned authenticated FalkorDB container, and passed type checking, lint, all backend tests, offline browser checks and the production build. No Cloudflare credential was supplied to CI; live Workers AI is explicitly outside that job.
+
+
+## Independent final review and fixes
+
+A fresh reviewer checked the full implementation against the specification, plan, recorded decisions and all five review-focus cases. It found two Important issues and no Critical or Minor findings. Both were reproduced before changes and fixed in one pass:
+
+- Publication could finish after a correction's impact read without changing revision or artifact count. Correction now also guards the captured active-run identity, including null. Deterministic build- and repair-publication interleavings first failed; they now return 409 and a retry invalidates all five newly current descendants.
+- If database retries were exhausted while recording a run failure, the graph could remain active after its Workflow ended. Owned workspace/run reads and launch recovery now reconcile definitive errored, terminated or completed engine state through guarded failure recording. Unavailable or missing status preserves graph state. Regressions simulate failure of the failure-recording step itself, recover through all three paths, permit a replacement run, and confirm no private engine error is persisted.
+
+The complete backend suite now passes 111 tests without skips: 43 unit, 4 Worker and 64 graph/API/Workflow cases. The targeted graph/Workflow/API run passes 42 tests. Tests use real disposable FalkorDB graphs; provider responses and terminal status in recovery fixtures are explicitly controlled. Runtime diagnostics from intentionally absent Workflow instances are caught by the preservation path and are not evidence of live inference. Type checking and lint pass.
+
+After both review fixes, the fresh `UNDOGRAPH_LIVE_AI=1 npm run test:e2e` run passed all nine tests with no skips, including the complete real-inference build/correction/repair flow. The fixes have separate commits: `a75df12` for the publication guard and `4412b8a` for terminal Workflow recovery. [Execution decisions and deferred scope](EXECUTION.md) retain the implementation rulings.
+
+Final production build passes. Scans of tracked files, all Git-history blobs and the browser bundle find no supplied GitHub tokens or local database/session secrets. All commits use Tejas-Sands as both author and committer, without co-author trailers.
