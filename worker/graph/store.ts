@@ -106,7 +106,7 @@ export async function loadSnapshot(env: Env, graphName: string): Promise<Workspa
   const workspaces = nodes('Workspace')
   if (!workspaces.length) throw new DomainError('NOT_FOUND', 'Workspace not found.', 404)
   if (workspaces.length !== 1) throw new DomainError('INCOMPLETE_AUDIT', 'Conflicting workspace roots make this audit incomplete.')
-  return workspaceSnapshotSchema.parse({
+  const snapshot = workspaceSnapshotSchema.parse({
     workspace: workspaces[0],
     artifacts: nodes('Artifact').map(decodeArtifact),
     sessions: nodes('Session').map((node) => sessionSchema.parse(node)),
@@ -119,6 +119,8 @@ export async function loadSnapshot(env: Env, graphName: string): Promise<Workspa
     })),
     edges: [...edges.values()].map((edge) => edgeSchema.parse(edge)),
   })
+  if (snapshot.workspace.expiresAt <= Date.now()) throw new DomainError('WORKSPACE_EXPIRED', 'Workspace expired. Create a fresh workspace to continue.', 404)
+  return snapshot
 }
 
 export async function initializeWorkspace(env: Env, graphName: string, workspaceId: string, expiresAt: number): Promise<WorkspaceSnapshot> {

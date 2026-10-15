@@ -1,12 +1,14 @@
 import type { JsonValue } from '../../shared/contracts'
 import { runQueries } from './run-queries'
 import { repairQueries } from './repair-queries'
+import { sessionQueries } from './session-queries'
 
 export type QueryParams = Record<string, JsonValue>
 
 export const queries = {
   ...runQueries,
   ...repairQueries,
+  ...sessionQueries,
   bootstrapWorkspace: `OPTIONAL MATCH (existing:Workspace)
     WITH existing WHERE existing IS NULL OR existing.id = $id
     MERGE (w:Workspace {id: $id})
@@ -59,4 +61,4 @@ export const queries = {
 } as const
 
 export type QueryName = keyof typeof queries
-export const readOnlyQueries = new Set<QueryName>(['snapshot', 'impact', 'runPlan'])
+export const readOnlyQueries = new Set<QueryName>(['snapshot', 'impact', 'runPlan', 'expiredWorkspaces', 'inferenceAvailable'])

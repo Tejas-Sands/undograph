@@ -22,7 +22,7 @@ afterEach(async () => {
 })
 const request = { kind: 'build' as const, expectedRevision: 0 }
 
-describe('durable build lifecycle', () => {
+describe.skipIf(!bindings.FALKORDB_HOST || !bindings.FALKORDB_PASSWORD)('durable build lifecycle', () => {
   it('completes a native Workflow and reopens all persisted work', async () => {
     const run = await prepareRun(localEnv, graphName, request, 'native-build')
     const workflow = (env as unknown as { TEST_BUILD_WORKFLOW: Workflow<WorkflowParams> }).TEST_BUILD_WORKFLOW

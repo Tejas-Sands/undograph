@@ -13,7 +13,7 @@ Target deployment: a React application and API on Cloudflare Workers, durable ru
 
 ## Current status
 
-The local runtime, immutable graph store, durable agent builds, source correction, selective repair and stale-release guards are implemented. The complete local scenario has passed with real Workers AI, including exact preservation of independent work. Workspace reset/cleanup/export and the operations UI are next. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
+The local backend is implemented: immutable graph storage, durable agent builds, source correction, selective repair, stale-release guards, visitor isolation, quotas, reset, expiry cleanup and audit export. The complete local scenario has passed with real Workers AI, including exact preservation of independent work. The operations UI is next. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
 
 ## Local development
 

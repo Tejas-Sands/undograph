@@ -22,7 +22,7 @@ The initial running-server check failed with `TypeError: e.BigInt is not a funct
 
 ## Gates that remain
 
-Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. Reset, expiry cleanup, audit export and browser acceptance remain before the local application is complete.
+Local work does not establish deployed Workers compatibility. A public service still requires a reachable TLS-enabled FalkorDB endpoint, rejection of an invalid certificate against a real TLS endpoint, and the deployed Worker/Workflow probe. The operations UI and browser acceptance remain before the local application is complete.
 
 Readiness verifies operational application constraints and indexes alongside a database query. No in-memory application database or silent inference fallback is used.
 
@@ -47,3 +47,11 @@ Signed visitor cookies and inference quota reservations were brought forward fro
 A correction versions only the synthetic return-window field and requires an operator reason. It atomically invalidates pending descendants, flags released history and makes an active older run obsolete. A repair persists its graph-derived plan and stages replacements with exact version mapping. Final promotion verifies the complete set, source revision and preserved ID/hash pairs. Consecutive corrections still repair all earlier pending stale work. Released historical replies require review and are not regenerated as external actions.
 
 A real inference response exposed an overly strict punctuation check: a supporting quotation contained the complete numerical statement without its terminal period. The validator now accepts that exact substring while retaining exact offsets, the complete statement, unique source evidence and the matching numerical window. Regression checks still reject fabricated or unsupported quotations. Returned usage from rejected structured responses is checkpointed and saved separately before the run is marked failed.
+
+## Visitor lifecycle and public bounds
+
+The existing `identity.ts` keeps cookie verification and keyed graph naming together rather than adding wrapper modules. New cookies sign a visitor ID, workspace generation and expiry. Initial development cookies still recover their original graph. Reset changes the generation while preserving the visitor identity and expiry, so it does not reset inference quotas. It closes the old workspace, increments its revision and marks its active run obsolete before returning the new cookie. A client that lost the response can create a fresh generation from its closed previous workspace.
+
+API launch checks known quota exhaustion before saving a new run. The authoritative reservation remains an atomic graph mutation before every provider call, including correction attempts and retries. A concurrent quota race can therefore fail an accepted asynchronous run visibly without making an unreserved model call.
+
+Hourly scheduled cleanup selects expired registry entries and accepts only the configured prefix plus the exact server-generated visitor-graph format. It preserves live graphs, unregistered graphs, control graphs and unrelated names. An export contains validated synthetic snapshot records, impact paths and measured run state, without cookies, graph names or connection configuration. Reset requires the explicit `RESET` confirmation field; draft review never sends externally.

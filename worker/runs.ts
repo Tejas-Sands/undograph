@@ -2,10 +2,10 @@ import { runRequestSchema, type Artifact, type ArtifactWrite, type Run, type Run
 import { DomainError, hashCanonical, planRepair, validateLineage } from './domain'
 import type { Env } from './env'
 import { findImpact, loadSnapshot, queryGraph, recordArtifact } from './graph/store'
-import { reserveInference } from './limits'
+import { assertInferenceAvailable, reserveInference } from './limits'
 import type { Usage } from './agents'
 
-export async function prepareRun(env: Env, graphName: string, request: RunRequest, key: string): Promise<Run> {
+export async function prepareRun(env: Env, graphName: string, request: RunRequest, key: string, visitorId?: string): Promise<Run> {
   const input = runRequestSchema.parse(request)
   if (!/^[a-zA-Z0-9_-]{8,120}$/.test(key)) throw new DomainError('INVALID_IDEMPOTENCY_KEY', 'Provide an Idempotency-Key of 8–120 letters, numbers, underscores or hyphens.', 400)
   const snapshot = await loadSnapshot(env, graphName)
@@ -16,6 +16,7 @@ export async function prepareRun(env: Env, graphName: string, request: RunReques
     if (existing.requestHash !== requestHash) throw new DomainError('IDEMPOTENCY_CONFLICT', 'This request key was used with different parameters.')
     return existing
   }
+  if (visitorId) await assertInferenceAvailable(env, visitorId)
   validateLineage(snapshot)
   if (snapshot.workspace.revision !== input.expectedRevision) throw new DomainError('REVISION_CONFLICT', 'Refresh the workspace before starting work.')
   if (snapshot.workspace.activeRunId) throw new DomainError('RUN_IN_PROGRESS', 'A run is already active. Reuse its request key to recover launch.')

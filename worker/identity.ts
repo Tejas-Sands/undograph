@@ -1,7 +1,7 @@
 import { DomainError } from './domain'
 import type { Env } from './env'
 
-export interface Visitor { id: string; graphName: string; workspaceId: string; expiresAt: number; cookie?: string }
+export interface Visitor { id: string; generation: string; graphName: string; workspaceId: string; expiresAt: number; cookie?: string }
 const cookieName = 'undograph_session'
 
 async function mac(env: Env, value: string): Promise<string> {
@@ -21,17 +21,32 @@ export async function visitorIdentity(request: Request, env: Env, create = false
   const raw = request.headers.get('Cookie')?.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${cookieName}=`))?.slice(cookieName.length + 1)
   const parts = raw?.split('.') ?? []
   let id = parts[0]
-  let expiresAt = Number(parts[1])
-  let cookie: string | undefined
-  const valid = parts.length === 3 && /^[a-f0-9]{32}$/.test(id) && Number.isSafeInteger(expiresAt) && expiresAt > Date.now() && expiresAt <= Date.now() + 86_400_000 && equal(await mac(env, `cookie:${id}.${expiresAt}`), parts[2])
+  // Preserve initial development cookies while new cookies carry a reset generation.
+  let generation = parts.length === 4 ? parts[1] : ''
+  let expiresAt = Number(parts.at(-2))
+  const payload = generation ? `${id}.${generation}.${expiresAt}` : `${id}.${expiresAt}`
+  const valid = [3, 4].includes(parts.length) && /^[a-f0-9]{32}$/.test(id) &&
+    (parts.length === 3 || /^[a-f0-9]{32}$/.test(generation)) && Number.isSafeInteger(expiresAt) &&
+    expiresAt > Date.now() && expiresAt <= Date.now() + 86_400_000 && equal(await mac(env, `cookie:${payload}`), parts.at(-1)!)
   if (!valid) {
     if (!create) throw new DomainError('NOT_FOUND', 'Workspace not found. Create a local workspace to begin.', 404)
     id = crypto.randomUUID().replaceAll('-', '')
+    generation = crypto.randomUUID().replaceAll('-', '')
     expiresAt = Date.now() + 86_400_000
-    cookie = `${cookieName}=${id}.${expiresAt}.${await mac(env, `cookie:${id}.${expiresAt}`)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${env.ENVIRONMENT === 'local' ? '' : '; Secure'}`
   }
-  const digest = await mac(env, `graph:${id}`)
-  return { id, graphName: `${env.GRAPH_PREFIX}visitor_${digest}`, workspaceId: `workspace_${digest.slice(0, 32)}`, expiresAt, ...(cookie ? { cookie } : {}) }
+  return identify(env, id, generation, expiresAt, !valid)
+}
+
+async function identify(env: Env, id: string, generation: string, expiresAt: number, issueCookie: boolean): Promise<Visitor> {
+  const payload = `${id}.${generation}.${expiresAt}`
+  const digest = await mac(env, generation ? `graph:${id}.${generation}` : `graph:${id}`)
+  const cookie = issueCookie ? `${cookieName}=${payload}.${await mac(env, `cookie:${payload}`)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${Math.max(0, Math.floor((expiresAt - Date.now()) / 1000))}${env.ENVIRONMENT === 'local' ? '' : '; Secure'}` : undefined
+  return { id, generation, graphName: `${env.GRAPH_PREFIX}visitor_${digest}`, workspaceId: `workspace_${digest.slice(0, 32)}`, expiresAt, ...(cookie ? { cookie } : {}) }
+}
+
+export async function rotateWorkspace(request: Request, env: Env): Promise<Visitor> {
+  const visitor = await visitorIdentity(request, env)
+  return identify(env, visitor.id, crypto.randomUUID().replaceAll('-', ''), visitor.expiresAt, true)
 }
 
 export async function readJson(request: Request): Promise<unknown> {
