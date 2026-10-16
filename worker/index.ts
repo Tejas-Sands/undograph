@@ -4,8 +4,8 @@ import { ZodError, z } from 'zod'
 import { correctionRequestSchema, runRequestSchema } from '../shared/contracts'
 import { DomainError, validateLineage } from './domain'
 import type { Env } from './env'
-import { DatabaseUnavailable, withGraph } from './graph/client'
-import { ensureSchema, findImpact, initializeWorkspace, loadSnapshot, queryGraph } from './graph/store'
+import { DatabaseUnavailable } from './graph/client'
+import { deleteGraph, ensureSchema, findImpact, initializeWorkspace, loadSnapshot, queryGraph } from './graph/store'
 import { readJson, rotateWorkspace, visitorIdentity } from './identity'
 import { cleanupExpiredWorkspaces, controlGraph, registerWorkspace } from './limits'
 import { launchRun, loadRun, loadWorkspace, prepareRun } from './runs'
@@ -60,7 +60,7 @@ app.delete('/api/workspace', async (context) => {
   if (!closed.length) throw new DomainError('WORKSPACE_BUSY', 'The workspace changed or work is still active. Wait for its terminal state before removing it.')
   const control = controlGraph(context.env)
   await queryGraph(context.env, control, 'expireRegistry', { id: visitor.graphName, now: Date.now() })
-  await withGraph(context.env, visitor.graphName, (graph) => graph.delete())
+  await deleteGraph(context.env, visitor.graphName)
   await queryGraph(context.env, control, 'removeRegistry', { id: visitor.graphName, now: Date.now() })
   context.header('Set-Cookie', `undograph_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${context.env.ENVIRONMENT === 'local' ? '' : '; Secure'}`)
   return context.json({ deleted: true })
@@ -134,10 +134,8 @@ app.post('/api/workspace/reset', async (context) => {
 app.get('/api/ready', async (context) => {
   try {
     await ensureSchema(context.env, `${context.env.GRAPH_PREFIX}control`)
-    await withGraph(context.env, `${context.env.GRAPH_PREFIX}control`, async (graph) => {
-      const reply = await graph.query<{ ok: number }>('RETURN 1 AS ok', { TIMEOUT: 2_000 })
-      if (reply.data?.[0]?.ok !== 1) throw new DatabaseUnavailable()
-    })
+    const reply = await queryGraph<{ ok: number }>(context.env, `${context.env.GRAPH_PREFIX}control`, 'health')
+    if (reply[0]?.ok !== 1) throw new DatabaseUnavailable()
     return context.json({ ready: true })
   } catch {
     return context.json({ error: {

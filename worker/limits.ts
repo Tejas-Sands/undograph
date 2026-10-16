@@ -1,7 +1,6 @@
 import { DomainError, hashCanonical } from './domain'
 import type { Env } from './env'
-import { ensureSchema, queryGraph } from './graph/store'
-import { withGraph } from './graph/client'
+import { deleteGraph, ensureSchema, queryGraph } from './graph/store'
 
 export function controlGraph(env: Env) { return env.CONTROL_GRAPH ?? `${env.GRAPH_PREFIX}control` }
 export async function cleanupExpiredWorkspaces(env: Env, now = Date.now()): Promise<{ deleted: number; skipped: number }> {
@@ -12,7 +11,7 @@ export async function cleanupExpiredWorkspaces(env: Env, now = Date.now()): Prom
   for (const { id } of expired) {
     const prefix = `${env.GRAPH_PREFIX}visitor_`
     if (!id.startsWith(prefix) || !/^[a-f0-9]{64}$/.test(id.slice(prefix.length)) || id === control) { result.skipped++; continue }
-    try { await withGraph(env, id, (graph) => graph.delete()) }
+    try { await deleteGraph(env, id) }
     catch (error) { if (!(error instanceof Error) || !/empty key|not exist|unknown graph/i.test(error.message)) throw error }
     await queryGraph(env, control, 'removeRegistry', { id, now })
     result.deleted++

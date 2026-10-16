@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "wrangler types && tsc -b && vite build",
+    "build:gateway": "vite build --config vite.gateway.config.ts",
     "lint": "eslint .",
     "preview": "npm run build && vite preview",
     "deploy": "npm run build && wrangler deploy",
@@ -18,6 +19,8 @@
     "test:unit": "vitest run --config vitest.config.ts",
     "test:worker": "vitest run --config vitest.worker.config.ts",
     "test:graph": "vitest run --config vitest.graph.config.ts",
+    "test:gateway": "vitest run --config vitest.gateway.config.ts",
+    "test:gateway:worker": "UNDOGRAPH_TEST_GATEWAY=1 vitest run --config vitest.graph.config.ts",
     "test:e2e": "playwright test",
     "deploy:preview": "CLOUDFLARE_ENV=preview npm run build && wrangler deploy --env preview",
     "deploy:production": "CLOUDFLARE_ENV=production npm run build && wrangler deploy --env production",

@@ -41,10 +41,10 @@ Files: `src/Root.tsx`, `src/App.tsx`, `src/useWorkspace.ts`, `src/components/App
 
 Files: new `gateway/`, `worker/graph/gateway.ts`, `worker/graph/store.ts`, `worker/graph/client.ts`, `worker/env.ts`, configuration and real-DB gateway tests.
 
-- [ ] Write failing contract tests for authenticated query/schema/owned-delete operations, strict payloads, prefix boundaries and failure sanitization.
-- [ ] Add a Node HTTP service using existing Hono/Zod and store queries, plus a fetch adapter for Cloudflare. Keep direct TLS/local connection paths.
-- [ ] Exercise real database schema, parameterized reads/writes, repair and deletion through the adapter. Verify invalid credentials/operations cannot reach the DB.
-- [ ] Verify original backend suite and runtime compatibility; commit the gateway separately.
+- [x] Write failing contract tests for authenticated query/schema/owned-delete operations, strict payloads, prefix boundaries and failure sanitization.
+- [x] Add a Node HTTP service using existing Hono/Zod and store queries, plus a fetch adapter for Cloudflare. Keep direct TLS/local connection paths.
+- [x] Exercise real database schema, parameterized reads/writes, repair and deletion through the adapter. Verify invalid credentials/operations cannot reach the DB.
+- [x] Verify runtime compatibility: all 64 real graph/API/Workflow tests pass through the gateway. Worker fetch requires manual redirect refusal rather than redirect:error. Original direct-path suite follows in final verification.
 
 ## Task 3: Railway container and deployment handoff
 

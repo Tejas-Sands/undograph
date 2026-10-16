@@ -20,4 +20,6 @@ export interface Env {
   FALKORDB_PASSWORD?: string
   SESSION_SECRET?: string
   CONTROL_GRAPH?: string
+  GRAPH_GATEWAY_URL?: string
+  GRAPH_GATEWAY_TOKEN?: string
 }

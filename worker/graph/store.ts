@@ -10,11 +10,13 @@ import { DomainError, hashCanonical, validateLineage, validatePolicyFacts } from
 import type { Env } from '../env'
 import { withGraph } from './client'
 import { queries, readOnlyQueries, type QueryName, type QueryParams } from './queries'
+import { gatewayOperation, usesGateway } from './gateway'
 
 const labels = ['Workspace', 'Artifact', 'Session', 'Agent', 'Run', 'Step', 'Change', 'RepairReport']
 type Properties = Record<string, unknown>
 
 export async function queryGraph<T>(env: Env, graphName: string, query: QueryName, params: QueryParams = {}): Promise<T[]> {
+  if (usesGateway(env)) return gatewayOperation<T[]>(env, { action: 'query', graphName, query, params })
   return withGraph(env, graphName, async (graph) => {
     const options = { params, TIMEOUT: 2_000 }
     const reply = readOnlyQueries.has(query)
@@ -22,6 +24,11 @@ export async function queryGraph<T>(env: Env, graphName: string, query: QueryNam
       : await graph.query<T>(queries[query], options)
     return reply.data ?? []
   })
+}
+
+export async function deleteGraph(env: Env, graphName: string): Promise<void> {
+  if (usesGateway(env)) { await gatewayOperation(env, { action: 'delete', graphName }); return }
+  await withGraph(env, graphName, (graph) => graph.delete())
 }
 
 interface ConstraintRow { type: string; label: string; properties: string[]; status: string }
@@ -42,6 +49,7 @@ async function schemaRows(graph: Graph) {
 }
 
 export async function ensureSchema(env: Env, graphName: string): Promise<void> {
+  if (usesGateway(env)) { await gatewayOperation(env, { action: 'schema', graphName }); return }
   const unique = [...[...labels, 'Quota', 'WorkspaceRegistry'].map((label) => [label, 'id'] as const), ['Artifact', 'currentKey'] as const]
   const indexed = [...unique, ['Artifact', 'logicalId'] as const, ['Run', 'status'] as const]
   await withGraph(env, graphName, async (graph) => {

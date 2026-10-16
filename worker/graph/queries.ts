@@ -6,6 +6,7 @@ import { sessionQueries } from './session-queries'
 export type QueryParams = Record<string, JsonValue>
 
 export const queries = {
+  health: 'RETURN 1 AS ok',
   ...runQueries,
   ...repairQueries,
   ...sessionQueries,
@@ -61,4 +62,4 @@ export const queries = {
 } as const
 
 export type QueryName = keyof typeof queries
-export const readOnlyQueries = new Set<QueryName>(['snapshot', 'impact', 'runPlan', 'expiredWorkspaces', 'inferenceAvailable', 'workspaceRegistration'])
+export const readOnlyQueries = new Set<QueryName>(['health', 'snapshot', 'impact', 'runPlan', 'expiredWorkspaces', 'inferenceAvailable', 'workspaceRegistration'])
