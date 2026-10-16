@@ -57,7 +57,7 @@ Files: Dockerfile, entrypoint, railway configuration, example environment files,
 
 ## Task 4: Final verification and publication
 
-- [ ] Run type checking, lint, backend/gateway tests, browser suite and production builds; inspect browser layouts and accessibility.
-- [ ] Obtain independent review, fix findings and rerun affected checks.
+- [x] Run type checking, lint, backend/gateway tests, browser suite and production builds; inspect browser layouts and accessibility. All 27 browser cases passed with real AI enabled.
+- [x] Obtain independent review, fix findings and rerun affected checks. Focused rereview found no remaining blocker.
 - [ ] Scan tracked/browser artifacts for secrets, verify author/committer identity, fast-forward main and push the separate commits.
 - [ ] Observe CI. Report precisely whether deployment is prepared or actually verified; list any missing external access.

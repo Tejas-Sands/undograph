@@ -1,6 +1,38 @@
 # Verification record
 
-Final local status: 111 backend tests pass without skips; all fifteen browser tests passed with real Workers AI enabled, including six landing-page checks. CI explicitly skips the live-inference case. The sections below record successive milestones; earlier pending items describe their state at that milestone. Cloud deployment and TLS certificate-refusal proof remain unverified.
+Latest local status (October 16): 111 original backend tests, five gateway contract tests and all 27 browser tests pass. The 64 real graph/API/Workflow cases additionally pass through the HTTP gateway in workerd. The pinned Railway container passes persistence/lifecycle checks and a complete real-Workers-AI application smoke. CI explicitly skips its live-inference browser case. Remote deployment and public TLS verification remain pending account access. Earlier sections record their status at each milestone.
+
+## Railway gateway and guided simulation — October 16, 2026
+
+| Check | Observed result |
+| --- | --- |
+| `npm run typecheck`, `npm run lint` | Passed for browser, Worker, gateway, tooling and tests |
+| `npm test` | 111 passed: 43 unit, four Worker, 64 real graph/API/Workflow cases |
+| `npm run test:gateway` | Five passed: authentication, strict named operations/prefixes/body limits, sanitized failures, schema/read/write/delete, unsafe HTTP and redirect/malformed-response refusal |
+| `npm run test:gateway:worker` | All 64 existing real graph/API/Workflow cases passed through the HTTP adapter in workerd |
+| `UNDOGRAPH_LIVE_AI=1 npm run test:e2e` | All 27 passed, including real inference, correction, stale review, repair, simulation, offline entry, layout, focus and mode isolation |
+| `npm run build`, `npm run build:gateway` | Website/Worker and Node gateway builds passed |
+| `docker build -t undograph-railway:test .` | Built with pinned Node builder and FalkorDB base digests |
+| `npm run test:railway` | Actual container: authenticated readiness, token refusal, named-query/prefix refusal, persistent write, clean exit 0 on SIGTERM, retained data after restart, exit 1 when DB child stops |
+| Container memory sample | 102.2 MiB with a 1 GiB limit, small synthetic dataset; not a sustained-load measurement |
+| Real AI application smoke through the built container | Passed health/readiness, build, reload read, correction, impact, stale-review refusal, duplicate-run recovery, selective repair, review, foreign-visitor refusal and audit export |
+| Accessibility | New simulation guide: axe-core 4.12.1, 12 passes, zero violations or incomplete checks; keyboard and viewport coverage in browser tests |
+| Secret scan | Tracked files and every browser build asset contain neither generated local/railway secrets nor GitHub-token patterns; private credential files remain ignored and untracked |
+
+The container application proof temporarily connected the local Worker to its loopback HTTP gateway, while inference used the actual remote Workers AI binding. The original local configuration was restored and the disposable proof container removed. Its two measured runs were:
+
+| Run | Model calls | Persisted duration | Input tokens | Output tokens |
+| --- | --- | --- | --- | --- |
+| Initial build `run_b696ce9155583726b798775664c6f585` | 4 | 8.716 s | 1,084 | 188 |
+| Selective repair `run_d1116ec6b16c156169324d093446b37e` | 3 | 6.558 s | 910 | 171 |
+
+Exactly five artifacts were affected/repaired. The 21-day case became ineligible; the 7-day case stayed eligible. Independent reply `run_b696ce9155583726b798775664c6f585_reply-A001_output` retained SHA-256 `1a034ffbda4d28a16ceaa2f805f888c329c30d4025b2c43df0203b4c56a890b9`. Owned terminal workspace graphs were deleted. These are lifecycle measurements, not a fresh-build comparison on identical corrected inputs or a speed guarantee.
+
+The simulation has five guided steps with a permanent recorded-synthetic label and labeled exports. It makes no API requests and works after initial page assets load even if the connection then drops. Browser tests check 375/768/1440-pixel simulation layouts, full preserved ID/hash and both return decisions in exports, delayed readiness/read/mutation transitions, source-link stage preservation and unobstructed desktop sidebar controls. Captured evidence and graph code ship in the entry bundle (~688 KB minified / 198 KB gzip), intentionally trading a larger initial download for reliable later fallback. A cold offline page load is not supported.
+
+Independent review found desktop launcher overlap and unmounted live controllers initiating follow-up reads. Three regressions first failed, then passed after sidebar spacing and lifecycle guards. A source-link mode regression also failed before its fix. Focused rereview found no remaining blocker. Simulation grouping was corrected after an accessibility check; the rerun has no incomplete checks.
+
+The gateway uses `redirect: manual` and rejects redirects: workerd does not support `redirect: error`. Local HTTP is permitted only for loopback in local mode. Remote configuration requires HTTPS and a server-only bearer token. This local verification does not establish Railway provisioning, public certificate behavior, remaining account credits, or a deployed Cloudflare-to-Railway flow. Follow [the Railway guide](RAILWAY.md) and run the smoke again against the public website after account setup.
 
 ## Local runtime — October 15, 2026
 
