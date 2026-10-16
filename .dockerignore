@@ -7,3 +7,5 @@
 !shared/**
 !fixtures/
 !fixtures/northstar.json
+!scripts/
+!scripts/patch-falkordb.mjs

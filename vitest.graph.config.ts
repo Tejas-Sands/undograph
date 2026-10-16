@@ -38,6 +38,9 @@ export default defineConfig({
   })],
   test: {
     include: ['tests/graph.*.test.ts', 'tests/workflows.test.ts', 'tests/api.test.ts'],
+    // These runtime suites share one real DB and gateway; keep concurrency
+    // within each test rather than competing across multiple workerd pools.
+    fileParallelism: false,
     testTimeout: 40_000,
   },
 })

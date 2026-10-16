@@ -1,7 +1,8 @@
 FROM node:24-trixie-slim@sha256:7f486cabe892bff8fef04c0f7da8dba84a560be3e4e2740b7a86afc57ebec315 AS build
 WORKDIR /opt/undograph
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
+COPY scripts/patch-falkordb.mjs ./scripts/patch-falkordb.mjs
+RUN npm ci --ignore-scripts && node scripts/patch-falkordb.mjs
 COPY gateway ./gateway
 COPY worker ./worker
 COPY shared ./shared

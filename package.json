@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/patch-falkordb.mjs",
     "dev": "vite",
     "build": "wrangler types && tsc -b && vite build",
     "build:gateway": "vite build --config vite.gateway.config.ts",

@@ -1,6 +1,14 @@
 # Verification record
 
-Latest local status (October 16): 111 original backend tests, eight gateway/configuration tests and all 27 browser tests pass. The 64 real graph/API/Workflow cases additionally pass through the HTTP gateway in workerd. The pinned Railway container passes persistence/lifecycle checks and a complete real-Workers-AI application smoke. CI explicitly skips its live-inference browser case. Remote deployment and public TLS verification remain pending account access. Earlier sections record their status at each milestone.
+Latest local status (October 16): 111 original backend tests, nine gateway/configuration/connection tests and all 27 browser tests pass. The 64 real graph/API/Workflow cases additionally pass through the HTTP gateway in workerd. The pinned Railway container passes persistence/lifecycle checks and a complete real-Workers-AI application smoke. CI explicitly skips its live-inference browser case. Remote deployment and public TLS verification remain pending account access. Earlier sections record their status at each milestone.
+
+## SDK connection failure recovery — October 16, 2026
+
+CI on the password fix exposed an unhandled `SocketClosedUnexpectedlyError` in the pinned FalkorDB 6.8.0 SDK. The SDK forwards Redis socket errors before returning its client, preventing callers from registering an error listener in time. A real local TCP server that closes accepted sockets reproduced the Node-process crash in a child-process test.
+
+A narrow install-time patch registers the SDK error listener immediately after construction. Connection failure still rejects the promise and reaches the existing sanitized error path. It adds no global exception handler or dependency. The patch is idempotent and fails on an unexpected SDK version/layout; Docker applies it explicitly despite ignoring lifecycle scripts. The same socket-reset test passes inside the rebuilt production image.
+
+After the fix, the 111 original backend cases and nine gateway cases pass. All 64 graph/API/Workflow cases pass through the HTTP adapter with test files serialized against their shared DB/gateway; concurrency assertions inside individual tests remain active. Type checking, lint, Worker/client build and all three actual-container password/lifecycle scenarios also pass. The earlier concurrent integration run returned three timeouts/unavailability failures; serialized execution completed all 64 cases in 47.38 seconds.
 
 ## Railway password startup correction — October 16, 2026
 

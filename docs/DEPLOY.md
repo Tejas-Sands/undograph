@@ -16,6 +16,8 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 Open `http://127.0.0.1:5173`. The official database image is pinned by digest in `compose.yaml`, requires the generated password and listens only on `127.0.0.1:16379`. The setup script creates ignored `.dev.vars` with mode 0600 and preserves existing values. Its named Docker volume persists graph data. `npm run db:stop` stops the container without deleting that data.
 
+`npm ci` applies a narrow install-time fix to the pinned FalkorDB 6.8.0 SDK: it registers an error listener before connection establishment, allowing socket failures to reject rather than crash Node. If installing with lifecycle scripts disabled, run `node scripts/patch-falkordb.mjs` explicitly; the Dockerfile already does this. The script is idempotent and refuses an unexpected SDK version/layout. Remove or reassess it when upgrading the SDK.
+
 Local Worker and Workflow execution uses workerd. Live generation uses the remote Workers AI binding and your Wrangler authentication. The model requested is `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, with temperature zero and at most 600 output tokens. There is one structured-output correction and at most one transient Workflow retry. Actual attempts reserve quota before inference.
 
 For recorded-only exploration without Cloudflare authentication, use `UNDOGRAPH_OFFLINE=1 npm run dev` and open `/#/recorded/overview`. This disables remote bindings and never provides fake live inference. The local database is unnecessary for that read-only example, but is required for live APIs and graph integration tests.
