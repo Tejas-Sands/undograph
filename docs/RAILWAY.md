@@ -1,6 +1,6 @@
 # Railway deployment
 
-The repository contains a tested container for FalkorDB and an authenticated HTTP gateway. Cloudflare serves the website, API, Workers AI and durable Workflows. Railway provides the database service and public HTTPS termination. Deployment to a real Railway account still requires account access and a successful public smoke test.
+The repository contains a tested container for FalkorDB and an authenticated HTTP gateway. Cloudflare serves the website, API, Workers AI and durable Workflows. Railway provides the database service and public HTTPS termination. The [public preview](https://undograph-preview.the-workflow-worker.workers.dev) passed its complete live application smoke on October 17, 2026 (IST); [the verification record](VERIFICATION.md) contains observed results and persistence limits. The instructions below reproduce this deployment in an authorized account.
 
 ```mermaid
 flowchart LR

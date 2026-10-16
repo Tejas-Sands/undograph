@@ -1,6 +1,6 @@
 # Local development and Cloudflare deployment
 
-The verified targets are local development and the Railway container tested locally. For the selected deployment route, follow [Railway setup](RAILWAY.md): a co-located FalkorDB and authenticated HTTPS gateway connect to Cloudflare. Actual cloud deployment still needs Railway account access and public end-to-end verification. The direct TLS alternative below remains supported.
+The verified targets include local development, the Railway container and the [public Cloudflare preview](https://undograph-preview.the-workflow-worker.workers.dev). The complete public live smoke passed on October 17, 2026 (IST); see [observed verification](VERIFICATION.md). For the selected deployment route, follow [Railway setup](RAILWAY.md): a co-located FalkorDB and authenticated HTTPS gateway connect to Cloudflare. The direct database TLS alternative below remains a separate supported configuration.
 
 ## Local application
 

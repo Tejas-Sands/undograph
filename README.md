@@ -4,6 +4,8 @@ UndoGraph repairs an agent's stored context and pending work after an operator c
 
 The demo is a fictional customer-support workspace. Correct a return window from 30 days to 14 days, inspect affected work from two agent sessions, regenerate pending replies, and verify that an unrelated password-reset reply retains its original version and content.
 
+Public demo: [website](https://undograph-preview.the-workflow-worker.workers.dev), [live workspace](https://undograph-preview.the-workflow-worker.workers.dev/#/overview), [guided simulation](https://undograph-preview.the-workflow-worker.workers.dev/#/simulation/overview).
+
 ## Project documents
 
 - [Product and technical specification](DESIGN.md)
@@ -16,11 +18,11 @@ The demo is a fictional customer-support workspace. Correct a return window from
 - [Asset origins and licenses](docs/ASSETS.md)
 - [Implementation decisions and review outcomes](docs/EXECUTION.md)
 
-Target deployment: a React application and API on Cloudflare Workers, durable runs on Cloudflare Workflows, inference on Workers AI, and an external FalkorDB instance. FalkorDB remains the canonical application database.
+Deployment: a React application and API on Cloudflare Workers, durable runs on Cloudflare Workflows, inference on Workers AI, and FalkorDB with an authenticated HTTPS gateway on Railway. FalkorDB remains the canonical application database.
 
 ## Current status
 
-The local application is implemented: the operations workspace, immutable graph storage, durable agent builds, source correction, selective repair, stale-release guards, visitor isolation, quotas, reset, expiry cleanup and audit export. The complete local browser scenario has passed with real Workers AI, including exact preservation of independent work. The Railway container and authenticated HTTPS adapter are ready for account configuration and public verification.
+The public preview passed the complete real-Workers-AI build/correction/repair smoke on October 17, 2026 (IST), including exact preservation, visitor isolation and audit export. Browser verification also completed a live build and recovered from a network failure into the labeled simulation while offline. The operator confirmed the Railway volume is mounted at `/data`; a forced restart of the public database was not part of this check. See [the verification record](docs/VERIFICATION.md) for evidence and limits.
 
 ## Local development
 
@@ -56,7 +58,7 @@ node scripts/cloud-smoke.mjs --base-url http://127.0.0.1:5173 --benchmark
 
 The original backend suite contains 111 tests; gateway contracts, password configuration and connection recovery add ten cases. The HTTP adapter suite runs 65 graph/API/Workflow cases, including build and repair under Cloudflare Free's 50-request limit with corrected model output and a lost save acknowledgement. The browser suite contains 27 tests, including simulation, offline entry, mode isolation and the real-inference workflow. CI explicitly skips its live-inference test. Full smoke testing creates isolated synthetic visitors and deletes their completed workspaces. Use `--probe` for health/readiness checks alone.
 
-In one local comparison using the same corrected source/case content, selective repair used three model calls and 8.899 seconds; a fresh build used four calls and 9.458 seconds. The independent account reply kept its exact ID, hash and content. These are observed measurements, not a performance guarantee; [the verification record](docs/VERIFICATION.md) includes provider usage and an earlier repair that took longer.
+In the verified public comparison using the same corrected source/case content, selective repair used three model calls and 12.955 seconds; a fresh build used four calls and 15.145 seconds. The independent account reply kept its exact ID, hash and content. These are observed measurements, not a performance guarantee; [the verification record](docs/VERIFICATION.md) includes provider usage and earlier local runs, including a repair that took longer.
 
 `npm run probe:local` exercises the official database client inside workerd, including parameterized writes, a three-hop graph path, authentication refusal, connection cleanup, and a real local Workflow step. Graph tests use disposable, uniquely named graphs and report skips when database credentials are absent.
 

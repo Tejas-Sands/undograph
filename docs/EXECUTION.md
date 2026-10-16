@@ -1,6 +1,6 @@
 # Execution decisions
 
-The local implementation was verified in the user-selected `undograph/` repository. Public cloud deployment, TLS certificate-refusal proof, a final recording and event submission remain separate work. See [verification evidence](VERIFICATION.md) and [implementation decisions](DECISIONS.md).
+The implementation was verified in the user-selected `undograph/` repository and the [public Cloudflare preview](https://undograph-preview.the-workflow-worker.workers.dev). The Railway HTTPS gateway and complete public live flow passed on October 17, 2026 (IST). A forced public database restart, the direct-database TLS alternative's certificate-refusal proof, a final recording and event submission remain separate work. See [verification evidence](VERIFICATION.md) and [implementation decisions](DECISIONS.md). The task decisions below record their status at earlier implementation milestones.
 
 A fresh independent review found two Important issues. Publication-race and Workflow-recovery regressions were observed failing before their fixes; all 111 backend and nine live browser tests then passed. There are no deferred minor findings.
 

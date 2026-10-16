@@ -1,6 +1,31 @@
 # Verification record
 
-Latest local status (October 16): 111 original backend tests, nine gateway/configuration/connection tests and all 27 browser tests pass. The 64 real graph/API/Workflow cases additionally pass through the HTTP gateway in workerd. The pinned Railway container passes persistence/lifecycle checks and a complete real-Workers-AI application smoke. CI explicitly skips its live-inference browser case. Remote deployment and public TLS verification remain pending account access. Earlier sections record their status at each milestone.
+Latest status (October 17, 2026, IST): the public Cloudflare preview and Railway HTTPS gateway passed the complete real-Workers-AI smoke. Browser verification also completed a public live build and recovered from network failure into the labeled simulation while offline. The original 111 backend cases, ten gateway cases and 65 HTTP-adapter graph/API/Workflow cases pass. CI passes its browser cases with live inference explicitly skipped; earlier local acceptance passed all 27 browser cases with real inference enabled. The operator confirmed a `/data` Railway volume; a forced public database restart was not performed. Earlier sections record their status at each milestone.
+
+## Public preview and free-plan Workflow correction — October 17, 2026 (IST)
+
+- Website: <https://undograph-preview.the-workflow-worker.workers.dev>
+- Live workspace: <https://undograph-preview.the-workflow-worker.workers.dev/#/overview>
+- Guided fallback: <https://undograph-preview.the-workflow-worker.workers.dev/#/simulation/overview>
+- Railway gateway: <https://undograph-production.up.railway.app/health>
+- Application code: `5841271d1924b633ed359e26e6ba22a8ed7cd2c9`; [CI passed](https://github.com/Tejas-Sands/undograph/actions/runs/38946088855).
+- Verified Cloudflare preview version: `9eb307c5-c559-4737-8941-60a1dc6abe51`.
+
+The first public build exposed Cloudflare Free's 50-subrequest limit. Three inference stages and their checkpoints succeeded before the remaining model/database calls failed; the graph reconciled the ended Workflow to a visible failure. A local regression enforcing the same hard cap reproduced the failure. The fix executes the existing guarded `openStep` and `saveOutput` functions beside FalkorDB through two validated, authenticated gateway operations. Inference remains separately checkpointed, and lineage, revision, quota and immutable-write checks remain active. The regression passes complete build and repair with a structured-output correction at every model stage and a repeated save after a lost acknowledgement. Independent review also caught a lost `WORKSPACE_EXPIRED` code on HTTP 404; its focused test failed before the adapter correction. [Cloudflare Workflow limits](https://developers.cloudflare.com/workflows/reference/limits/).
+
+`node scripts/cloud-smoke.mjs --base-url https://undograph-preview.the-workflow-worker.workers.dev --benchmark` exited successfully after both deployments used the fix. It verified readiness, synthetic input seeding, actual live inference and durable Workflows, duplicate-run recovery, reopening identical records, two sessions, six published outputs, five affected artifacts and a multi-hop path, revision-conflict refusal, stale-review refusal, five repaired artifacts, both return decisions, corrected-source citations, exact preservation of the unrelated account reply, internal review, live audit export and foreign-visitor refusal. All of the smoke's owned terminal workspace graphs were deleted.
+
+| Public observed run | Model calls | Persisted duration | Input tokens | Output tokens |
+| --- | --- | --- | --- | --- |
+| Original build | 4 | 15.267 s | 1,100 | 188 |
+| Selective repair | 3 | 12.955 s | 924 | 167 |
+| Fresh build on the same corrected source/case content | 4 | 15.145 s | 1,141 | 226 |
+
+These are small-fixture measurements from one public run, not a throughput or latency guarantee. The independent reply retained its complete record and content hash `1a034ffbda4d28a16ceaa2f805f888c329c30d4025b2c43df0203b4c56a890b9`.
+
+Browser checks used the public site's actual controls to start a workspace and complete a live build. With that isolated browser offline, **Refresh workspace** displayed the live error and **Continue in simulation**. Following the recovery link opened `#/simulation/overview`, retained the recorded-data label and guided controls, and added no API resource requests (21 before and after the transition). Restoring networking allowed deletion of only that browser's completed test workspace (`HTTP 200`, `deleted: true`). Earlier public browser checks completed all five simulation steps and downloaded its labeled audit entirely offline. Desktop and mobile layouts were inspected; the 390-pixel viewport measured a 390-pixel document width.
+
+The operator confirmed the Railway storage volume is attached at `/data`. Readiness and application reload recovery are verified; this run did not force a Railway restart or measure actual account spend. Local production-container checks independently passed volume recovery, graceful shutdown and database-child failure with generated, short and quoted passwords. Supplied credentials were read from the user-designated file without being printed or copied into the repository; connection secrets are configured only on the server.
 
 ## SDK connection failure recovery — October 16, 2026
 
