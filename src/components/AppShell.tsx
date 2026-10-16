@@ -5,19 +5,24 @@ import { views, type View } from '../navigation'
 export function AppShell({
   view,
   recorded,
+  simulation = false,
   hasWorkspace,
   onReset,
   children,
 }: {
   view: View
   recorded: boolean
+  simulation?: boolean
   hasWorkspace: boolean
   onReset: () => void
   children: ReactNode
 }) {
   return (
     <div className="app-shell">
-      <a href="#workspace-main" className="skip-link">
+      <a href="#workspace-main" className="skip-link" onClick={(event) => {
+        event.preventDefault()
+        document.getElementById('workspace-main')?.focus()
+      }}>
         Skip to workspace
       </a>
       <aside className="sidebar">
@@ -43,7 +48,7 @@ export function AppShell({
           {views.map(({ id, label, icon: Icon }) => (
             <a
               key={id}
-              href={`#/${recorded ? 'recorded/' : ''}${id}`}
+              href={`#/${simulation ? 'simulation/' : recorded ? 'recorded/' : ''}${id}`}
               aria-current={view === id ? 'page' : undefined}
             >
               <Icon size={19} aria-hidden="true" />
@@ -83,7 +88,7 @@ export function AppShell({
           </span>
           <div className="topbar-right">
             <span className={`mode-dot ${recorded ? 'mode-recorded' : ''}`} />
-            {recorded ? 'Recorded · Read only' : 'Live workspace'}
+            {simulation ? 'Simulation · Read only' : recorded ? 'Recorded · Read only' : 'Live workspace'}
             {hasWorkspace && !recorded && (
               <button
                 className="icon-button mobile-reset"

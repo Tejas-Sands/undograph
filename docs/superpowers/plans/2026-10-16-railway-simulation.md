@@ -32,10 +32,10 @@
 
 Files: `src/Root.tsx`, `src/App.tsx`, `src/useWorkspace.ts`, `src/components/AppShell.tsx`, new simulation components/styles; `tests/e2e/simulation.spec.ts`.
 
-- [ ] Write browser regressions for bottom-left entry, no API requests, guided full story, IDs/hash preservation and labeled audit export.
-- [ ] Observe RED; reuse captured snapshots and existing graph/panels for the guided simulation.
-- [ ] Test failed readiness/action recovery, finite missing-fixture errors, viewport fit and mode isolation during an old read.
-- [ ] Verify targeted landing/recorded/simulation browser flows and type/lint checks; commit the feature separately.
+- [x] Write browser regressions for bottom-left entry, no API requests, guided full story, IDs/hash preservation and labeled audit export.
+- [x] Observe RED; reuse captured snapshots and existing graph/panels for the guided simulation.
+- [x] Test failed readiness recovery, viewport fit and mode isolation during an old read. Bundle captured assets eagerly to remove the missing-fixture request; add a finite view error boundary.
+- [x] Verify targeted landing/simulation browser flows (14 cases), type/lint checks and mobile screenshot; commit the feature separately. Full recorded regression follows in final verification.
 
 ## Task 2: Authenticated named-operation gateway
 

@@ -8,13 +8,18 @@ import {
   type WorkspaceSnapshot,
 } from '../shared/contracts'
 import { ApiError, downloadJson, request } from './api'
+import captured from '../fixtures/recorded-walkthrough.json'
 
 export type RecordedStage = 'original' | 'corrected' | 'repaired'
-export function useWorkspace(recorded: boolean) {
+export function useWorkspace(recorded: boolean, simulation = false) {
   const [live, setLive] = useState<WorkspaceSnapshot | null>(null)
-  const [examples, setExamples] = useState<Record<RecordedStage, WorkspaceSnapshot> | null>(null)
+  const [examples] = useState<Record<RecordedStage, WorkspaceSnapshot> | null>(() => recorded ? {
+    original: workspaceSnapshotSchema.parse(captured.original),
+    corrected: workspaceSnapshotSchema.parse(captured.corrected),
+    repaired: workspaceSnapshotSchema.parse(captured.repaired),
+  } : null)
   const [stage, setStage] = useState<RecordedStage>('original')
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!recorded)
   const [busy, setBusy] = useState(false)
   const [ready, setReady] = useState(false)
   const [error, setError] = useState<ApiError | null>(null)
@@ -86,32 +91,7 @@ export function useWorkspace(recorded: boolean) {
   )
 
   useEffect(() => {
-    if (recorded) {
-      let active = true
-      import('../fixtures/recorded-walkthrough.json')
-        .then((module) => {
-          if (!active) return
-          setExamples({
-            original: workspaceSnapshotSchema.parse(module.default.original),
-            corrected: workspaceSnapshotSchema.parse(module.default.corrected),
-            repaired: workspaceSnapshotSchema.parse(module.default.repaired),
-          })
-          setLoading(false)
-        })
-        .catch(() => {
-          if (active)
-            setError(
-              new ApiError(
-                'EXAMPLE_UNAVAILABLE',
-                'The recorded example could not be loaded. Reload to retry.',
-                500,
-              ),
-            )
-        })
-      return () => {
-        active = false
-      }
-    }
+    if (recorded) return
     let active = true
     queueMicrotask(() => {
       if (active) void refresh()
@@ -292,7 +272,7 @@ export function useWorkspace(recorded: boolean) {
       try {
         downloadJson(
           recorded
-            ? { auditVersion: 1, origin: 'recorded', snapshot }
+            ? { auditVersion: 1, origin: simulation ? 'simulation' : 'recorded', synthetic: true, snapshot }
             : await request('/api/export'),
           'undograph-audit.json',
         )

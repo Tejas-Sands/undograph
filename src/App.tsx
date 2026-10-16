@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -27,8 +27,10 @@ import {
 } from './components/WorkPanels'
 import { Badge, Dialog } from './components/ui'
 import { useWorkspace } from './useWorkspace'
+import { SimulationGuide } from './components/SimulationGuide'
+import { simulationSteps } from './simulation'
+import LineageGraph from './components/LineageGraph'
 
-const LineageGraph = lazy(() => import('./components/LineageGraph'))
 const subscribe = (update: () => void) => {
   window.addEventListener('hashchange', update)
   return () => window.removeEventListener('hashchange', update)
@@ -41,9 +43,11 @@ export default function App() {
     document.getElementById('workspace-main')?.focus({ preventScroll: true })
     window.scrollTo(0, 0)
   }, [])
-  const recorded = hash.startsWith('#/recorded/')
+  const simulation = hash.startsWith('#/simulation/')
+  const recorded = simulation || hash.startsWith('#/recorded/')
   const view = views.find((item) => item.id === hash.split('/').at(-1)) ?? views[0]
-  const controller = useWorkspace(recorded)
+  const controller = useWorkspace(recorded, simulation)
+  const [simulationStep, setSimulationStep] = useState(0)
   const { snapshot, loading, busy, activeRun, error } = controller
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const selectionTrigger = useRef<HTMLElement | null>(null)
@@ -80,6 +84,7 @@ export default function App() {
     <AppShell
       view={view.id}
       recorded={recorded}
+      simulation={simulation}
       hasWorkspace={Boolean(snapshot)}
       onReset={() => {
         setConfirmation('')
@@ -95,8 +100,8 @@ export default function App() {
         <div className="recorded-banner">
           <span>
             <Play size={15} aria-hidden="true" />
-            <strong>Recorded walkthrough · Read only</strong>
-            <span>Frozen synthetic example. Live inference is separate.</span>
+            <strong>{simulation ? 'Simulation · Recorded synthetic data' : 'Recorded walkthrough · Read only'}</strong>
+            <span>{simulation ? 'Captured evidence. No live AI or database calls.' : 'Frozen synthetic example. Live inference is separate.'}</span>
           </span>
           <a href={`#/${view.id}`}>
             Open live mode <ArrowUpRight size={14} aria-hidden="true" />
@@ -166,7 +171,7 @@ export default function App() {
             ))}
         </div>
       </div>
-      {error && !recorded && (
+      {error && (
         <div className="error-banner" role="alert">
           <TriangleAlert size={19} aria-hidden="true" />
           <div>
@@ -176,6 +181,7 @@ export default function App() {
                 : 'The action could not be completed.'}
             </strong>
             <p>{error.message}</p>
+            {!recorded && <a className="text-button" href="#/simulation/overview">Continue in simulation <ArrowRight size={14} aria-hidden="true" /></a>}
           </div>
           <button
             className="icon-button"
@@ -186,7 +192,12 @@ export default function App() {
           </button>
         </div>
       )}
-      {recorded && (
+      {simulation && snapshot && <SimulationGuide step={simulationStep} snapshot={snapshot} onStep={(step) => {
+        setSimulationStep(step)
+        controller.setStage(simulationSteps[step].stage)
+        setSelectedId(null)
+      }} />}
+      {recorded && !simulation && (
         <div className="walkthrough-steps" role="group" aria-label="Recorded scenario stages">
           {(
             [

@@ -1,0 +1,100 @@
+import { readFile } from 'node:fs/promises'
+import { expect, test } from '@playwright/test'
+
+test('simulation demonstrates the complete repair story without an API', async ({ page }) => {
+  const requests: string[] = []
+  await page.route('**/api/**', async (route) => {
+    requests.push(route.request().url())
+    await route.abort('failed')
+  })
+  await page.goto('/')
+  const entry = page.getByRole('link', { name: 'Open simulation', exact: true })
+  const box = await entry.boundingBox()
+  expect(box?.x).toBeLessThan(30)
+  expect(box!.y + box!.height).toBeGreaterThan(650)
+  await entry.click()
+  await expect(page.getByText('Simulation · Recorded synthetic data', { exact: true })).toBeVisible()
+  const guide = page.getByRole('region', { name: 'Guided simulation' })
+  await expect(guide).toContainText('Two sessions, shared memory')
+  await expect(page.getByTestId('session-count')).toHaveText('2')
+  await guide.getByRole('button', { name: 'Next step' }).click()
+  await expect(guide).toContainText('Correct the source: 30 → 14 days')
+  await expect(page.getByTestId('stale-count')).toHaveText('5')
+  await guide.getByRole('button', { name: 'Next step' }).click()
+  await expect(guide).toContainText('Stale work is blocked from review')
+  await expect(guide.getByRole('button', { name: 'Mark stale reply reviewed' })).toBeDisabled()
+  await guide.getByRole('button', { name: 'Next step' }).click()
+  await expect(guide).toContainText('Repair only affected work')
+  await expect(page.getByTestId('stale-count')).toHaveText('0')
+  await expect(page.getByText('Independent reply preserved', { exact: true })).toBeVisible()
+  await guide.getByRole('button', { name: 'Next step' }).click()
+  await expect(guide).toContainText('Verify what stayed unchanged')
+  await expect(guide.getByTestId('preserved-version')).toBeVisible()
+  await expect(guide.getByTestId('preserved-hash')).toHaveText(/^[a-f0-9]{64}$/)
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Export audit', exact: true }).click()
+  const audit = JSON.parse(await readFile((await (await download).path())!, 'utf8'))
+  expect(audit.origin).toBe('simulation')
+  expect(audit.synthetic).toBe(true)
+  expect(audit.snapshot.reports[0].preserved[0].contentHash).toBe(await guide.getByTestId('preserved-hash').textContent())
+  const current = audit.snapshot.artifacts.filter((artifact: { isCurrent: boolean }) => artifact.isCurrent)
+  expect(current.find((artifact: { logicalId: string }) => artifact.logicalId === 'assessment:R021').body.decision).toBe('ineligible')
+  expect(current.find((artifact: { logicalId: string }) => artifact.logicalId === 'assessment:R007').body.decision).toBe('eligible')
+  expect(requests).toEqual([])
+  await guide.getByRole('button', { name: 'Restart simulation' }).click()
+  await expect(guide).toContainText('Two sessions, shared memory')
+  await page.getByRole('link', { name: 'Skip to workspace', exact: true }).focus()
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL(/#\/simulation\/overview$/)
+  await expect(page.locator('#workspace-main')).toBeFocused()
+})
+
+test('a delayed live response stays isolated when switching to simulation and back', async ({ page }) => {
+  const original = JSON.parse(await readFile('fixtures/recorded-walkthrough.json', 'utf8')).original
+  let release!: () => void
+  const waiting = new Promise<void>((resolve) => { release = resolve })
+  let reads = 0
+  await page.route('**/api/ready', (route) => route.fulfill({ json: { ready: true } }))
+  await page.route('**/api/workspace', async (route) => {
+    if (++reads === 1) { await waiting; await route.fulfill({ json: original }) }
+    else await route.fulfill({ status: 404, json: { error: { code: 'NOT_FOUND', message: 'Workspace not found.' } } })
+  })
+  await page.goto('/#/overview')
+  await expect.poll(() => reads).toBe(1)
+  await page.getByRole('link', { name: 'Open simulation', exact: true }).click()
+  release()
+  await page.getByRole('region', { name: 'Guided simulation' }).getByRole('button', { name: 'Next step' }).click()
+  await expect(page.getByTestId('stale-count')).toHaveText('5')
+  await page.getByRole('link', { name: 'Open live mode', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Start live workspace', exact: true })).toBeVisible()
+  await expect(page.getByTestId('current-output-count')).toHaveCount(0)
+})
+
+test('live network failure offers an explicit simulation recovery', async ({ page }) => {
+  await page.route('**/api/**', (route) => route.abort('failed'))
+  await page.goto('/#/overview')
+  const error = page.getByRole('alert')
+  await expect(error).toContainText('could not be completed')
+  await error.getByRole('link', { name: 'Continue in simulation' }).click()
+  await expect(page.getByText('Simulation · Recorded synthetic data', { exact: true })).toBeVisible()
+  await expect(page.getByTestId('current-output-count')).toHaveText('6')
+  await page.getByRole('link', { name: 'Open live mode', exact: true }).click()
+  await expect(page.getByRole('alert')).toBeVisible()
+  await expect(page.getByTestId('current-output-count')).toHaveCount(0)
+})
+
+for (const width of [375, 768, 1440]) {
+  test(`simulation fits ${width}px and works after the page goes offline`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+    await page.evaluate(() => document.fonts.ready)
+    await page.context().setOffline(true)
+    await page.getByRole('link', { name: 'Open simulation', exact: true }).click()
+    const guide = page.getByRole('region', { name: 'Guided simulation' })
+    await expect(guide).toBeVisible()
+    for (let step = 0; step < 4; step++) await guide.getByRole('button', { name: 'Next step' }).click()
+    await expect(guide.getByTestId('preserved-hash')).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await page.screenshot({ path: testInfo.outputPath(`simulation-${width}.png`), fullPage: true })
+  })
+}

@@ -1,7 +1,8 @@
-import { lazy, Suspense, useSyncExternalStore } from 'react'
+import { Component, useSyncExternalStore, type ReactNode } from 'react'
 import { LandingPage } from './LandingPage'
+import Workspace from './App'
+import './simulation.css'
 
-const Workspace = lazy(() => import('./App'))
 const subscribe = (update: () => void) => {
   window.addEventListener('hashchange', update)
   return () => window.removeEventListener('hashchange', update)
@@ -10,10 +11,25 @@ const readHash = () => window.location.hash
 
 export function Root() {
   const hash = useSyncExternalStore(subscribe, readHash)
-  if (!hash.startsWith('#/') && hash !== '#workspace-main') return <LandingPage />
+  const mode = hash.startsWith('#/simulation/') ? 'simulation' : hash.startsWith('#/recorded/') ? 'recorded' : 'live'
   return (
-    <Suspense fallback={<p className="entry-loading" role="status">Opening UndoGraph…</p>}>
-      <Workspace />
-    </Suspense>
+    <>
+      <WorkspaceBoundary key={mode}>
+        {!hash.startsWith('#/') && hash !== '#workspace-main' ? <LandingPage /> : <Workspace />}
+      </WorkspaceBoundary>
+      {mode !== 'simulation' && <a className="simulation-launcher" href="#/simulation/overview" aria-label="Open simulation">◉ <span>Simulation</span></a>}
+    </>
   )
+}
+
+class WorkspaceBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+  static getDerivedStateFromError() { return { failed: true } }
+  render() {
+    return this.state.failed ? <main className="entry-loading" role="alert">
+      <h1>This view could not be opened</h1>
+      <p>Reload the page to download a fresh copy of the demo.</p>
+      <button className="button button-primary" onClick={() => window.location.reload()}>Reload UndoGraph</button>
+    </main> : this.props.children
+  }
 }
