@@ -83,6 +83,16 @@ test('live network failure offers an explicit simulation recovery', async ({ pag
   await expect(page.getByTestId('current-output-count')).toHaveCount(0)
 })
 
+test('simulation source links preserve the guided stage', async ({ page }) => {
+  await page.goto('/#/simulation/overview')
+  const guide = page.getByRole('region', { name: 'Guided simulation' })
+  await guide.getByRole('button', { name: 'Next step' }).click()
+  await page.locator('.stale-banner a').click()
+  await expect(page).toHaveURL(/#\/simulation\/sources$/)
+  await expect(guide).toContainText('Correct the source: 30 → 14 days')
+  await expect(page.getByTestId('stale-count')).toHaveText('5')
+})
+
 for (const width of [375, 768, 1440]) {
   test(`simulation fits ${width}px and works after the page goes offline`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 900 })
@@ -96,5 +106,55 @@ for (const width of [375, 768, 1440]) {
     await expect(guide.getByTestId('preserved-hash')).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await page.screenshot({ path: testInfo.outputPath(`simulation-${width}.png`), fullPage: true })
+  })
+}
+
+test('desktop simulation entry leaves sidebar actions unobstructed', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  const original = JSON.parse(await readFile('fixtures/recorded-walkthrough.json', 'utf8')).original
+  await page.route('**/api/ready', (route) => route.fulfill({ json: { ready: true } }))
+  await page.route('**/api/workspace', (route) => route.fulfill({ json: original }))
+  for (const [path, selector] of [['/#/overview', '.reset-link'], ['/#/recorded/overview', '.repo-link']]) {
+    await page.goto(path)
+    const control = page.locator(selector)
+    await expect(control).toBeVisible()
+    expect(await control.evaluate((element) => {
+      const rect = element.getBoundingClientRect()
+      return element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2))
+    })).toBe(true)
+  }
+})
+
+for (const phase of ['readiness', 'creation']) {
+  test(`switching during ${phase} stops subsequent live reads`, async ({ page }) => {
+    const original = JSON.parse(await readFile('fixtures/recorded-walkthrough.json', 'utf8')).original
+    let release!: () => void
+    const waiting = new Promise<void>((resolve) => { release = resolve })
+    let readyReads = 0, workspaceReads = 0, writes = 0
+    await page.route('**/api/ready', async (route) => {
+      readyReads++
+      if (phase === 'readiness') await waiting
+      await route.fulfill({ json: { ready: true } })
+    })
+    await page.route('**/api/workspace', async (route) => {
+      if (route.request().method() === 'POST') { writes++; await waiting; await route.fulfill({ json: original }) }
+      else { workspaceReads++; await route.fulfill({ status: 404, json: { error: { code: 'NOT_FOUND', message: 'No workspace.' } } }) }
+    })
+    await page.goto('/#/overview')
+    await expect.poll(() => readyReads).toBe(1)
+    if (phase === 'creation') {
+      await page.getByRole('button', { name: 'Start live workspace', exact: true }).click()
+      await expect.poll(() => writes).toBe(1)
+    }
+    const readsBefore = workspaceReads
+    await page.getByRole('link', { name: 'Open simulation', exact: true }).click()
+    const response = page.waitForResponse((response) => response.url().includes(phase === 'readiness' ? '/api/ready' : '/api/workspace'))
+    release()
+    await (await response).finished()
+    // Allow the settled fetch's continuation and browser request dispatch to run.
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+    expect(workspaceReads).toBe(readsBefore)
+    expect(readyReads).toBe(1)
+    await expect(page.getByText('Simulation · Recorded synthetic data', { exact: true })).toBeVisible()
   })
 }

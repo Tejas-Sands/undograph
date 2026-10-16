@@ -24,15 +24,22 @@ export function useWorkspace(recorded: boolean, simulation = false) {
   const [ready, setReady] = useState(false)
   const [error, setError] = useState<ApiError | null>(null)
   const refreshing = useRef<Promise<void> | null>(null)
+  const mounted = useRef(false)
+  useEffect(() => {
+    mounted.current = true
+    return () => { mounted.current = false }
+  }, [])
 
   const refresh = useCallback(
     (afterMutation = false): Promise<void> => {
-      if (recorded) return Promise.resolve()
+      if (recorded || !mounted.current) return Promise.resolve()
       if (refreshing.current && !afterMutation) return refreshing.current
       const previous = refreshing.current ?? Promise.resolve()
       const pending = previous.then(async () => {
+        if (!mounted.current) return
         try {
           await request('/api/ready')
+          if (!mounted.current) return
           setReady(true)
           try {
             const snapshot = workspaceSnapshotSchema.parse(await request('/api/workspace'))
@@ -119,7 +126,7 @@ export function useWorkspace(recorded: boolean, simulation = false) {
   }, [activeRunId, recorded, refresh])
 
   async function mutate<T>(work: () => Promise<T>): Promise<T | undefined> {
-    if (recorded || busy || !ready) return
+    if (recorded || !mounted.current || busy || !ready) return
     setBusy(true)
     setError(null)
     try {
@@ -127,6 +134,7 @@ export function useWorkspace(recorded: boolean, simulation = false) {
       await refresh(true)
       return result
     } catch (failure) {
+      if (!mounted.current) return undefined
       setError(
         failure instanceof ApiError
           ? failure

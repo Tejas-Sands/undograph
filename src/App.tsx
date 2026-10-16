@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -289,7 +289,7 @@ export default function App() {
                   complete replacement set is published.
                 </p>
               </div>
-              <a href={recorded ? '#/recorded/sources' : '#/sources'}>
+              <a href={simulation ? '#/simulation/sources' : recorded ? '#/recorded/sources' : '#/sources'}>
                 Review source <ArrowRight size={15} aria-hidden="true" />
               </a>
             </div>
@@ -331,7 +331,7 @@ export default function App() {
                         {outputs.length > 0 && !activeRun && (
                           <a
                             className="text-button"
-                            href={recorded ? '#/recorded/sources' : '#/sources'}
+                            href={simulation ? '#/simulation/sources' : recorded ? '#/recorded/sources' : '#/sources'}
                           >
                             Open sources <ArrowRight size={15} aria-hidden="true" />
                           </a>
@@ -386,19 +386,11 @@ export default function App() {
                   onRelease={(id) => void controller.release(id)}
                 />
               )}
-              <Suspense
-                fallback={
-                  <div className="panel graph-loading" role="status">
-                    Loading dependency view…
-                  </div>
-                }
-              >
-                <LineageGraph
-                  snapshot={snapshot}
-                  selectedId={selectedId}
-                  onSelect={selectArtifact}
-                />
-              </Suspense>
+              <LineageGraph
+                snapshot={snapshot}
+                selectedId={selectedId}
+                onSelect={selectArtifact}
+              />
             </div>
           </div>
         </>

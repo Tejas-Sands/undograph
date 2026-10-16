@@ -9,6 +9,7 @@
 .simulation-launcher:hover { background: #203b30; }
 .simulation-launcher:focus-visible { outline: 2px solid #90ebbd; outline-offset: 4px; }
 body:has(.simulation-launcher) { padding-bottom: 64px; }
+@media (min-width: 901px) { body:has(.simulation-launcher) .sidebar { padding-bottom: 84px; } }
 .simulation-guide { padding: 24px; margin-bottom: 24px; background: #f1faf5; border: 1px solid #badaca; border-radius: 14px; }
 .simulation-guide h2 { margin: 20px 0 10px; font-size: clamp(20px, 3vw, 26px); letter-spacing: -.6px; }
 .simulation-guide > p { max-width: 800px; color: #365347; line-height: 1.7; margin-bottom: 20px; }

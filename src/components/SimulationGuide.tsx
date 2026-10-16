@@ -6,7 +6,7 @@ export function SimulationGuide({ step, snapshot, onStep }: { step: number; snap
   const item = simulationSteps[step]
   const preserved = snapshot.reports[0]?.preserved[0]
   return <section className="simulation-guide" aria-label="Guided simulation">
-    <div className="simulation-progress" aria-label={`Step ${step + 1} of ${simulationSteps.length}`}>
+    <div className="simulation-progress" role="group" aria-label={`Step ${step + 1} of ${simulationSteps.length}`}>
       {simulationSteps.map((entry, index) => <button key={entry.title} aria-label={`Step ${index + 1}: ${entry.title}`} aria-current={step === index ? 'step' : undefined} onClick={() => onStep(index)}>{index + 1}</button>)}
       <span>GUIDED SIMULATION · {step + 1} / {simulationSteps.length}</span>
     </div>
