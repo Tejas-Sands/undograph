@@ -56,6 +56,8 @@ npm run deploy:preview
 
 Use the Railway **HTTPS origin**, the matching gateway token, and the generated session secret. Do not set `VITE_` credentials or publish `.env.railway`, `.dev.vars`, or `dist/gateway`. The gateway route takes precedence over direct database settings and fails closed if its configuration is incomplete. The browser receives only static assets and owned application records.
 
+Cloudflare Free limits each Workflow instance to 50 external subrequests. The gateway's fixed `openStep` and `saveOutput` operations execute the existing input, lineage, revision and immutable-write checks beside the database, reducing each guarded operation to one HTTP call. Workflows still checkpoint inference separately from persistence. A regression test enforces the free request budget for build and repair, including a structured-output correction at every inference stage and a repeated save after a lost acknowledgement. Both the Railway gateway and Worker must run the corresponding version before live verification. [Workflow limits](https://developers.cloudflare.com/workflows/reference/limits/).
+
 The preview Worker already uses `undograph_preview_` and distinct Workflow names. When ready to deploy production, add `undograph_production_` to the Railway prefix list (comma-separated), redeploy the gateway, set the same three production secret names with a **different session secret**, then run `npm run deploy:production`. A separate Railway service/volume is optional if stronger environment isolation is needed.
 
 ## 3. Verify the public application

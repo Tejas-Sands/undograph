@@ -4,6 +4,7 @@ import type { Env } from './env'
 import { findImpact, loadSnapshot, queryGraph, recordArtifact } from './graph/store'
 import { assertInferenceAvailable, reserveInference } from './limits'
 import type { Usage } from './agents'
+import { gatewayOperation, usesGateway } from './graph/gateway'
 
 export async function prepareRun(env: Env, graphName: string, request: RunRequest, key: string, visitorId?: string): Promise<Run> {
   const input = runRequestSchema.parse(request)
@@ -110,6 +111,8 @@ export async function readInputs(env: Env, graphName: string, stepId: string, ar
 }
 
 export async function openStep(env: Env, graphName: string, runId: string, stage: string, inputIds: string[], analyst = false): Promise<Artifact[]> {
+  // Keep each guarded operation on the database host: free Workflows allow 50 subrequests.
+  if (usesGateway(env)) return gatewayOperation(env, { action: 'openStep', graphName, runId, stage, inputIds, analyst })
   const id = `${runId}_${stage}`
   const result = await queryGraph(env, graphName, 'createStep', { id, runId, stage, role: analyst ? 'policy-analyst' : 'reply-agent', sessionId: `${runId}_${analyst ? 'analyst' : 'reply'}`, now: Date.now() })
   if (!result.length) throw new DomainError('REVISION_CONFLICT', 'The run is no longer current.')
@@ -123,6 +126,7 @@ export async function logAttempt(env: Env, graphName: string, visitorId: string,
 }
 
 export async function saveOutput(env: Env, graphName: string, write: ArtifactWrite, usage: Usage): Promise<Artifact> {
+  if (usesGateway(env)) return gatewayOperation(env, { action: 'saveOutput', graphName, write, usage })
   const artifact = await recordArtifact(env, graphName, write)
   const result = await queryGraph(env, graphName, 'completeStep', { stepId: write.stepId!, artifactId: artifact.id, now: Date.now(), inputTokens: usage.inputTokens ?? null, outputTokens: usage.outputTokens ?? null })
   if (!result.length) throw new DomainError('ARTIFACT_CONFLICT', 'Output was saved but its step could not be finalized.')

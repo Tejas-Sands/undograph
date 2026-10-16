@@ -44,6 +44,14 @@ try {
   await query('bootstrapWorkspace', { id: workspaceId, createdAt: Date.now(), expiresAt: Date.now() + 86_400_000 })
   const checkPersisted = async () => assert((await query('snapshot')).some((row) => row.labels.includes('Workspace') && row.node.id === workspaceId))
   await checkPersisted()
+  for (const body of [
+    { action: 'openStep', graphName, runId: 'missing-run', stage: 'probe', inputIds: [], analyst: false },
+    { action: 'saveOutput', graphName, write: { id: 'probe', logicalId: 'probe', kind: 'source', body: { title: 'Probe', category: 'account-help', text: 'Synthetic probe.' }, inputIds: [], expectedRevision: 1, stage: 'probe', promptVersion: 'v1' }, usage: {} },
+  ]) {
+    const response = await operation(body)
+    assert.equal(response.status, 409)
+    assert.equal((await response.json()).error.code, 'REVISION_CONFLICT')
+  }
   console.log(`Container readiness, authorization, operation allowlist and persistent write (${passwordCase} password): passed.`)
   console.log('Memory with 1 GiB limit:', docker('stats', '--no-stream', '--format', '{{.MemUsage}}', container))
   docker('stop', '--time', '10', container)

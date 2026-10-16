@@ -1,8 +1,11 @@
 import { timingSafeEqual } from 'node:crypto'
 import { Hono } from 'hono'
 import { bodyLimit } from 'hono/body-limit'
+import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { z } from 'zod'
-import { jsonSchema } from '../shared/contracts'
+import { artifactWriteSchema, jsonSchema } from '../shared/contracts'
+import { DomainError } from '../worker/domain'
+import { openStep, saveOutput } from '../worker/runs'
 import type { Env } from '../worker/env'
 import { withGraph } from '../worker/graph/client'
 import { queries, type QueryName } from '../worker/graph/queries'
@@ -10,10 +13,13 @@ import { deleteGraph, ensureSchema, queryGraph } from '../worker/graph/store'
 
 export interface GatewayConfig { token: string; prefixes: string[]; database: Env }
 const graphName = z.string().max(160).regex(/^undograph_[a-zA-Z0-9_]+$/)
+const id = z.string().min(1).max(160)
 const operation = z.discriminatedUnion('action', [
   z.object({ action: z.literal('query'), graphName, query: z.enum(Object.keys(queries) as [QueryName, ...QueryName[]]), params: z.record(z.string(), jsonSchema) }).strict(),
   z.object({ action: z.literal('schema'), graphName }).strict(),
   z.object({ action: z.literal('delete'), graphName }).strict(),
+  z.object({ action: z.literal('openStep'), graphName, runId: id, stage: z.string().min(1).max(120), inputIds: z.array(id).max(32), analyst: z.boolean() }).strict(),
+  z.object({ action: z.literal('saveOutput'), graphName, write: artifactWriteSchema.strict(), usage: z.object({ inputTokens: z.number().int().nonnegative().optional(), outputTokens: z.number().int().nonnegative().optional() }).strict() }).strict(),
 ])
 const missingGraph = (error: unknown) => error instanceof Error && /empty key|unknown graph|graph.*does not exist/i.test(error.message)
 
@@ -44,13 +50,17 @@ export function createGateway(config: GatewayConfig) {
     if (!prefix) return context.json({ error: { code: 'INVALID_GRAPH' } }, 400)
     const env = { ...config.database, GRAPH_PREFIX: prefix }
     if (input.action === 'query') return context.json({ data: await queryGraph(env, input.graphName, input.query, input.params) })
+    if (input.action === 'openStep') return context.json({ data: await openStep(env, input.graphName, input.runId, input.stage, input.inputIds, input.analyst) })
+    if (input.action === 'saveOutput') return context.json({ data: await saveOutput(env, input.graphName, input.write, input.usage) })
     if (input.action === 'schema') await ensureSchema(env, input.graphName)
     else {
       try { await deleteGraph(env, input.graphName) } catch (error) { if (!missingGraph(error)) throw error }
     }
     return context.json({ data: null })
   })
-  app.onError((error, context) => missingGraph(error)
+  app.onError((error, context) => error instanceof DomainError
+    ? context.json({ error: { code: error.code, message: error.message } }, error.status as ContentfulStatusCode)
+    : missingGraph(error)
     ? context.json({ error: { code: 'NOT_FOUND' } }, 404)
     : context.json({ error: { code: 'DATABASE_UNAVAILABLE' } }, 503))
   app.notFound((context) => context.json({ error: { code: 'ROUTE_NOT_FOUND' } }, 404))

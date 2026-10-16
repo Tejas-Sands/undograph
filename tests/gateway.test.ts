@@ -7,6 +7,7 @@ import { createGateway } from '../gateway/app'
 import { serveGateway } from '../gateway/http'
 import { deleteGraph, initializeWorkspace, loadSnapshot, queryGraph } from '../worker/graph/store'
 import { DatabaseUnavailable } from '../worker/graph/client'
+import { openStep } from '../worker/runs'
 
 const vars = parseEnv(readFileSync('.dev.vars', 'utf8'))
 const database: Env = { ...vars, ENVIRONMENT: 'local', FALKORDB_TLS: 'false', GRAPH_PREFIX: 'undograph_gateway_test_' }
@@ -25,6 +26,9 @@ describe('authenticated named graph gateway', () => {
       { action: 'schema', graphName: 'undograph_foreign_visitor' },
       { action: 'schema', graphName: `${name}; DROP ALL` },
       { action: 'delete', graphName: 'undograph_gateway_test' },
+      { action: 'openStep', graphName: 'undograph_foreign_visitor', runId: 'run', stage: 'read', inputIds: [], analyst: false },
+      { action: 'openStep', graphName: name, runId: 'run', stage: 'read', inputIds: [], analyst: false, cypher: 'RETURN 1' },
+      { action: 'saveOutput', graphName: name, write: {}, usage: { inputTokens: -1 } },
     ]) expect((await post(body)).status).toBe(400)
     expect((await app.request('/v1/graph', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: '{broken' })).status).toBe(400)
     expect((await post({ action: 'query', graphName: name, query: 'snapshot', params: { text: 'x'.repeat(70_000) } })).status).toBe(413)
@@ -57,6 +61,8 @@ describe('fetch adapter through a real HTTP server and FalkorDB', () => {
     expect(snapshot.artifacts).toHaveLength(5)
     expect((await loadSnapshot(remote, name)).workspace.id).toBe('gateway-workspace')
     expect((await queryGraph(remote, name, 'snapshot')).length).toBeGreaterThan(5)
+    await expect(openStep(remote, name, 'missing-run', 'read', ['source_return_policy_v1']))
+      .rejects.toMatchObject({ code: 'REVISION_CONFLICT', status: 409 })
     await deleteGraph(remote, name)
     await expect(loadSnapshot(remote, name)).rejects.toMatchObject({ code: 'NOT_FOUND' })
   })
@@ -82,6 +88,7 @@ describe('fetch adapter through a real HTTP server and FalkorDB', () => {
     try {
       const url = `http://127.0.0.1:${(redirect.address() as { port: number }).port}`
       await expect(queryGraph({ ...remote, GRAPH_GATEWAY_URL: url }, name, 'snapshot')).rejects.toBeInstanceOf(DatabaseUnavailable)
+      await expect(openStep({ ...remote, GRAPH_GATEWAY_URL: url }, name, 'missing-run', 'read', [])).rejects.toBeInstanceOf(DatabaseUnavailable)
       expect(captured).toBe(0)
     } finally { await new Promise<void>((resolve) => redirect.close(() => resolve())) }
     const malformed = serveGateway(new Hono().post('/v1/graph', (context) => context.json({ data: 'not-an-array' })))
@@ -90,5 +97,15 @@ describe('fetch adapter through a real HTTP server and FalkorDB', () => {
       const url = `http://127.0.0.1:${(malformed.address() as { port: number }).port}`
       await expect(queryGraph({ ...remote, GRAPH_GATEWAY_URL: url }, name, 'snapshot')).rejects.toBeInstanceOf(DatabaseUnavailable)
     } finally { await new Promise<void>((resolve) => malformed.close(() => resolve())) }
+  })
+
+  it('preserves an expired workspace error from a guarded operation', async () => {
+    const expired = serveGateway(new Hono().post('/v1/graph', (context) => context.json({ error: { code: 'WORKSPACE_EXPIRED', message: 'Workspace expired. Create a fresh workspace to continue.' } }, 404)))
+    await new Promise<void>((resolve) => expired.listen(0, '127.0.0.1', resolve))
+    try {
+      const url = `http://127.0.0.1:${(expired.address() as { port: number }).port}`
+      await expect(openStep({ ...remote, GRAPH_GATEWAY_URL: url }, name, 'run', 'read', []))
+        .rejects.toMatchObject({ code: 'WORKSPACE_EXPIRED', status: 404 })
+    } finally { await new Promise<void>((resolve) => expired.close(() => resolve())) }
   })
 })

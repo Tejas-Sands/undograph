@@ -1,10 +1,11 @@
 import { env } from 'cloudflare:test'
 import { WorkflowStep } from 'cloudflare:workers'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { withGraph } from '../worker/graph/client'
 import { ensureSchema, initializeWorkspace, loadSnapshot } from '../worker/graph/store'
 import { launchRun, loadRun, loadWorkspace, prepareRun, promoteBuild } from '../worker/runs'
-import { executeBuild } from '../worker/workflows'
+import { executeBuild, executeRepair } from '../worker/workflows'
+import { commitCorrection } from '../worker/repair'
 import type { Env, WorkflowParams } from '../worker/env'
 import { syntheticAI } from './helpers/synthetic-ai'
 
@@ -23,6 +24,54 @@ afterEach(async () => {
 const request = { kind: 'build' as const, expectedRevision: 0 }
 
 describe.skipIf(!bindings.FALKORDB_HOST || !bindings.FALKORDB_PASSWORD)('durable build lifecycle', () => {
+  it.skipIf(!bindings.GRAPH_GATEWAY_URL)('builds and repairs within the free Workflow request budget, including corrected model output and a lost save acknowledgement', async () => {
+    const originalFetch = globalThis.fetch.bind(globalThis)
+    let counting = false, requests = 0, calls = 0
+    const spend = () => { if (++requests > 50) throw new Error('Too many subrequests.') }
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
+      if (counting) spend()
+      return originalFetch(input, init)
+    })
+    const ai = { run: async (_model: unknown, input: unknown) => {
+      spend()
+      return ++calls % 2 ? { response: 'invalid JSON' } : syntheticAI(input)
+    } } as unknown as Ai
+    const runtime = { ...localEnv, AI: ai }
+    let preserved: unknown
+    try {
+      for (const kind of ['build', 'repair'] as const) {
+        const revision = kind === 'build' ? 0 : 1
+        const run = await prepareRun(localEnv, graphName, { kind, expectedRevision: revision }, `request-budget-${kind}`)
+        let lostAcknowledgement = false
+        const scheduler = { do: async (name: string, _config: unknown, work: () => Promise<unknown>) => {
+          let result = await work()
+          if (name.endsWith('.save') && !lostAcknowledgement) {
+            lostAcknowledgement = true
+            result = await work()
+          }
+          return result
+        } } as unknown as WorkflowStep
+        requests = 0; calls = 0; counting = true
+        const execute = kind === 'build' ? executeBuild : executeRepair
+        await expect(execute(runtime, { graphName, runId: run.id, baseRevision: revision, visitorId: 'visitor' }, scheduler)).resolves.toBe(run.id)
+        counting = false
+        expect(requests).toBeLessThanOrEqual(50)
+        expect(calls).toBe(kind === 'build' ? 8 : 6)
+        expect(lostAcknowledgement).toBe(true)
+        const snapshot = await loadSnapshot(localEnv, graphName)
+        expect(snapshot.runs.find((value) => value.id === run.id)?.status).toBe('succeeded')
+        if (kind === 'build') {
+          preserved = snapshot.artifacts.find((value) => value.logicalId === 'reply:A001')
+          expect(snapshot.artifacts.filter((value) => value.isCurrent)).toHaveLength(11)
+          await commitCorrection(localEnv, graphName, { sourceArtifactId: 'source_return_policy_v1', expectedRevision: 0, returnWindowDays: 14, reason: 'Verify free-plan repair.' })
+        } else {
+          expect(snapshot.artifacts.find((value) => value.logicalId === 'reply:A001')).toEqual(preserved)
+          expect(snapshot.artifacts.filter((value) => value.isCurrent && value.status === 'stale')).toHaveLength(0)
+          expect(snapshot.reports[0].repairedLogicalIds).toHaveLength(5)
+        }
+      }
+    } finally { fetch.mockRestore() }
+  })
   it('completes a native Workflow and reopens all persisted work', async () => {
     const run = await prepareRun(localEnv, graphName, request, 'native-build')
     const workflow = (env as unknown as { TEST_BUILD_WORKFLOW: Workflow<WorkflowParams> }).TEST_BUILD_WORKFLOW
