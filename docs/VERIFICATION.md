@@ -1,6 +1,14 @@
 # Verification record
 
-Latest local status (October 16): 111 original backend tests, five gateway contract tests and all 27 browser tests pass. The 64 real graph/API/Workflow cases additionally pass through the HTTP gateway in workerd. The pinned Railway container passes persistence/lifecycle checks and a complete real-Workers-AI application smoke. CI explicitly skips its live-inference browser case. Remote deployment and public TLS verification remain pending account access. Earlier sections record their status at each milestone.
+Latest local status (October 16): 111 original backend tests, eight gateway/configuration tests and all 27 browser tests pass. The 64 real graph/API/Workflow cases additionally pass through the HTTP gateway in workerd. The pinned Railway container passes persistence/lifecycle checks and a complete real-Workers-AI application smoke. CI explicitly skips its live-inference browser case. Remote deployment and public TLS verification remain pending account access. Earlier sections record their status at each milestone.
+
+## Railway password startup correction — October 16, 2026
+
+The initial gateway rejected ordinary database passwords shorter than 32 characters before starting FalkorDB. A generated 12-character test password reproduced the container startup failure. The corrected configuration accepts non-empty passwords up to 512 UTF-8 bytes, rejects control characters and quotes/escapes the password before sending Redis configuration through stdin. It does not log or store supplied cloud credentials. The separate gateway bearer token still requires at least 32 characters.
+
+`npm run test:gateway` passes eight cases, including the new password boundary/injection tests. Type checking, lint and the gateway production build pass. The actual rebuilt Docker image passes the complete `test:railway` smoke with each `UNDOGRAPH_RAILWAY_PASSWORD_CASE`: `generated`, `short` (12 characters), and `quoted` (spaces, quotes, backslash and Unicode). Each case verifies authenticated readiness, operation/prefix refusal, persistence after restart, graceful SIGTERM and failure propagation when the database stops. These are generated test passwords, not user-supplied credentials.
+
+The user confirmed the database remains inside Railway. A separately managed FalkorDB Cloud instance is not configured or seeded by this container; synthetic application inputs are created through **Start live workspace**. Deployment instructions now distinguish these two databases and explain missing variables and first-deploy retries.
 
 ## Railway gateway and guided simulation — October 16, 2026
 

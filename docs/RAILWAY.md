@@ -30,10 +30,14 @@ This creates `.env.railway` with mode 0600 and preserves any existing file. It c
 
 | Railway variable | Value |
 | --- | --- |
-| `FALKORDB_PASSWORD` | Generated value; 32–128 URL-safe characters |
+| `FALKORDB_PASSWORD` | Generated value recommended; existing passwords also work (1–512 UTF-8 bytes, no control characters) |
 | `GRAPH_GATEWAY_TOKEN` | Generated value; at least 32 characters |
 | `GATEWAY_GRAPH_PREFIXES` | `undograph_preview_` |
 | `PORT` | `8080` |
+
+Set these on the **same Railway service that runs this repository**. A first deployment may start before the variables exist; add them and redeploy the latest commit. Enter password values directly, without surrounding shell quotes. `GRAPH_GATEWAY_TOKEN` is separate from the database password and must contain at least 32 characters.
+
+This container starts its own FalkorDB on loopback and uses the built-in Redis user `default`. The name, instance ID, username and password shown in FalkorDB Cloud describe a different managed database; entering those details does not connect this container to that cloud instance. No remote cloud data is seeded by the gateway startup. UndoGraph creates its synthetic inputs only when a visitor chooses **Start live workspace**.
 
 Attach a persistent volume mounted at **`/data`** before the first useful run. Keep one replica and disable service sleeping/serverless mode for the demonstration. The container uses append-only persistence with a one-second fsync interval; abrupt host failure can lose the latest second. The 256 MB Redis memory setting does not cap all graph-module or process memory. Use the account’s available memory, observe actual usage, and keep this a small synthetic demo. [Volumes](https://docs.railway.com/volumes/reference).
 
@@ -71,6 +75,8 @@ Then open `/#/simulation/overview`. Walk through all five steps, inspect the two
 ```sh
 docker build -t undograph-railway:test .
 npm run test:railway
+UNDOGRAPH_RAILWAY_PASSWORD_CASE=short npm run test:railway
+UNDOGRAPH_RAILWAY_PASSWORD_CASE=quoted npm run test:railway
 npm run test:gateway
 npm run test:gateway:worker
 ```

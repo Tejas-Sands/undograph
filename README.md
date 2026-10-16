@@ -54,7 +54,7 @@ npm run build
 node scripts/cloud-smoke.mjs --base-url http://127.0.0.1:5173 --benchmark
 ```
 
-The original backend suite contains 111 tests; gateway contracts add five cases and the 64 graph/API/Workflow cases also run through the HTTP adapter. The browser suite contains 27 tests, including simulation, offline entry, mode isolation and the real-inference workflow. CI explicitly skips its live-inference test. Full smoke testing creates isolated synthetic visitors and deletes their completed workspaces. Use `--probe` for health/readiness checks alone.
+The original backend suite contains 111 tests; gateway contracts and password configuration add eight cases and the 64 graph/API/Workflow cases also run through the HTTP adapter. The browser suite contains 27 tests, including simulation, offline entry, mode isolation and the real-inference workflow. CI explicitly skips its live-inference test. Full smoke testing creates isolated synthetic visitors and deletes their completed workspaces. Use `--probe` for health/readiness checks alone.
 
 In one local comparison using the same corrected source/case content, selective repair used three model calls and 8.899 seconds; a fresh build used four calls and 9.458 seconds. The independent account reply kept its exact ID, hash and content. These are observed measurements, not a performance guarantee; [the verification record](docs/VERIFICATION.md) includes provider usage and an earlier repair that took longer.
 
