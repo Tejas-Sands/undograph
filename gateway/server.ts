@@ -1,13 +1,14 @@
 import { spawn } from 'node:child_process'
 import { mkdirSync } from 'node:fs'
 import { createGateway } from './app'
+import { createRedisConfig } from './config'
 import { serveGateway } from './http'
 
 const password = process.env.FALKORDB_PASSWORD ?? ''
 const token = process.env.GRAPH_GATEWAY_TOKEN ?? ''
 const prefixes = (process.env.GATEWAY_GRAPH_PREFIXES ?? 'undograph_preview_').split(',').map((value) => value.trim())
 const port = Number(process.env.PORT ?? 8080)
-if (!/^[a-zA-Z0-9_-]{32,128}$/.test(password)) throw new Error('FALKORDB_PASSWORD must contain 32–128 random URL-safe characters.')
+const databaseConfig = createRedisConfig(password)
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be a valid TCP port.')
 const app = createGateway({ token, prefixes, database: {
   ENVIRONMENT: 'local', GRAPH_PREFIX: prefixes[0], FALKORDB_HOST: '127.0.0.1', FALKORDB_PORT: '6379',
@@ -18,11 +19,7 @@ mkdirSync('/data', { recursive: true })
 // Feed the password through stdin rather than exposing it in process arguments.
 const database = spawn('redis-server', ['-'], { stdio: ['pipe', 'inherit', 'inherit'] })
 database.stdin.on('error', () => {})
-database.stdin.end([
-  'bind 127.0.0.1', 'port 6379', 'protected-mode yes', `requirepass ${password}`,
-  'loadmodule /var/lib/falkordb/bin/falkordb.so', 'dir /data', 'appendonly yes', 'appendfsync everysec',
-  'maxmemory 256mb', 'maxmemory-policy noeviction', 'save ""',
-].join('\n') + '\n')
+database.stdin.end(databaseConfig)
 const server = serveGateway(app)
 let stopping = false
 function stop(code: number) {

@@ -8,7 +8,11 @@ const volume = `${container}-data`
 const image = process.env.UNDOGRAPH_RAILWAY_IMAGE ?? 'undograph-railway:test'
 const prefix = 'undograph_smoke_'
 const graphName = `${prefix}persistence`
-const secret = { FALKORDB_PASSWORD: randomBytes(32).toString('base64url'), GRAPH_GATEWAY_TOKEN: randomBytes(32).toString('base64url') }
+const passwordCase = process.env.UNDOGRAPH_RAILWAY_PASSWORD_CASE ?? 'generated'
+assert(['generated', 'short', 'quoted'].includes(passwordCase), 'Unknown password test case.')
+const password = passwordCase === 'generated' ? randomBytes(32).toString('base64url') :
+  passwordCase === 'short' ? randomBytes(9).toString('base64url') : ` spaced "${randomBytes(9).toString('base64url')}" \\ # café 🔐 `
+const secret = { FALKORDB_PASSWORD: password, GRAPH_GATEWAY_TOKEN: randomBytes(32).toString('base64url') }
 const docker = (...args) => execFileSync('docker', args, { encoding: 'utf8', env: { ...process.env, ...secret }, stdio: ['ignore', 'pipe', 'pipe'] }).trim()
 let base
 const pause = () => new Promise((resolve) => setTimeout(resolve, 300))
@@ -40,7 +44,7 @@ try {
   await query('bootstrapWorkspace', { id: workspaceId, createdAt: Date.now(), expiresAt: Date.now() + 86_400_000 })
   const checkPersisted = async () => assert((await query('snapshot')).some((row) => row.labels.includes('Workspace') && row.node.id === workspaceId))
   await checkPersisted()
-  console.log('Container readiness, authorization, operation allowlist and persistent write: passed.')
+  console.log(`Container readiness, authorization, operation allowlist and persistent write (${passwordCase} password): passed.`)
   console.log('Memory with 1 GiB limit:', docker('stats', '--no-stream', '--format', '{{.MemUsage}}', container))
   docker('stop', '--time', '10', container)
   assert.equal(docker('inspect', '--format', '{{.State.ExitCode}}', container), '0')
