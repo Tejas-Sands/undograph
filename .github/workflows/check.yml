@@ -35,6 +35,8 @@ jobs:
       - run: npm run test:e2e
       - run: npm run build
       - run: npm run build:gateway
+      - run: docker build -t undograph-railway:test .
+      - run: npm run test:railway
       - uses: actions/upload-artifact@v7
         if: always()
         with:

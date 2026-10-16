@@ -50,10 +50,10 @@ Files: new `gateway/`, `worker/graph/gateway.ts`, `worker/graph/store.ts`, `work
 
 Files: Dockerfile, entrypoint, railway configuration, example environment files, build scripts and deployment docs.
 
-- [ ] Package the gateway and pinned FalkorDB server with a persistent data mount, bounded readiness and signal handling.
-- [ ] Build/run the actual container; test readiness, gateway auth, restart persistence and real application repair against it.
-- [ ] Document Railway GitHub verification, no-card limits, volume, HTTPS domain, server secrets, Cloudflare environment wiring and rollback.
-- [ ] Verify simulation remains available without remote services and commit deployment preparation separately.
+- [x] Package the gateway and pinned FalkorDB server with a persistent data mount, bounded readiness and signal handling.
+- [x] Build/run the actual container; test readiness, gateway auth, restart persistence and real application repair against it. Real Workers AI proof: four-call build and three-call selective repair, exact preservation, owned cleanup.
+- [x] Document Railway GitHub verification, no-card limits, volume, HTTPS domain, server secrets, Cloudflare environment wiring and rollback.
+- [x] Verify simulation remains available without remote services and commit deployment preparation separately.
 
 ## Task 4: Final verification and publication
 

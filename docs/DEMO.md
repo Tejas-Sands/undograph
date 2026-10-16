@@ -4,6 +4,8 @@ Primary track: Agent Memory and Coordination. The secondary connected-data claim
 
 Start the local app with live Workers AI available and use a fresh visitor workspace. Keep the console at 1440 pixels for recording. If using the recorded example instead, leave its recorded/read-only banner visible and identify it as a frozen walkthrough; never describe those actions as new inference.
 
+For a failure during judging, choose **Simulation** at the bottom left or **Continue in simulation** on the error. The five guided steps demonstrate shared sessions, source correction, stale-review blocking, selective repair and exact preservation. The persistent banner identifies recorded synthetic data. Export the simulation audit, which also labels its origin. The fallback requires the initial website assets to have loaded; it then runs without network/API access. It does not replay the failed live action.
+
 | Time | Action | Explain |
 | --- | --- | --- |
 | 0:00–0:25 | Start a live workspace and build agent work | Two persisted roles read exact source/case versions. Eligibility is application code; the model interprets evidence and drafts replies. |
@@ -18,4 +20,4 @@ Before submission, the participant should be able to explain `DEPENDS_ON` direct
 
 AI assistance was used for implementation, tests, debugging and documentation. Commit author and committer identity is Tejas-Sands as requested. Live application inference uses the configured Workers AI model; recorded examples are explicitly identified.
 
-Cloud deployment, a verified public application URL, real TLS certificate-refusal proof and event submission remain operator steps until the required infrastructure is available. A public GitHub repository is not a deployed demo. This guide does not claim that a recording or submission has already been completed.
+The [Railway container and HTTPS gateway](RAILWAY.md) prepare the selected hosting route. Cloud deployment, a verified public application URL and event submission remain operator steps until the required account access is available. A public GitHub repository is not a deployed demo. This guide does not claim that a recording or submission has already been completed.

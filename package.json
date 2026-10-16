@@ -12,6 +12,8 @@
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types",
     "setup:local": "node scripts/local-setup.mjs",
+    "setup:railway": "node scripts/railway-setup.mjs",
+    "test:railway": "node scripts/railway-smoke.mjs",
     "db:up": "docker compose --env-file .dev.vars up --detach --wait",
     "db:stop": "docker compose --env-file .dev.vars stop",
     "typecheck": "wrangler types && tsc -b && tsc -p tests/tsconfig.json && tsc -p tests/e2e/tsconfig.json",

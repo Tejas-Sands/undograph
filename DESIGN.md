@@ -1,6 +1,6 @@
 # UndoGraph product and technical specification
 
-Status: proposed architecture and preparation notes, ready for review. The user approved the agent-repair direction and requested a professional working demo deployed on Cloudflare. Implementation begins during the hackathon window.
+Status: implemented locally. The user approved the agent-repair direction, Cloudflare application hosting, Railway database hosting and an explicit guided simulation fallback. Actual remote deployment awaits account configuration and public verification; this document retains the original design rationale.
 
 ## Outcome and scope
 
@@ -50,6 +50,8 @@ Cloudflare documents React plus Workers, outbound Node TCP/TLS APIs, durable ste
 Before building the product UI, verify the official client inside workerd and a deployed Cloudflare preview. Authenticate to the chosen external FalkorDB endpoint, execute a parameterized write and read in an isolated disposable graph, return a multi-hop path, close the connection, and delete that exact disposable graph. Repeat a graph operation from a Workflow step. Prove certificate validation and refusal of incorrect database credentials.
 
 Require a TLS-enabled graph endpoint for the publicly deployed service. FalkorDB's published free plan excludes TLS; access to a suitable managed endpoint or a self-hosted TLS endpoint is a deployment prerequisite. Do not provision paid services without an agreed budget. [FalkorDB plan comparison](https://www.falkordb.com/plans/)
+
+The selected Railway route meets the public TLS boundary through an authenticated HTTPS gateway co-located with FalkorDB. The Worker sends only named operations and parameters; the gateway executes the shared query catalog over authenticated loopback sockets. Public raw database TCP is not exposed. The direct verified-TLS SDK route remains supported. See [the deployment guide](docs/RAILWAY.md) and [implementation plan](docs/superpowers/plans/2026-10-16-railway-simulation.md).
 
 If the official client fails the actual runtime probe, stop extending that integration and record the concrete incompatibility. The fallback is a small authenticated HTTPS gateway using the official client in a supported Node runtime. It accepts named application operations and validated arguments, never arbitrary Cypher or graph names from the browser. Keep the frontend, orchestration, and inference on Cloudflare. Select and verify gateway hosting before adopting this fallback; it is not assumed deployed or available. Do not implement a Redis wire protocol client as a hackathon detour.
 
@@ -126,6 +128,8 @@ The reply agent receives the persisted assessment, ticket and supporting evidenc
 Default generation: temperature 0, maximum 600 output tokens per call, one structured-output correction attempt. Workflow model steps allow at most one transient retry with a three-second delay and a sixty-second attempt timeout. Validation and authorization failures are non-retryable. No nested autonomous agent loops.
 
 Live mode calls Workers AI. Recorded walkthrough mode uses labeled fixtures and exposes its origin in the UI, run records and export. Never silently replace live inference after a failure. Record attempt counts and provider usage where returned; show unavailable token measurements as unavailable, not zero. Retries can incur additional model calls even when persistence is idempotent.
+
+The guided simulation is a separate recorded mode with a persistent disclosure and labeled exports. A bottom-left entry and live-error link open it explicitly. Captured snapshots, graph and workspace code ship with the initial page, allowing simulation after a later network failure. Switching modes remounts the workspace controller so old live responses cannot overwrite simulation state. No live mutation is replayed when choosing simulation.
 
 ## HTTP API and visitor isolation
 

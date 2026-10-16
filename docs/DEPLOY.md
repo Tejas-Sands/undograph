@@ -1,6 +1,6 @@
 # Local development and Cloudflare deployment
 
-The verified target today is local development. Cloudflare deployment remains pending a reachable TLS-enabled FalkorDB endpoint and deployed verification. No cloud database has been provisioned or presented as working.
+The verified targets are local development and the Railway container tested locally. For the selected deployment route, follow [Railway setup](RAILWAY.md): a co-located FalkorDB and authenticated HTTPS gateway connect to Cloudflare. Actual cloud deployment still needs Railway account access and public end-to-end verification. The direct TLS alternative below remains supported.
 
 ## Local application
 
@@ -20,6 +20,8 @@ Local Worker and Workflow execution uses workerd. Live generation uses the remot
 
 For recorded-only exploration without Cloudflare authentication, use `UNDOGRAPH_OFFLINE=1 npm run dev` and open `/#/recorded/overview`. This disables remote bindings and never provides fake live inference. The local database is unnecessary for that read-only example, but is required for live APIs and graph integration tests.
 
+The five-step fallback is at `/#/simulation/overview`, with a bottom-left entry and a contextual link on live failures. Its workspace, graph and captured evidence ship with the page so it remains usable after initial loading even if the network drops. Exports carry `origin: simulation` and `synthetic: true`.
+
 ## Checks
 
 ```sh
@@ -38,6 +40,8 @@ The smoke command performs a real build, reload read, correction, multi-hop impa
 `--probe` performs only liveness, schema readiness and application-document checks. It does not verify inference, repair, certificate refusal or a Workflow. Use the full smoke for the application flow and `npm run probe:local` for the official SDK/runtime characterization tests.
 
 ## Cloud prerequisites
+
+For Railway, use `GRAPH_GATEWAY_URL`, `GRAPH_GATEWAY_TOKEN` and `SESSION_SECRET` instead of the four direct database secrets. Follow [the complete Railway guide](RAILWAY.md) for persistent storage, HTTPS and verification.
 
 Use an accessible FalkorDB endpoint with valid TLS certificates and graph permissions for the application-owned prefixes. Supply host, port, username and password separately, without embedding credentials in repository URLs or command arguments. A Cloudflare account must have Workers AI and Workflows available. Decide any infrastructure spend before provisioning services.
 

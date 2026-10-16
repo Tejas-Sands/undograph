@@ -1,0 +1,9 @@
+**
+!package.json
+!package-lock.json
+!vite.gateway.config.ts
+!gateway/**
+!worker/**
+!shared/**
+!fixtures/
+!fixtures/northstar.json

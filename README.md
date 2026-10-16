@@ -9,6 +9,7 @@ The demo is a fictional customer-support workspace. Correct a return window from
 - [Product and technical specification](DESIGN.md)
 - [Implementation plan](IMPLEMENTATION_PLAN.md)
 - [Setup, checks and deployment](docs/DEPLOY.md)
+- [Railway deployment and fallback simulation](docs/RAILWAY.md)
 - [Observed verification and measurements](docs/VERIFICATION.md)
 - [Graph model and queries](docs/GRAPH.md)
 - [Three-minute demo guide and AI-assistance disclosure](docs/DEMO.md)
@@ -19,7 +20,7 @@ Target deployment: a React application and API on Cloudflare Workers, durable ru
 
 ## Current status
 
-The local application is implemented: the operations workspace, immutable graph storage, durable agent builds, source correction, selective repair, stale-release guards, visitor isolation, quotas, reset, expiry cleanup and audit export. The complete local browser scenario has passed with real Workers AI, including exact preservation of independent work. Cloud deployment is pending a TLS-enabled database endpoint and deployed verification.
+The local application is implemented: the operations workspace, immutable graph storage, durable agent builds, source correction, selective repair, stale-release guards, visitor isolation, quotas, reset, expiry cleanup and audit export. The complete local browser scenario has passed with real Workers AI, including exact preservation of independent work. The Railway container and authenticated HTTPS adapter are ready for account configuration and public verification.
 
 ## Local development
 
@@ -36,6 +37,8 @@ Open <http://127.0.0.1:5173> for the landing page. Choose **Open workspace**, th
 
 The read-only recorded example is at <http://127.0.0.1:5173/#/recorded/overview>. To explore it without a Cloudflare connection, run `UNDOGRAPH_OFFLINE=1 npm run dev`. Recorded mode stays labeled and sends no mutation requests; it never substitutes for a failed live run.
 
+Choose the small **Simulation** button at the bottom left for a guided five-step demonstration, or open <http://127.0.0.1:5173/#/simulation/overview>. It covers the shared sessions, 30→14-day correction, five stale outputs, blocked review, selective repair and preserved ID/hash. It uses bundled recorded evidence, works without the API and remains clearly labeled. Live errors offer an explicit simulation recovery link.
+
 ![Recorded UndoGraph workspace after selective repair](docs/images/workspace.png)
 
 The setup command creates ignored `.dev.vars` with fresh local secrets and preserves it on subsequent runs. FalkorDB is exposed only at `127.0.0.1:16379`; its named Docker volume persists data. `npm run db:stop` stops the container without deleting data.
@@ -51,7 +54,7 @@ npm run build
 node scripts/cloud-smoke.mjs --base-url http://127.0.0.1:5173 --benchmark
 ```
 
-The backend suite passes 111 tests against the real local database/runtime. The browser suite contains seventeen tests, including the real-inference workflow, landing page, focused skip link and workspace entry. Verification includes a complete live run and a focused landing rerun after review. CI explicitly skips its live-inference test. Full smoke testing creates isolated synthetic visitors and deletes their completed workspaces. Use `--probe` for health/readiness checks alone.
+The original backend suite contains 111 tests; gateway contracts add five cases and the 64 graph/API/Workflow cases also run through the HTTP adapter. The browser suite contains 27 tests, including simulation, offline entry, mode isolation and the real-inference workflow. CI explicitly skips its live-inference test. Full smoke testing creates isolated synthetic visitors and deletes their completed workspaces. Use `--probe` for health/readiness checks alone.
 
 In one local comparison using the same corrected source/case content, selective repair used three model calls and 8.899 seconds; a fresh build used four calls and 9.458 seconds. The independent account reply kept its exact ID, hash and content. These are observed measurements, not a performance guarantee; [the verification record](docs/VERIFICATION.md) includes provider usage and an earlier repair that took longer.
 
