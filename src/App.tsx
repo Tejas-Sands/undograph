@@ -42,7 +42,7 @@ export default function App() {
   useEffect(() => {
     document.getElementById('workspace-main')?.focus({ preventScroll: true })
     window.scrollTo(0, 0)
-  }, [])
+  }, [hash])
   const simulation = hash.startsWith('#/simulation/')
   const recorded = simulation || hash.startsWith('#/recorded/')
   const view = views.find((item) => item.id === hash.split('/').at(-1)) ?? views[0]

@@ -94,6 +94,8 @@ test('live setup lets returning visitors resume or explicitly replace their save
   await expect(page.locator('.top-avatar')).toHaveText('O')
   await expect(page.locator('.store-avatar')).toHaveText('O')
   await expect(page.getByRole('heading', { name: 'Your questions', exact: true })).toBeVisible()
+  await expect(page.locator('#workspace-main')).toBeFocused()
+  expect(await page.evaluate(() => window.scrollY)).toBe(0)
   const replaced = workspaceSnapshotSchema.parse(await (await page.request.get('/api/workspace')).json())
   expect(replaced.workspace.id).not.toBe(before.workspace.id)
   expect(replaced.workspace.mode).toBe('knowledge')
