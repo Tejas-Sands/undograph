@@ -42,14 +42,14 @@ export function SourcePanel({
             <button className="text-button" onClick={() => onSelect(source.id)}>
               Inspect version <ArrowRight size={15} aria-hidden="true" />
             </button>
-            {fields(source).category === 'return-policy' ? (
+            {['return-policy', 'document'].includes(String(fields(source).category)) ? (
               <button
                 className="button button-secondary"
                 disabled={recorded || controller.busy || !controller.ready}
                 onClick={() => setEditing(source)}
               >
                 <FilePenLine size={16} aria-hidden="true" />
-                Correct return window
+                {fields(source).category === 'document' ? 'Correct source text' : 'Correct return window'}
               </button>
             ) : (
               <span className="quiet-label">
@@ -88,9 +88,11 @@ function CorrectionDialog({
     () => String(fields(source).text).match(/within (\d+) days/)?.[1] ?? '',
   )
   const [reason, setReason] = useState('')
+  const [text, setText] = useState(String(fields(source).text))
+  const document = fields(source).category === 'document'
   const [revision] = useState(controller.snapshot!.workspace.revision)
   return (
-    <Dialog title="Correct the return policy" onClose={onClose}>
+    <Dialog title={document ? 'Correct source text' : 'Correct the return policy'} onClose={onClose}>
       <p className="modal-description">
         Save a new source version. Dependent pending work becomes stale and requires repair before
         review.
@@ -101,13 +103,13 @@ function CorrectionDialog({
           const result = await controller.correct({
             sourceArtifactId: source.id,
             expectedRevision: revision,
-            returnWindowDays: Number(days),
+            ...(document ? { text } : { returnWindowDays: Number(days) }),
             reason,
           })
           if (result !== undefined) onClose()
         }}
       >
-        <label htmlFor="return-days">Return window (days)</label>
+        {document ? <><label htmlFor="source-correction-text">Source text</label><textarea id="source-correction-text" autoFocus required maxLength={2000} rows={8} value={text} onChange={event => setText(event.target.value)} /></> : <><label htmlFor="return-days">Return window (days)</label>
         <input
           autoFocus
           id="return-days"
@@ -117,7 +119,7 @@ function CorrectionDialog({
           required
           value={days}
           onChange={(event) => setDays(event.target.value)}
-        />
+        /></>}
         <label htmlFor="correction-reason">Reason for correction</label>
         <textarea
           id="correction-reason"

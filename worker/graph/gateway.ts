@@ -11,6 +11,7 @@ export type GraphOperation =
   | { action: 'schema' | 'delete'; graphName: string }
   | { action: 'openStep'; graphName: string; runId: string; stage: string; inputIds: string[]; analyst: boolean }
   | { action: 'saveOutput'; graphName: string; write: ArtifactWrite; usage: Usage }
+  | { action: 'logAttempt'; graphName: string; controlGraph: string; visitorId: string; runId: string; stage: string }
 
 const domainFailure = z.object({ error: z.object({ code: z.string().regex(/^[A-Z][A-Z_]{1,79}$/), message: z.string().min(1).max(1_000) }) })
 
@@ -33,7 +34,7 @@ export async function gatewayOperation<T>(env: Env, operation: GraphOperation): 
       body: JSON.stringify(operation),
     })
     if (!response.ok) {
-      if (['openStep', 'saveOutput'].includes(operation.action) && response.status >= 400 && response.status < 500) {
+      if (['openStep', 'saveOutput', 'logAttempt'].includes(operation.action) && response.status >= 400 && response.status < 500) {
         const failure = domainFailure.safeParse(await response.json())
         if (failure.success) throw new DomainError(failure.data.error.code, failure.data.error.message, response.status)
       }

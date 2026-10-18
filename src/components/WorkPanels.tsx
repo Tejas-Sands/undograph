@@ -116,8 +116,8 @@ export function CaseQueue({
     <section className="panel case-panel">
       <div className="section-heading">
         <div>
-          <h2>Support work</h2>
-          <p>One policy correction. Two agent contexts.</p>
+          <h2>{snapshot.workspace.mode === 'knowledge' ? 'Your questions' : 'Support work'}</h2>
+          <p>{snapshot.workspace.mode === 'knowledge' ? 'Answers follow their selected source versions.' : 'One policy correction. Two agent contexts.'}</p>
         </div>
         <Badge>{cases.length} cases</Badge>
       </div>
@@ -130,7 +130,7 @@ export function CaseQueue({
       ))}
       <div className="panel-bottom">
         <ShieldCheck size={15} aria-hidden="true" />
-        All replies remain inside this synthetic workspace.
+        All drafts remain inside this workspace and require review.
       </div>
     </section>
   )
@@ -155,7 +155,7 @@ function CaseRow({
   const decision = assessment
     ? String(fields(assessment).decision)
     : reply
-      ? 'Account help'
+      ? String(fields(reply).decision === 'answered' ? 'Answered' : fields(reply).decision === 'needs-review' ? 'Review required' : 'Account help')
       : 'Awaiting build'
   const stale = assessment?.status === 'stale' || reply?.status === 'stale'
   const review = assessment?.needsReview || reply?.needsReview
@@ -166,10 +166,10 @@ function CaseRow({
       </span>
       <span className="case-description">
         <strong>
-          {String(body.id)} <span>{body.topic ? 'Account access' : 'Change-of-mind return'}</span>
+          {String(body.id)} <span>{body.question ? String(body.question) : body.topic ? 'Account access' : 'Change-of-mind return'}</span>
         </strong>
         <small>
-          {body.daysSinceDelivery !== undefined
+          {body.question ? 'Uses selected documents' : body.daysSinceDelivery !== undefined
             ? `${body.daysSinceDelivery} days since delivery`
             : 'Password-reset request'}
         </small>
@@ -210,7 +210,7 @@ export function RepliesPanel({
     <section className="panel">
       <div className="section-heading">
         <div>
-          <h2>Pending and reviewed replies</h2>
+          <h2>{snapshot.workspace.mode === 'knowledge' ? 'Pending and reviewed answers' : 'Pending and reviewed replies'}</h2>
           <p>Inspect evidence before recording an internal review.</p>
         </div>
         <MessageSquare size={19} aria-hidden="true" />

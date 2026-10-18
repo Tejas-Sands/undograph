@@ -1,7 +1,7 @@
 import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep, type WorkflowStepConfig } from 'cloudflare:workers'
 import { NonRetryableError } from 'cloudflare:workflows'
-import { assessmentSchema, jsonSchema, policyFactsSchema, returnCaseSchema, type Artifact } from '../shared/contracts'
-import { draftReply, extractPolicy, InvalidModelOutput, ModelUnavailable, type ModelResult } from './agents'
+import { assessmentSchema, jsonSchema, policyFactsSchema, questionCaseSchema, returnCaseSchema, type Artifact } from '../shared/contracts'
+import { answerQuestion, draftReply, extractPolicy, extractSourceNotes, InvalidModelOutput, ModelUnavailable, type ModelResult } from './agents'
 import { assessReturn, DomainError, validateLineage } from './domain'
 import type { Env, WorkflowParams } from './env'
 import { loadSnapshot, queryGraph } from './graph/store'
@@ -30,7 +30,7 @@ async function nonRetryable<T>(work: () => Promise<T>): Promise<T> {
 function outputRunner(env: Env, params: WorkflowParams, step: WorkflowStep) {
   const { graphName, runId, baseRevision } = params
   return async (stage: string, logicalId: string, kind: Artifact['kind'], inputIds: string[], inference: ((inputs: Artifact[]) => Promise<ModelResult<unknown>>) | undefined, deterministic?: (inputs: Artifact[]) => unknown, supersedesId?: string) => {
-    const analyst = kind === 'policy-facts'
+    const analyst = kind === 'policy-facts' || kind === 'source-notes'
     const inputs = await checkpoint(step, `${stage}.read`, databaseStep, () => nonRetryable(() => openStep(env, graphName, runId, stage, inputIds, analyst)))
     const generated = inference
       ? await checkpoint(step, `${stage}.model`, modelStep, () => nonRetryable(async () => {
@@ -80,6 +80,26 @@ export async function executeBuild(env: Env, params: WorkflowParams, step: Workf
       return artifact
     }
     const output = outputRunner(env, params, step)
+    const documents = roots.filter(artifact => artifact.kind === 'source' && (artifact.body as { category?: string }).category === 'document')
+    if (documents.length) {
+      const notes = new Map<string, Artifact>()
+      for (const document of documents) {
+        const suffix = document.logicalId.slice('source:'.length)
+        const stage = `notes-${suffix}`
+        notes.set(document.logicalId, await output(stage, `notes:${suffix}`, 'source-notes', [document.id],
+          inputs => extractSourceNotes(env, inputs[0], () => logAttempt(env, graphName, visitorId, runId, stage))))
+      }
+      for (const question of roots.filter(artifact => artifact.kind === 'case')) {
+        const data = questionCaseSchema.parse(question.body)
+        const sources = data.sourceIds.map(id => root(id))
+        const inputs = [question.id, ...sources.flatMap(source => [source.id, notes.get(source.logicalId)!.id])]
+        const stage = `answer-${data.id}`
+        await output(stage, `answer:${data.id}`, 'reply', inputs,
+          artifacts => answerQuestion(env, { artifacts }, () => logAttempt(env, graphName, visitorId, runId, stage)))
+      }
+      await step.do('publish build', databaseStep, () => nonRetryable(async () => { await promoteBuild(env, graphName, runId, baseRevision); return runId }))
+      return runId
+    }
     const policy = root('source:return-policy')
     const facts = await output('extract-policy', 'facts:return-policy', 'policy-facts', [policy.id],
       (inputs) => extractPolicy(env, inputs[0], () => logAttempt(env, graphName, visitorId, runId, 'extract-policy')))
@@ -122,15 +142,18 @@ export async function executeRepair(env: Env, params: WorkflowParams, step: Work
       const inputIds = old.inputIds.map((inputId) => mapping.get(inputId) ?? inputId)
       const stage = `repair-${index}-${old.kind}`
       const beforeCall = () => logAttempt(env, graphName, visitorId, runId, stage)
-      const infer = old.kind === 'policy-facts'
+      const infer = old.kind === 'source-notes'
+        ? (inputs: Artifact[]) => extractSourceNotes(env, inputs.find(a => a.kind === 'source')!, beforeCall)
+        : old.kind === 'policy-facts'
         ? (inputs: Artifact[]) => extractPolicy(env, inputs.find((a) => a.kind === 'source')!, beforeCall)
-        : old.kind === 'reply' ? (inputs: Artifact[]) => draftReply(env, { artifacts: inputs }, beforeCall) : undefined
+        : old.kind === 'reply' ? (inputs: Artifact[]) => inputs.some(a => a.kind === 'case' && questionCaseSchema.safeParse(a.body).success)
+          ? answerQuestion(env, { artifacts: inputs }, beforeCall) : draftReply(env, { artifacts: inputs }, beforeCall) : undefined
       const assess = (inputs: Artifact[]) => {
         const ticket = inputs.find((a) => a.kind === 'case')!
         const facts = inputs.find((a) => a.kind === 'policy-facts')!
         return assessReturn(returnCaseSchema.parse(ticket.body), policyFactsSchema.parse(facts.body), { caseArtifactId: ticket.id, factsArtifactId: facts.id })
       }
-      if (!['policy-facts', 'assessment', 'reply'].includes(old.kind)) throw new DomainError('INCOMPLETE_AUDIT', 'Only derived work can be repaired.')
+      if (!['policy-facts', 'assessment', 'reply', 'source-notes'].includes(old.kind)) throw new DomainError('INCOMPLETE_AUDIT', 'Only derived work can be repaired.')
       const replacement = await output(stage, old.logicalId, old.kind, inputIds, infer, assess, old.id)
       mapping.set(old.id, replacement.id)
     }

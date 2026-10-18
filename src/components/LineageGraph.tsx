@@ -60,7 +60,7 @@ export default function LineageGraph({
       defaultSource ??
       snapshot.artifacts.find(
         (a) => a.isCurrent && a.kind === 'source' && fields(a).category === 'return-policy',
-      )?.id
+      )?.id ?? snapshot.artifacts.find(a => a.isCurrent && a.kind === 'source')?.id
     const source = snapshot.artifacts.find((a) => a.id === sourceId)
     const ids = new Set(sourceId ? [sourceId] : [])
     let changed = true

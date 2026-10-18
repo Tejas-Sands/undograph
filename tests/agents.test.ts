@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { extractPolicy, draftReply, type ReplyInput } from '../worker/agents'
 import type { Env } from '../worker/env'
 import type { Artifact, JsonValue } from '../shared/contracts'
+import { logAttempt } from '../worker/runs'
 
 const text = 'Change-of-mind returns are accepted within 30 days of delivery.'
 function artifact(id: string, kind: Artifact['kind'], body: JsonValue): Artifact {
@@ -9,6 +10,23 @@ function artifact(id: string, kind: Artifact['kind'], body: JsonValue): Artifact
 }
 const source = artifact('policy_v1', 'source', { title: 'Returns', category: 'return-policy', text })
 const valid = { status: 'supported', returnWindowDays: 30, evidenceQuote: text }
+
+describe('gateway inference accounting', () => {
+  const gatewayEnv = { ENVIRONMENT: 'local', GRAPH_PREFIX: 'undograph_test_', GRAPH_GATEWAY_URL: 'http://127.0.0.1:8080', GRAPH_GATEWAY_TOKEN: 'test-gateway-token-with-at-least-32-characters' } as Env
+  it('reserves quota and records an attempt with one external gateway request', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async (_url, init) => {
+      const operation = JSON.parse(String(init?.body))
+      return Response.json({ data: operation.action === 'query' ? [{ id: 'step' }] : null })
+    })
+    try { await logAttempt(gatewayEnv, 'undograph_test_workspace', 'visitor', 'run', 'notes'); expect(fetch).toHaveBeenCalledTimes(1) }
+    finally { fetch.mockRestore() }
+  })
+  it('preserves the quota refusal instead of reporting a database outage', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ error: { code: 'INFERENCE_LIMIT', message: 'Live inference limit reached.' } }, { status: 429 }))
+    try { await expect(logAttempt(gatewayEnv, 'undograph_test_workspace', 'visitor', 'run', 'notes')).rejects.toMatchObject({ code: 'INFERENCE_LIMIT', status: 429 }) }
+    finally { fetch.mockRestore() }
+  })
+})
 const input: ReplyInput = {
   artifacts: [source, artifact('case_v1', 'case', { id: 'R021', daysSinceDelivery: 21, reason: 'change of mind' }),
     artifact('assessment_v1', 'assessment', { caseArtifactId: 'case_v1', factsArtifactId: 'facts_v1', decision: 'eligible', explanation: '21 <= 30' })],

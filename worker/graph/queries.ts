@@ -16,6 +16,9 @@ export const queries = {
     ON CREATE SET w.revision = 0, w.createdAt = $createdAt, w.expiresAt = $expiresAt, w.initialized = false
     RETURN properties(w) AS workspace`,
   seedAgent: `MERGE (a:Agent {id: $id}) ON CREATE SET a.role = $role RETURN a.id AS id`,
+  configureWorkspace: `MATCH (w:Workspace {id: $id})
+    WHERE w.initialized = false AND (w.configHash IS NULL OR w.configHash = $configHash)
+    SET w.configHash = $configHash, w.name = $name, w.mode = $mode RETURN w.id AS id`,
   finishInitialization: `MATCH (w:Workspace {id: $id}) WHERE w.revision = 0
     SET w.initialized = true RETURN w.id AS id`,
   snapshot: `MATCH (n) OPTIONAL MATCH (n)-[r]->(target)

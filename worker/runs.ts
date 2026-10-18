@@ -2,9 +2,10 @@ import { runRequestSchema, type Artifact, type ArtifactWrite, type Run, type Run
 import { DomainError, hashCanonical, planRepair, validateLineage } from './domain'
 import type { Env } from './env'
 import { findImpact, loadSnapshot, queryGraph, recordArtifact } from './graph/store'
-import { assertInferenceAvailable, reserveInference } from './limits'
+import { assertInferenceAvailable, controlGraph, reserveInference } from './limits'
 import type { Usage } from './agents'
 import { gatewayOperation, usesGateway } from './graph/gateway'
+import { expectedBuildIds } from '../shared/knowledge'
 
 export async function prepareRun(env: Env, graphName: string, request: RunRequest, key: string, visitorId?: string): Promise<Run> {
   const input = runRequestSchema.parse(request)
@@ -120,6 +121,7 @@ export async function openStep(env: Env, graphName: string, runId: string, stage
 }
 
 export async function logAttempt(env: Env, graphName: string, visitorId: string, runId: string, stage: string) {
+  if (usesGateway(env)) { await gatewayOperation(env, { action: 'logAttempt', graphName, controlGraph: controlGraph(env), visitorId, runId, stage }); return }
   await reserveInference(env, visitorId)
   const result = await queryGraph(env, graphName, 'recordAttempt', { runId, stepId: `${runId}_${stage}` })
   if (!result.length) throw new DomainError('REVISION_CONFLICT', 'The run changed before inference started.')
@@ -138,8 +140,10 @@ export async function promoteBuild(env: Env, graphName: string, runId: string, r
   validateLineage(snapshot)
   if (snapshot.runs.some((run) => run.id === runId && run.status === 'succeeded' && run.baseRevision === revision)) return
   const candidates = snapshot.artifacts.filter((artifact) => artifact.runId === runId && artifact.status === 'candidate')
-  if (candidates.length !== 6 || new Set(candidates.map((artifact) => artifact.logicalId)).size !== 6) throw new DomainError('INCOMPLETE_BUILD', 'All six outputs must exist before publication.')
-  const result = await queryGraph(env, graphName, 'promoteRun', { runId, revision, count: 6, now: Date.now() })
+  const expected = expectedBuildIds(snapshot.artifacts.filter(artifact => artifact.isCurrent && ['source', 'case'].includes(artifact.kind)))
+  const actual = new Set(candidates.map(artifact => artifact.logicalId))
+  if (candidates.length !== expected.length || actual.size !== expected.length || expected.some(id => !actual.has(id))) throw new DomainError('INCOMPLETE_BUILD', 'All expected outputs must exist before publication.')
+  const result = await queryGraph(env, graphName, 'promoteRun', { runId, revision, count: expected.length, now: Date.now() })
   if (!result.length) throw new DomainError('REVISION_CONFLICT', 'The workspace changed; candidate work was not published.')
 }
 

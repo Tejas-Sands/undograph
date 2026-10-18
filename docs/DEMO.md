@@ -21,3 +21,12 @@ Before submission, the participant should be able to explain `DEPENDS_ON` direct
 AI assistance was used for implementation, tests, debugging and documentation. Commit author and committer identity is Tejas-Sands as requested. Live application inference uses the configured Workers AI model; recorded examples are explicitly identified.
 
 The selected [Railway gateway and Cloudflare deployment](RAILWAY.md) is available at the [public preview](https://undograph-preview.the-workflow-worker.workers.dev). Its complete live build/correction/repair smoke and browser network-failure recovery passed on October 17, 2026 (IST); see [observed verification](VERIFICATION.md). The [guided simulation](https://undograph-preview.the-workflow-worker.workers.dev/#/simulation/overview) is also public. Recording the final demo and submitting the event remain operator steps; neither has been completed by this deployment.
+
+
+## Judge-entered custom workspace
+
+In the updated live UI, choose **Open workspace**. Keep the editable project example or enter your own named sources and questions. Each question selects its source scope. Choose **Create live workspace**, then **Build agent work**. Inspect a source-note artifact for exact quotations and an answer for its cited source versions and full recorded inputs.
+
+For the project example, change the launch date in **Sources → Correct source text**, supplying a reason. Three outputs become stale: the launch notes and two launch-dependent answers. **Repair affected work** regenerates those records; the independent release-owner answer retains its exact ID/hash. The approver can remain Priya while still acquiring current source evidence. Export the audit to check both branches.
+
+The research example exercises a second domain. Start a **New workspace** with explicit replacement acknowledgement, build it, then correct the species count. This flow accepts pasted text within the displayed limits; it does not fetch linked documents. The original retail example and recorded demo remain available. Deploy the matching gateway and Worker before expecting the public URL to show this new flow; see [deployment](DEPLOY.md).

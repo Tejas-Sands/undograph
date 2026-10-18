@@ -4,6 +4,8 @@ import {
   runResultSchema,
   workspaceSnapshotSchema,
   type CorrectionRequest,
+  type DocumentCorrection,
+  type GeneralWorkspace,
   type RunRequest,
   type WorkspaceSnapshot,
 } from '../shared/contracts'
@@ -188,13 +190,11 @@ export function useWorkspace(recorded: boolean, simulation = false) {
     setStage,
     refresh,
     clearError: () => setError(null),
-    enter: () =>
+    enter: (scenario?: GeneralWorkspace) =>
       mutate(async () => {
-        setLive(
-          workspaceSnapshotSchema.parse(
-            await request('/api/workspace', { method: 'POST', body: '{}' }),
-          ),
-        )
+        const next = workspaceSnapshotSchema.parse(await request('/api/workspace', { method: 'POST', body: JSON.stringify({ scenario }) }))
+        setLive(next)
+        return next
       }),
     startRun: (kind: RunRequest['kind']) =>
       mutate(async () => {
@@ -244,13 +244,13 @@ export function useWorkspace(recorded: boolean, simulation = false) {
       activeRun?.status === 'queued' &&
       (!pending.runId || error?.code === 'RUN_LAUNCH_PENDING'),
     ),
-    correct: (input: CorrectionRequest) =>
+    correct: (input: CorrectionRequest | DocumentCorrection) =>
       mutate(() =>
         request(`/api/sources/${encodeURIComponent(input.sourceArtifactId)}/corrections`, {
           method: 'POST',
           body: JSON.stringify({
             expectedRevision: input.expectedRevision,
-            returnWindowDays: input.returnWindowDays,
+            ...('text' in input ? { text: input.text } : { returnWindowDays: input.returnWindowDays }),
             reason: input.reason,
           }),
         }),
@@ -264,12 +264,12 @@ export function useWorkspace(recorded: boolean, simulation = false) {
       ),
     addSession: (label: string) =>
       mutate(() => request('/api/sessions', { method: 'POST', body: JSON.stringify({ label }) })),
-    reset: () =>
+    reset: (scenario?: GeneralWorkspace) =>
       mutate(async () => {
         const next = workspaceSnapshotSchema.parse(
           await request('/api/workspace/reset', {
             method: 'POST',
-            body: JSON.stringify({ confirmation: 'RESET' }),
+            body: JSON.stringify({ confirmation: 'RESET', scenario }),
           }),
         )
         localStorage.removeItem(pendingName)

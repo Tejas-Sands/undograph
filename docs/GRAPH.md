@@ -4,13 +4,19 @@ Each visitor workspace uses a separate, server-selected FalkorDB graph. `Workspa
 
 Every application label has a native unique `id` constraint with a backing range index. `Artifact.currentKey` is also unique: only a current version holds its logical ID there. Historical and candidate versions omit it. Additional indexes cover artifact logical IDs and run status. Initialization waits for required indexes and constraints to become operational.
 
-`(output)-[:DEPENDS_ON]->(input)` records the exact versions supplied to computation. `(new)-[:SUPERSEDES]->(old)` records version history. Explanation paths reverse dependency edges for human reading, from source through derived work. Seed initialization creates five source/case inputs and two agent definitions, without generated outputs or dependency edges.
+`(output)-[:DEPENDS_ON]->(input)` records the exact versions supplied to computation. `(new)-[:SUPERSEDES]->(old)` records version history. Explanation paths reverse dependency edges for human reading, from source through derived work. Initialization creates the supplied document/question roots (or the original five retail roots) and two agent definitions, without generated outputs or dependency edges. A canonical configuration hash makes retries idempotent and rejects different inputs for the same workspace generation. The workspace also stores its name and mode.
 
 ## Queries
 
 The fixed query registry is `worker/graph/queries.ts`; browser input never becomes Cypher text. All variable values use named parameters. `recordArtifact` checks workspace revision, capacity, current-version pointer, immutable identity, predecessor and parent freshness inside the same mutation that stores content and creates dependencies. Repeating the same artifact ID with the same content and inputs returns the original version; changed immutable content is rejected.
 
 `snapshot` reads labeled nodes and outgoing edges in one graph query. `impact` follows reverse `DEPENDS_ON` paths from the selected source, bounded to twelve hops. It guards the revision and artifact count read for validation, includes current descendants and released history, deduplicates affected artifacts, and retains distinct explanation paths. A fan-in reply appears once in the affected set with each dependency path available.
+
+## Custom source and question lineage
+
+A document is a `source` artifact with category `document`. A question is a `case` artifact whose `sourceIds` explicitly select source logical identities. Build creates one `source-notes` artifact per document and one `reply` answer per question. Notes depend on their exact source version; an answer depends on its question plus each selected source and its notes. Unselected sources are never supplied to that model step. The expected output identity set is derived from the configured roots, rather than a fixed output count.
+
+Quotes are validated as unique exact substrings and stored with source version and character offsets. Answers must cite supplied document versions. Missing or insufficient evidence produces review-required output. Full-text document corrections use the existing guarded correction mutation and source replacement map; repair remaps the exact stored inputs to their replacement versions. The original policy facts/assessments/replies path remains supported.
 
 ## Completeness limits
 
@@ -50,3 +56,5 @@ The extra path detects overflow above 1,024 explanations. Domain validation reje
 
 
 Workspace progress reads reconcile graph-active runs against their own Workflow binding. Definitive terminal engine states settle missed failure writes with existing revision/state guards; an unavailable status never invents failure. Published success is never downgraded. This recovers after a database outage also prevented the Workflow's failure-recording step.
+
+The HTTPS gateway batches inference quota reservation and attempt logging as `logAttempt`, alongside `openStep` and `saveOutput`. The gateway validates both workspace and control graph prefixes and performs the same native guarded operations; the Worker makes one authenticated request per attempt before calling the model. Visitor and global inference limits still count every attempt.

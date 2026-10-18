@@ -7,6 +7,8 @@ export function AppShell({
   recorded,
   simulation = false,
   hasWorkspace,
+  workspaceName = 'Northstar Goods',
+  knowledge = false,
   onReset,
   children,
 }: {
@@ -14,6 +16,8 @@ export function AppShell({
   recorded: boolean
   simulation?: boolean
   hasWorkspace: boolean
+  workspaceName?: string
+  knowledge?: boolean
   onReset: () => void
   children: ReactNode
 }) {
@@ -37,10 +41,10 @@ export function AppShell({
           UndoGraph<span className="brand-beta">BETA</span>
         </a>
         <div className="workspace-switch">
-          <span className="store-avatar">N</span>
+          <span className="store-avatar">{workspaceName.slice(0,1)}</span>
           <div>
-            <strong>Northstar Goods</strong>
-            <span>Synthetic support workspace</span>
+            <strong>{workspaceName}</strong>
+            <span>{knowledge ? 'Sources and questions' : 'Synthetic support workspace'}</span>
           </div>
         </div>
         <p className="nav-caption">WORKSPACE</p>
@@ -52,7 +56,7 @@ export function AppShell({
               aria-current={view === id ? 'page' : undefined}
             >
               <Icon size={19} aria-hidden="true" />
-              <span>{label}</span>
+              <span>{knowledge && id === 'replies' ? 'Answers' : label}</span>
             </a>
           ))}
         </nav>
@@ -84,7 +88,7 @@ export function AppShell({
       <div className="app-body">
         <header className="topbar">
           <span className="breadcrumb">
-            Workspace <span>/</span> <strong>Northstar Goods</strong>
+            Workspace <span>/</span> <strong>{workspaceName}</strong>
           </span>
           <div className="topbar-right">
             <span className={`mode-dot ${recorded ? 'mode-recorded' : ''}`} />
@@ -99,7 +103,7 @@ export function AppShell({
               </button>
             )}
             <span className="top-avatar" aria-hidden="true">
-              N
+              {workspaceName.slice(0,1)}
             </span>
           </div>
         </header>
@@ -107,7 +111,7 @@ export function AppShell({
           {children}
         </main>
         <footer className="app-footer">
-          <span>UndoGraph · Synthetic data. Internal review only.</span>
+          <span>UndoGraph · {knowledge ? 'Answers require internal review.' : 'Synthetic data. Internal review only.'}</span>
           <span>
             Dependency graph powered by <strong>FalkorDB</strong>
           </span>

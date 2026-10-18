@@ -66,6 +66,12 @@ Use a fresh random session secret of at least 32 bytes. Local `.dev.vars` is not
 
 Run the full smoke against the returned preview URL. Verify API error sanitization, real graph paths inside Workflow steps, multi-hop impact, revision conflicts, source-version citations and preserved IDs/hashes. Also test refusal of wrong credentials and a real invalid-certificate endpoint before asserting the TLS runtime gate. The local plaintext test is not proof of deployed TLS behavior.
 
+## Updating for custom workspaces
+
+Deploy the updated Railway gateway first, then the Cloudflare Worker/assets. The Worker now uses the authenticated `logAttempt` gateway operation to reserve quota and record inference attempts in one round trip; an older gateway rejects it. The upgraded gateway also contains the new document/question validators and named configuration query. It remains compatible with the older Worker during the update. Existing Northstar workspaces retain their original build/correction flow; custom inputs start a fresh workspace generation.
+
+After deployment, verify a custom project workspace with real Workers AI: build, correct the release date, inspect stale answers, repair and compare the independent owner answer's ID/hash. Repeat with research text, then check the original retail flow. CI verifies graph behavior with a test-only model and does not replace this deployed inference check.
+
 ## Production and rollback
 
 Only deploy production after preview verification passes. Populate the same secret names with production-specific values using `--env production`, then run `npm run deploy:production`. Verify the returned `workers.dev` URL, `/#/sources`, `/#/recorded/overview`, health/readiness and the complete smoke. A custom domain is optional and requires an operator-supplied domain.

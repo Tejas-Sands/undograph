@@ -29,6 +29,8 @@ describe('authenticated named graph gateway', () => {
       { action: 'openStep', graphName: 'undograph_foreign_visitor', runId: 'run', stage: 'read', inputIds: [], analyst: false },
       { action: 'openStep', graphName: name, runId: 'run', stage: 'read', inputIds: [], analyst: false, cypher: 'RETURN 1' },
       { action: 'saveOutput', graphName: name, write: {}, usage: { inputTokens: -1 } },
+      { action: 'logAttempt', graphName: name, controlGraph: 'undograph_foreign_control', visitorId: 'visitor', runId: 'run', stage: 'notes' },
+      { action: 'logAttempt', graphName: name, controlGraph: `${name}; DROP ALL`, visitorId: 'visitor', runId: 'run', stage: 'notes' },
     ]) expect((await post(body)).status).toBe(400)
     expect((await app.request('/v1/graph', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: '{broken' })).status).toBe(400)
     expect((await post({ action: 'query', graphName: name, query: 'snapshot', params: { text: 'x'.repeat(70_000) } })).status).toBe(413)

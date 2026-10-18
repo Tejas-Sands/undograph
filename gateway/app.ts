@@ -5,7 +5,7 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { z } from 'zod'
 import { artifactWriteSchema, jsonSchema } from '../shared/contracts'
 import { DomainError } from '../worker/domain'
-import { openStep, saveOutput } from '../worker/runs'
+import { logAttempt, openStep, saveOutput } from '../worker/runs'
 import type { Env } from '../worker/env'
 import { withGraph } from '../worker/graph/client'
 import { queries, type QueryName } from '../worker/graph/queries'
@@ -20,6 +20,7 @@ const operation = z.discriminatedUnion('action', [
   z.object({ action: z.literal('delete'), graphName }).strict(),
   z.object({ action: z.literal('openStep'), graphName, runId: id, stage: z.string().min(1).max(120), inputIds: z.array(id).max(32), analyst: z.boolean() }).strict(),
   z.object({ action: z.literal('saveOutput'), graphName, write: artifactWriteSchema.strict(), usage: z.object({ inputTokens: z.number().int().nonnegative().optional(), outputTokens: z.number().int().nonnegative().optional() }).strict() }).strict(),
+  z.object({ action: z.literal('logAttempt'), graphName, controlGraph: graphName, visitorId: id, runId: id, stage: z.string().min(1).max(120) }).strict(),
 ])
 const missingGraph = (error: unknown) => error instanceof Error && /empty key|unknown graph|graph.*does not exist/i.test(error.message)
 
@@ -48,10 +49,12 @@ export function createGateway(config: GatewayConfig) {
     const input = result.data
     const prefix = config.prefixes.find((entry) => input.graphName.startsWith(entry))
     if (!prefix) return context.json({ error: { code: 'INVALID_GRAPH' } }, 400)
+    if (input.action === 'logAttempt' && !input.controlGraph.startsWith(prefix)) return context.json({ error: { code: 'INVALID_GRAPH' } }, 400)
     const env = { ...config.database, GRAPH_PREFIX: prefix }
     if (input.action === 'query') return context.json({ data: await queryGraph(env, input.graphName, input.query, input.params) })
     if (input.action === 'openStep') return context.json({ data: await openStep(env, input.graphName, input.runId, input.stage, input.inputIds, input.analyst) })
     if (input.action === 'saveOutput') return context.json({ data: await saveOutput(env, input.graphName, input.write, input.usage) })
+    if (input.action === 'logAttempt') { await logAttempt({ ...env, CONTROL_GRAPH: input.controlGraph }, input.graphName, input.visitorId, input.runId, input.stage); return context.json({ data: null }) }
     if (input.action === 'schema') await ensureSchema(env, input.graphName)
     else {
       try { await deleteGraph(env, input.graphName) } catch (error) { if (!missingGraph(error)) throw error }

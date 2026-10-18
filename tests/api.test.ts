@@ -7,6 +7,7 @@ import { ensureSchema } from '../worker/graph/store'
 import { withGraph } from '../worker/graph/client'
 import { visitorIdentity } from '../worker/identity'
 import { beginRun, failRun, prepareRun } from '../worker/runs'
+import { projectExample } from '../shared/knowledge'
 
 let local: Env
 beforeEach(async () => {
@@ -30,6 +31,23 @@ async function workspace() {
 }
 
 describe.skipIf(!(env as unknown as Env).FALKORDB_HOST || !(env as unknown as Env).FALKORDB_PASSWORD)('owned local build API', () => {
+  it('persists custom inputs, rejects changed initialization and validates source scopes', async () => {
+    const created = await request('/api/workspace', 'POST', { scenario: projectExample })
+    expect(created.status).toBe(200)
+    const cookie = created.headers.get('Set-Cookie')!.split(';')[0]
+    const data = workspaceSnapshotSchema.parse(await created.json())
+    expect(data.workspace).toMatchObject({ mode: 'knowledge', name: 'Atlas release' })
+    expect(data.artifacts).toHaveLength(5)
+    expect(await (await request('/api/workspace', 'GET', undefined, cookie)).json()).toEqual(data)
+    expect((await request('/api/workspace', 'POST', { scenario: { ...projectExample, name: 'Changed' } }, cookie)).status).toBe(409)
+    expect((await request('/api/workspace', 'POST', { scenario: { ...projectExample, questions: [{ ...projectExample.questions[0], sourceIds: ['foreign'] }] } })).status).toBe(422)
+    const changed = await request('/api/sources/source_launch_v1/corrections', 'POST', { expectedRevision: 0, text: 'Atlas launches November 19.', reason: 'Judge correction' }, cookie)
+    expect(changed.status).toBe(200)
+    expect((await request('/api/sources/source_launch_v1/corrections', 'POST', { expectedRevision: 0, text: 'Old write', reason: 'Stale' }, cookie)).status).toBe(409)
+    const fresh = await request('/api/workspace/reset', 'POST', { confirmation: 'RESET', scenario: { ...projectExample, name: 'New project' } }, cookie)
+    expect(fresh.status).toBe(200)
+    expect(workspaceSnapshotSchema.parse(await fresh.json()).workspace.name).toBe('New project')
+  })
   it('creates and reopens a signed workspace without generated outputs', async () => {
     const first = await workspace()
     expect(first.response.headers.get('Set-Cookie')).toContain('HttpOnly')

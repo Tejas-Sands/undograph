@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import { ZodError, z } from 'zod'
-import { correctionRequestSchema, runRequestSchema } from '../shared/contracts'
+import { correctionRequestSchema, documentCorrectionSchema, generalWorkspaceSchema, runRequestSchema, workspaceInputSchema } from '../shared/contracts'
 import { DomainError, validateLineage } from './domain'
 import type { Env } from './env'
 import { DatabaseUnavailable } from './graph/client'
@@ -26,7 +26,7 @@ app.use('/api/*', async (context, next) => {
 app.get('/api/health', (context) => context.json({ ok: true }))
 
 app.post('/api/workspace', async (context) => {
-  z.object({}).strict().parse(await readJson(context.req.raw))
+  const input = workspaceInputSchema.parse(await readJson(context.req.raw))
   let visitor = await visitorIdentity(context.req.raw, context.env, true)
   if (!visitor.cookie) {
     const control = controlGraph(context.env)
@@ -36,12 +36,12 @@ app.post('/api/workspace', async (context) => {
   }
   await registerWorkspace(context.env, visitor.graphName, visitor.expiresAt)
   let snapshot
-  try { snapshot = await initializeWorkspace(context.env, visitor.graphName, visitor.workspaceId, visitor.expiresAt) }
+  try { snapshot = await initializeWorkspace(context.env, visitor.graphName, visitor.workspaceId, visitor.expiresAt, input.scenario) }
   catch (error) {
     if (!(error instanceof DomainError) || error.code !== 'WORKSPACE_EXPIRED') throw error
     visitor = await rotateWorkspace(context.req.raw, context.env)
     await registerWorkspace(context.env, visitor.graphName, visitor.expiresAt)
-    snapshot = await initializeWorkspace(context.env, visitor.graphName, visitor.workspaceId, visitor.expiresAt)
+    snapshot = await initializeWorkspace(context.env, visitor.graphName, visitor.workspaceId, visitor.expiresAt, input.scenario)
   }
   if (visitor.cookie) context.header('Set-Cookie', visitor.cookie)
   return context.json(snapshot)
@@ -86,7 +86,7 @@ app.get('/api/artifacts/:id/impact', async (context) => {
 
 app.post('/api/sources/:id/corrections', async (context) => {
   const visitor = await visitorIdentity(context.req.raw, context.env)
-  const input = correctionRequestSchema.omit({ sourceArtifactId: true }).strict().parse(await readJson(context.req.raw))
+  const input = z.union([correctionRequestSchema.omit({ sourceArtifactId: true }).strict(), documentCorrectionSchema.omit({ sourceArtifactId: true }).strict()]).parse(await readJson(context.req.raw))
   return context.json(await commitCorrection(context.env, visitor.graphName, { ...input, sourceArtifactId: context.req.param('id') }))
 })
 
@@ -117,12 +117,12 @@ app.get('/api/export', async (context) => {
 })
 
 app.post('/api/workspace/reset', async (context) => {
-  z.object({ confirmation: z.literal('RESET') }).strict().parse(await readJson(context.req.raw))
+  const input = z.object({ confirmation: z.literal('RESET'), scenario: generalWorkspaceSchema.optional() }).strict().parse(await readJson(context.req.raw))
   const previous = await visitorIdentity(context.req.raw, context.env)
   await loadSnapshot(context.env, previous.graphName)
   const next = await rotateWorkspace(context.req.raw, context.env)
   await registerWorkspace(context.env, next.graphName, next.expiresAt)
-  const snapshot = await initializeWorkspace(context.env, next.graphName, next.workspaceId, next.expiresAt)
+  const snapshot = await initializeWorkspace(context.env, next.graphName, next.workspaceId, next.expiresAt, input.scenario)
   const expired = await queryGraph(context.env, previous.graphName, 'expireWorkspace', { now: Date.now() })
   if (!expired.length) throw new DomainError('NOT_FOUND', 'The old workspace could not be reset.', 404)
   try { await queryGraph(context.env, controlGraph(context.env), 'expireRegistry', { id: previous.graphName, now: Date.now() }) }

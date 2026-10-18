@@ -8,7 +8,7 @@ export type JsonValue = z.infer<typeof jsonSchema>
 
 export const sourceBodySchema = z.object({
   title: z.string().min(1).max(160),
-  category: z.enum(['return-policy', 'account-help']),
+  category: z.enum(['return-policy', 'account-help', 'document']),
   text: z.string().min(1).max(8_000),
 })
 export type SourceBody = z.infer<typeof sourceBodySchema>
@@ -20,6 +20,31 @@ export const returnCaseSchema = z.object({
 })
 export type ReturnCase = z.infer<typeof returnCaseSchema>
 export const accountCaseSchema = z.object({ id, topic: z.literal('password-reset'), message: z.string().min(1).max(500) })
+
+const inputId = z.string().regex(/^[a-zA-Z0-9_-]{1,48}$/)
+export const generalWorkspaceSchema = z.object({
+  name: z.string().trim().min(1).max(80),
+  sources: z.array(z.object({ id: inputId, title: z.string().trim().min(1).max(160), text: z.string().trim().min(1).max(2_000) }).strict()).min(1).max(3),
+  questions: z.array(z.object({ id: inputId, question: z.string().trim().min(1).max(500), sourceIds: z.array(inputId).min(1).max(3) }).strict()).min(1).max(3),
+}).strict().superRefine((value, context) => {
+  const sources = new Set(value.sources.map(source => source.id))
+  if (sources.size !== value.sources.length) context.addIssue({ code: 'custom', message: 'Source IDs must be unique.', path: ['sources'] })
+  if (new Set(value.questions.map(question => question.id)).size !== value.questions.length) context.addIssue({ code: 'custom', message: 'Question IDs must be unique.', path: ['questions'] })
+  value.questions.forEach((question, index) => {
+    if (new Set(question.sourceIds).size !== question.sourceIds.length || question.sourceIds.some(source => !sources.has(source))) {
+      context.addIssue({ code: 'custom', message: 'Select distinct sources that exist in this workspace.', path: ['questions', index, 'sourceIds'] })
+    }
+  })
+})
+export type GeneralWorkspace = z.infer<typeof generalWorkspaceSchema>
+export const workspaceInputSchema = z.object({ scenario: generalWorkspaceSchema.optional() }).strict()
+export const questionCaseSchema = z.object({ id, question: z.string().min(1).max(500), sourceIds: z.array(id).min(1).max(3) })
+export const sourceNotesSchema = z.object({
+  status: z.enum(['supported', 'needs-review']), sourceArtifactId: id,
+  summary: z.string().min(1).max(2_000),
+  quotes: z.array(z.object({ text: z.string().min(1).max(2_000), start: z.number().int().nonnegative(), end: z.number().int().positive() })).max(4),
+})
+export type SourceNotes = z.infer<typeof sourceNotesSchema>
 
 export const policyFactsSchema = z.discriminatedUnion('status', [
   z.object({
@@ -46,14 +71,14 @@ export type Assessment = z.infer<typeof assessmentSchema>
 export const replyDraftSchema = z.object({
   assessmentArtifactId: id.optional(),
   sourceArtifactId: id.optional(),
-  decision: z.enum(['eligible', 'ineligible', 'needs-review', 'account-help']),
+  decision: z.enum(['eligible', 'ineligible', 'needs-review', 'account-help', 'answered']),
   text: z.string().min(1).max(4_000),
   citations: z.array(id).min(1).max(12),
   reviewRequired: z.literal(true),
 })
 export type ReplyDraft = z.infer<typeof replyDraftSchema>
 
-export const artifactKindSchema = z.enum(['source', 'case', 'policy-facts', 'assessment', 'reply'])
+export const artifactKindSchema = z.enum(['source', 'case', 'policy-facts', 'assessment', 'reply', 'source-notes'])
 export const artifactStatusSchema = z.enum(['candidate', 'current', 'stale', 'superseded', 'released'])
 export const artifactSchema = z.object({
   id,
@@ -123,6 +148,7 @@ export type RepairReport = z.infer<typeof repairReportSchema>
 
 export const workspaceSchema = z.object({
   id, revision: z.number().int().nonnegative(), createdAt: timestamp, expiresAt: timestamp, activeRunId: id.optional(),
+  name: z.string().optional(), mode: z.enum(['support', 'knowledge']).optional(), configHash: hash.optional(),
 })
 export const edgeSchema = z.object({
   from: id,
@@ -171,6 +197,8 @@ export const correctionRequestSchema = z.object({
   reason: z.string().trim().min(1).max(500),
 })
 export type CorrectionRequest = z.infer<typeof correctionRequestSchema>
+export const documentCorrectionSchema = z.object({ sourceArtifactId: id, expectedRevision: z.number().int().nonnegative(), text: z.string().trim().min(1).max(2_000), reason: z.string().trim().min(1).max(500) })
+export type DocumentCorrection = z.infer<typeof documentCorrectionSchema>
 export const runRequestSchema = z.object({
   kind: z.enum(['build', 'repair']), expectedRevision: z.number().int().nonnegative(), sourceArtifactId: id.optional(),
 })

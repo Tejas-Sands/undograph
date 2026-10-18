@@ -8,6 +8,9 @@ import { executeBuild, executeRepair } from '../worker/workflows'
 import { commitCorrection } from '../worker/repair'
 import type { Env, WorkflowParams } from '../worker/env'
 import { syntheticAI } from './helpers/synthetic-ai'
+import { projectExample, researchExample } from '../shared/knowledge'
+import { releaseDraft } from '../worker/repair'
+import { deleteGraph } from '../worker/graph/store'
 
 const bindings = env as unknown as Env
 let graphName: string
@@ -24,6 +27,80 @@ afterEach(async () => {
 const request = { kind: 'build' as const, expectedRevision: 0 }
 
 describe.skipIf(!bindings.FALKORDB_HOST || !bindings.FALKORDB_PASSWORD)('durable build lifecycle', () => {
+  it.skipIf(!bindings.GRAPH_GATEWAY_URL)('reopens identical inputs when another initializer finishes before configuration', async () => {
+    await deleteGraph(localEnv, graphName)
+    const originalFetch = globalThis.fetch.bind(globalThis)
+    let concurrent = false
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const operation = JSON.parse(String(init?.body))
+      if (!concurrent && operation.action === 'query' && operation.query === 'configureWorkspace') {
+        concurrent = true
+        await initializeWorkspace(localEnv, graphName, 'visitor', Date.now()+86_400_000, projectExample)
+      }
+      return originalFetch(input, init)
+    })
+    try {
+      const result = await initializeWorkspace(localEnv, graphName, 'visitor', Date.now()+86_400_000, projectExample)
+      expect(concurrent).toBe(true)
+      expect(result.workspace).toMatchObject({ name: projectExample.name, mode: 'knowledge' })
+      expect(result.artifacts).toHaveLength(projectExample.sources.length + projectExample.questions.length)
+    } finally { fetch.mockRestore() }
+  })
+  it.skipIf(!bindings.GRAPH_GATEWAY_URL)('keeps maximum custom build and repair within 50 requests with correction and save retries', async () => {
+    await deleteGraph(localEnv, graphName)
+    const scenario = { ...projectExample, sources: [...projectExample.sources, { id: 'extra', title: 'Other notes', text: 'The archive is in room 12.' }], questions: projectExample.questions.map(question => ({ ...question, sourceIds: ['launch', 'owners', 'extra'] })) }
+    await initializeWorkspace(localEnv, graphName, 'visitor', Date.now()+86_400_000, scenario)
+    const originalFetch = globalThis.fetch.bind(globalThis)
+    let counting = false, requests = 0, calls = 0
+    const spend = () => { if (++requests > 50) throw new Error('Too many subrequests.') }
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => { if (counting) spend(); return originalFetch(input, init) })
+    const runtime = { ...localEnv, AI: { run: async (_model: unknown, input: unknown) => { spend(); return ++calls % 2 ? { response: 'invalid JSON' } : syntheticAI(input) } } as unknown as Ai }
+    try {
+      for (const kind of ['build','repair'] as const) {
+        const revision = kind === 'build' ? 0 : 3
+        const run = await prepareRun(localEnv, graphName, { kind, expectedRevision: revision }, `general-budget-${kind}`)
+        let repeated = false
+        const scheduler = { do: async (name: string, _config: unknown, work: () => Promise<unknown>) => { let result = await work(); if (name.endsWith('.save') && !repeated) { repeated = true; result = await work() } return result } } as unknown as WorkflowStep
+        requests=0; calls=0; counting=true
+        await (kind === 'build' ? executeBuild : executeRepair)(runtime, { graphName, runId: run.id, baseRevision: revision, visitorId: 'visitor' }, scheduler)
+        counting=false
+        expect(requests).toBeLessThanOrEqual(50)
+        expect(repeated).toBe(true)
+        if (kind === 'build') {
+          for (const [index, source] of scenario.sources.entries()) await commitCorrection(localEnv, graphName, { sourceArtifactId: `source_${source.id}_v1`, expectedRevision: index, text: `${source.text} Updated source.`, reason: 'Correct every source for a maximum-size repair.' })
+          expect((await loadSnapshot(localEnv, graphName)).artifacts.filter(artifact => artifact.isCurrent && artifact.status === 'stale')).toHaveLength(6)
+        }
+      }
+    } finally { fetch.mockRestore() }
+  })
+  it.each([projectExample, researchExample])('repairs user-entered $name sources and preserves an independent answer', async (scenario) => {
+    await deleteGraph(localEnv, graphName)
+    const initial = await initializeWorkspace(localEnv, graphName, 'visitor', Date.now()+86_400_000, scenario)
+    expect(initial.workspace).toMatchObject({ name: scenario.name, mode: 'knowledge' })
+    expect((await initializeWorkspace(localEnv, graphName, 'visitor', initial.workspace.expiresAt, scenario)).artifacts).toEqual(initial.artifacts)
+    await expect(initializeWorkspace(localEnv, graphName, 'visitor', initial.workspace.expiresAt, { ...scenario, name: 'Different' })).rejects.toMatchObject({ code: 'SCENARIO_CONFLICT' })
+    const ai = { run: async (_model: unknown, input: unknown) => syntheticAI(input) } as unknown as Ai
+    const runtime = { ...localEnv, AI: ai }
+    const scheduler = { do: async (_name: string, _config: unknown, work: () => Promise<unknown>) => work() } as unknown as WorkflowStep
+    const build = await prepareRun(runtime, graphName, request, 'custom-build')
+    await executeBuild(runtime, { graphName, runId: build.id, baseRevision: 0, visitorId: 'visitor' }, scheduler)
+    const original = await loadSnapshot(localEnv, graphName)
+    const independentId = `answer:${scenario.questions.at(-1)!.id}`
+    const independent = original.artifacts.find(artifact => artifact.logicalId === independentId && artifact.isCurrent)!
+    const source = original.artifacts.find(artifact => artifact.logicalId === `source:${scenario.sources[0].id}` && artifact.isCurrent)!
+    const impact = await commitCorrection(runtime, graphName, { sourceArtifactId: source.id, expectedRevision: 0, text: scenario.sources[0].text.replace(/November 12|42/, scenario.name === 'Atlas release' ? 'November 19' : '51'), reason: 'Judge corrects an entered fact.' })
+    expect(impact.affected.length).toBe(scenario.name === 'Atlas release' ? 3 : 2)
+    const stale = (await loadSnapshot(localEnv, graphName)).artifacts.find(artifact => artifact.kind === 'reply' && artifact.status === 'stale')!
+    await expect(releaseDraft(runtime, graphName, stale.id, 1)).rejects.toMatchObject({ code: 'STALE_RELEASE' })
+    const repair = await prepareRun(runtime, graphName, { kind: 'repair', expectedRevision: 1 }, 'custom-repair')
+    await executeRepair(runtime, { graphName, runId: repair.id, baseRevision: 1, visitorId: 'visitor' }, scheduler)
+    const repaired = await loadSnapshot(localEnv, graphName)
+    expect(repaired.artifacts.find(artifact => artifact.id === independent.id)).toEqual(independent)
+    expect(repaired.artifacts.filter(artifact => artifact.isCurrent && artifact.status === 'stale')).toHaveLength(0)
+    const answer = repaired.artifacts.find(artifact => artifact.logicalId === `answer:${scenario.questions[0].id}` && artifact.isCurrent)!
+    expect(JSON.stringify(answer.body)).toContain(scenario.name === 'Atlas release' ? 'November 19' : '51')
+    expect(repaired.reports[0].preserved).toContainEqual({ id: independent.id, contentHash: independent.contentHash })
+  })
   it.skipIf(!bindings.GRAPH_GATEWAY_URL)('builds and repairs within the free Workflow request budget, including corrected model output and a lost save acknowledgement', async () => {
     const originalFetch = globalThis.fetch.bind(globalThis)
     let counting = false, requests = 0, calls = 0

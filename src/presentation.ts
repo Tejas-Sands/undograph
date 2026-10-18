@@ -8,26 +8,30 @@ export function fields(artifact: Artifact): Record<string, JsonValue> {
 export function artifactTitle(artifact: Artifact, snapshot?: WorkspaceSnapshot): string {
   const body = fields(artifact)
   if (artifact.kind === 'source') return String(body.title)
-  if (artifact.kind === 'case') return `Case ${String(body.id)}`
+  if (artifact.kind === 'case') return `${body.question ? 'Question' : 'Case'} ${String(body.id)}`
+  if (artifact.kind === 'source-notes') {
+    const source = snapshot?.artifacts.find(a => a.id === body.sourceArtifactId)
+    return `Source notes · ${source ? fields(source).title : artifact.logicalId.split(':').at(-1)}`
+  }
   if (artifact.kind === 'policy-facts') return 'Return-policy facts'
   const ticket = snapshot?.artifacts.find(
     (a) => a.kind === 'case' && artifact.inputIds.includes(a.id),
   )
   const suffix = ticket ? String(fields(ticket).id) : artifact.logicalId.split(':').at(-1)
-  return `${suffix} ${artifact.kind === 'assessment' ? 'eligibility' : 'reply'}`
+  return `${suffix} ${artifact.kind === 'assessment' ? 'eligibility' : ticket && fields(ticket).question ? 'answer' : 'reply'}`
 }
 export function artifactSummary(artifact: Artifact): string {
   const body = fields(artifact)
   if (artifact.kind === 'source') return String(body.text)
   if (artifact.kind === 'case')
-    return body.daysSinceDelivery !== undefined
+    return body.question ? String(body.question) : body.daysSinceDelivery !== undefined
       ? `${body.daysSinceDelivery} days since delivery · ${body.reason}`
       : String(body.message)
   if (artifact.kind === 'policy-facts')
     return body.status === 'supported'
       ? `${body.returnWindowDays}-day return window`
       : String(body.reason)
-  return String(body.text ?? body.explanation ?? '')
+  return String(body.text ?? body.summary ?? body.explanation ?? '')
 }
 export function humanStatus(artifact: Artifact) {
   return artifact.needsReview

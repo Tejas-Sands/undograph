@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Check, ScanLine, X } from 'lucide-react'
-import { impactReportSchema, type Artifact, type WorkspaceSnapshot } from '../../shared/contracts'
+import { impactReportSchema, sourceNotesSchema, type Artifact, type WorkspaceSnapshot } from '../../shared/contracts'
 import { request } from '../api'
 import { artifactSummary, artifactTitle, fields, humanStatus } from '../presentation'
 import { Badge } from './ui'
@@ -34,6 +34,8 @@ export function ArtifactInspector({
   )?.to
   const previous = snapshot.artifacts.find((item) => item.id === previousId)
   const body = fields(artifact)
+  const citations = Array.isArray(body.citations) ? [...new Set(body.citations.filter((id): id is string => typeof id === 'string'))] : []
+  const quotes = artifact.kind === 'source-notes' ? sourceNotesSchema.parse(artifact.body).quotes : []
   return (
     <section className="panel inspector" aria-label="Artifact details">
       <div className="section-heading">
@@ -104,6 +106,18 @@ export function ArtifactInspector({
           </button>
         </details>
       )}
+      {artifact.kind === 'source-notes' && <section className="source-evidence"><h3>Exact source quotations</h3>{quotes.map((quote,index) => <blockquote key={index}><p>{quote.text}</p><small>Characters {quote.start}–{quote.end} in the recorded source version</small></blockquote>)}</section>}
+      {citations.length > 0 && <section aria-label="Cited sources">
+        <h3>Cited sources</h3>
+        <ul className="input-list citation-list">{citations.map(id => {
+          const cited = snapshot.artifacts.find(input => input.id === id)
+          return <li key={id}>{cited ? <button onClick={() => onSelect(id)}>
+            <span>{artifactTitle(cited, snapshot)}<small className="mono">{id}</small></span>
+            <span className="mono">v{cited.version}</span>
+            <ArrowRight size={14} aria-hidden="true" />
+          </button> : <span className="mono">{id}</span>}</li>
+        })}</ul>
+      </section>}
       <h3>
         Recorded inputs <span className="count-label">{artifact.inputIds.length}</span>
       </h3>

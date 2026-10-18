@@ -116,7 +116,7 @@ export function LandingPage() {
             <a className="lp-button lp-button-mint" href="#/recorded/overview">Explore the demo <ArrowUpRight size={18} aria-hidden="true" /></a>
             <a className="lp-button lp-button-quiet" href={repository} target="_blank" rel="noreferrer"><CodeXml size={18} aria-hidden="true" /> View source</a>
           </div>
-          <p className="lp-hero-note">A synthetic support-agent workspace. No sign-in to explore.</p>
+          <p className="lp-hero-note">Bring your own sources and questions, or explore the support example. No sign-in.</p>
         </section>
 
         <CorrectionExample />
@@ -186,7 +186,7 @@ export function LandingPage() {
         <section className="lp-faq lp-container" aria-labelledby="lp-faq-title">
           <div><p className="lp-eyebrow"><span>03 /</span> A LITTLE CONTEXT</p><h2 id="lp-faq-title">Before you<br />go exploring.</h2><a className="lp-text-link" href={`${repository}#readme`} target="_blank" rel="noreferrer">Read the docs <ArrowUpRight size={15} aria-hidden="true" /></a></div>
           <div className="lp-questions">
-            <details><summary>What can I try right now?<ChevronDown size={19} aria-hidden="true" /></summary><p>The recorded walkthrough lets you inspect the original, corrected and repaired synthetic work without signing in. It is read-only. The live workspace runs actual agents when its database and AI services are configured.</p></details>
+            <details><summary>What can I try right now?<ChevronDown size={19} aria-hidden="true" /></summary><p>Create a live workspace with your own project documents, research notes, product information, or procedures. Add questions and choose the sources each answer should read. Generate answers, edit a source, and verify selective repair. The recorded support walkthrough remains available as a read-only example.</p></details>
             <details><summary>Does a correction overwrite the original?<ChevronDown size={19} aria-hidden="true" /></summary><p>No. Original artifact versions remain in the graph. A correction creates a new source version; repair creates replacements with exact input links. You can inspect the history and export an audit.</p></details>
             <details><summary>Does a repaired reply go to a customer?<ChevronDown size={19} aria-hidden="true" /></summary><p>No. This is a fictional support workspace. Replies stay inside the demo for internal review. Stale evidence blocks review, and previously released work is flagged for attention.</p></details>
             <details><summary>Is this a memory API I can integrate today?<ChevronDown size={19} aria-hidden="true" /></summary><p>UndoGraph is an open-source demonstration of graph-backed agent memory and selective repair. Explore the working support workflow and its source code; it isn’t a hosted general-purpose memory service.</p></details>

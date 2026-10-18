@@ -3,14 +3,16 @@ import northstar from '../../fixtures/northstar.json'
 import {
   accountCaseSchema, agentSchema, artifactSchema, artifactWriteSchema, assessmentSchema,
   changeSchema, edgeSchema, jsonSchema, policyFactsSchema, repairReportSchema, replyDraftSchema,
-  returnCaseSchema, runSchema, sessionSchema, sourceBodySchema, stepSchema, workspaceSnapshotSchema,
-  type Artifact, type ArtifactWrite, type ImpactReport, type WorkspaceSnapshot,
+  returnCaseSchema, runSchema, sessionSchema, sourceBodySchema, sourceNotesSchema, questionCaseSchema, generalWorkspaceSchema, stepSchema, workspaceSnapshotSchema,
+  type Artifact, type ArtifactWrite, type GeneralWorkspace, type ImpactReport, type WorkspaceSnapshot,
 } from '../../shared/contracts'
 import { DomainError, hashCanonical, validateLineage, validatePolicyFacts } from '../domain'
 import type { Env } from '../env'
 import { withGraph } from './client'
 import { queries, readOnlyQueries, type QueryName, type QueryParams } from './queries'
 import { gatewayOperation, usesGateway } from './gateway'
+import { scenarioArtifacts } from '../../shared/knowledge'
+import { validateAnswer, validateSourceNotes } from '../knowledge'
 
 const labels = ['Workspace', 'Artifact', 'Session', 'Agent', 'Run', 'Step', 'Change', 'RepairReport']
 type Properties = Record<string, unknown>
@@ -136,15 +138,26 @@ export async function loadSnapshot(env: Env, graphName: string): Promise<Workspa
   return snapshot
 }
 
-export async function initializeWorkspace(env: Env, graphName: string, workspaceId: string, expiresAt: number): Promise<WorkspaceSnapshot> {
+export async function initializeWorkspace(env: Env, graphName: string, workspaceId: string, expiresAt: number, scenario?: GeneralWorkspace): Promise<WorkspaceSnapshot> {
+  const config = scenario ? generalWorkspaceSchema.parse(scenario) : undefined
+  const configHash = await hashCanonical(config ?? { mode: 'support' })
   await ensureSchema(env, graphName)
   const rows = await queryGraph<{ workspace: Properties }>(env, graphName, 'bootstrapWorkspace', { id: workspaceId, createdAt: Date.now(), expiresAt })
   if (!rows.length) throw new DomainError('NOT_FOUND', 'Workspace not found.', 404)
+  if (rows[0].workspace.configHash && rows[0].workspace.configHash !== configHash) throw new DomainError('SCENARIO_CONFLICT', 'This workspace already has different inputs. Start a new workspace to use a different scenario.')
+  if (config && rows[0].workspace.initialized === true && !rows[0].workspace.configHash) throw new DomainError('SCENARIO_CONFLICT', 'Create a new workspace to change this example into a custom scenario.')
   if (rows[0].workspace.initialized === true) return loadSnapshot(env, graphName)
-  for (const source of northstar.sources) {
+  const configured = await queryGraph(env, graphName, 'configureWorkspace', { id: workspaceId, configHash, name: config?.name ?? 'Northstar Goods', mode: config ? 'knowledge' : 'support' })
+  if (!configured.length) {
+    const saved = await loadSnapshot(env, graphName)
+    if (saved.workspace.configHash === configHash) return saved
+    throw new DomainError('SCENARIO_CONFLICT', 'Workspace initialization changed. Reopen the saved workspace.')
+  }
+  const inputs = config ? scenarioArtifacts(config) : northstar
+  for (const source of inputs.sources) {
     await recordArtifact(env, graphName, { ...source, kind: 'source', inputIds: [], expectedRevision: 0, stage: 'seed', promptVersion: 'v1' })
   }
-  for (const ticket of northstar.cases) {
+  for (const ticket of inputs.cases) {
     await recordArtifact(env, graphName, { ...ticket, body: jsonSchema.parse(ticket.body), kind: 'case', inputIds: [], expectedRevision: 0, stage: 'seed', promptVersion: 'v1' })
   }
   for (const definition of northstar.agents) {
@@ -157,10 +170,11 @@ export async function initializeWorkspace(env: Env, graphName: string, workspace
 
 const bodySchemas = {
   source: sourceBodySchema,
-  case: returnCaseSchema.or(accountCaseSchema),
+  case: returnCaseSchema.or(accountCaseSchema).or(questionCaseSchema),
   'policy-facts': policyFactsSchema,
   assessment: assessmentSchema,
   reply: replyDraftSchema,
+  'source-notes': sourceNotesSchema,
 }
 
 export async function recordArtifact(env: Env, graphName: string, write: ArtifactWrite): Promise<Artifact> {
@@ -203,6 +217,13 @@ export async function recordArtifact(env: Env, graphName: string, write: Artifac
     if (!source) throw new DomainError('INVALID_EVIDENCE', 'Policy evidence must come from a recorded input.', 422)
     validatePolicyFacts(facts, source)
   }
+  if (input.kind === 'source-notes') {
+    const notes = sourceNotesSchema.parse(body)
+    const source = parents.find(parent => parent.id === notes.sourceArtifactId)
+    if (!source || parents.length !== 1) throw new DomainError('INVALID_EVIDENCE', 'Source notes require their exact single document input.', 422)
+    const validated = validateSourceNotes({ ...notes, quotes: notes.quotes.map(quote => quote.text) }, source)
+    if (JSON.stringify(validated.quotes) !== JSON.stringify(notes.quotes)) throw new DomainError('INVALID_EVIDENCE', 'Source quotation offsets do not match.', 422)
+  }
   if (input.kind === 'assessment') {
     const assessment = assessmentSchema.parse(body)
     if (!parents.some((parent) => parent.id === assessment.caseArtifactId && parent.kind === 'case') || !parents.some((parent) => parent.id === assessment.factsArtifactId && parent.kind === 'policy-facts')) {
@@ -217,6 +238,7 @@ export async function recordArtifact(env: Env, graphName: string, write: Artifac
       (!reply.assessmentArtifactId && !reply.sourceArtifactId)) {
       throw new DomainError('INVALID_EVIDENCE', 'Reply references must come from its recorded inputs.', 422)
     }
+    if (parents.some(parent => parent.kind === 'case' && questionCaseSchema.safeParse(parent.body).success)) validateAnswer(body, parents)
   }
   if (input.supersedesId) {
     const previous = snapshot.artifacts.find((artifact) => artifact.id === input.supersedesId)
@@ -229,6 +251,7 @@ export async function recordArtifact(env: Env, graphName: string, write: Artifac
     contentHash, dependencyHash, inputIds: input.inputIds, inputIdsJson: JSON.stringify(input.inputIds),
     expectedRevision: input.expectedRevision, depth, status: input.status, isCurrent: input.status === 'current',
     needsReview: (input.kind === 'policy-facts' && policyFactsSchema.parse(body).status === 'needs-review') ||
+      (input.kind === 'source-notes' && sourceNotesSchema.parse(body).status === 'needs-review') ||
       (input.kind === 'assessment' && assessmentSchema.parse(body).decision === 'needs-review') ||
       (input.kind === 'reply' && replyDraftSchema.parse(body).decision === 'needs-review'),
     createdAt: Date.now(), stage: input.stage, promptVersion: input.promptVersion,

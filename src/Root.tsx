@@ -17,7 +17,7 @@ export function Root() {
       <WorkspaceBoundary key={mode}>
         {!hash.startsWith('#/') && hash !== '#workspace-main' ? <LandingPage /> : <Workspace />}
       </WorkspaceBoundary>
-      {mode !== 'simulation' && <a className="simulation-launcher" href="#/simulation/overview" aria-label="Open simulation">◉ <span>Simulation</span></a>}
+      {mode !== 'simulation' && <a className="simulation-launcher" href="#/simulation/overview" aria-label="Open simulation">◉ <span>Recorded demo</span></a>}
     </>
   )
 }

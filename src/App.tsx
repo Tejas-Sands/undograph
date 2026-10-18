@@ -23,13 +23,13 @@ import {
   HistoryPanel,
   RepliesPanel,
   SessionsPanel,
-  Welcome,
 } from './components/WorkPanels'
 import { Badge, Dialog } from './components/ui'
 import { useWorkspace } from './useWorkspace'
 import { SimulationGuide } from './components/SimulationGuide'
 import { simulationSteps } from './simulation'
 import LineageGraph from './components/LineageGraph'
+import { ScenarioForm } from './components/ScenarioForm'
 
 const subscribe = (update: () => void) => {
   window.addEventListener('hashchange', update)
@@ -70,6 +70,8 @@ export default function App() {
   const [confirmation, setConfirmation] = useState('')
   const [newSession, setNewSession] = useState(false)
   const [sessionLabel, setSessionLabel] = useState('')
+  const [configuring, setConfiguring] = useState(false)
+  const knowledge = snapshot?.workspace.mode === 'knowledge'
   const current = snapshot?.artifacts.filter((artifact) => artifact.isCurrent) ?? []
   const outputs = current.filter((artifact) => !['source', 'case'].includes(artifact.kind))
   const stale = current.filter((artifact) => artifact.status === 'stale')
@@ -86,6 +88,8 @@ export default function App() {
       recorded={recorded}
       simulation={simulation}
       hasWorkspace={Boolean(snapshot)}
+      workspaceName={snapshot?.workspace.name}
+      knowledge={knowledge}
       onReset={() => {
         setConfirmation('')
         setResetting(true)
@@ -111,10 +115,11 @@ export default function App() {
       <div className="page-heading">
         <div>
           <p className="eyebrow">{recorded ? 'EXPLORE THE SCENARIO' : 'AGENT OPERATIONS'}</p>
-          <h1 tabIndex={-1}>{view.title}</h1>
+          <h1 tabIndex={-1}>{knowledge && view.id === 'replies' ? 'Answer queue' : view.title}</h1>
           <p>Trace what changed. Repair what depends on it.</p>
         </div>
         <div className="page-actions">
+          {snapshot && !recorded && <button className="button button-secondary" disabled={busy} onClick={() => setConfiguring(true)}>New workspace</button>}
           {!recorded && (
             <button
               className="icon-button"
@@ -221,7 +226,7 @@ export default function App() {
           ))}
         </div>
       )}
-      {!snapshot ? (
+      {!snapshot || configuring ? (
         loading ? (
           <div className="loading-state" role="status">
             <LoaderCircle className="spin" size={26} aria-hidden="true" />
@@ -229,7 +234,9 @@ export default function App() {
             <p>Recovering confirmed graph state.</p>
           </div>
         ) : (
-          <Welcome busy={busy} ready={controller.ready} onEnter={() => void controller.enter()} />
+          <ScenarioForm busy={busy} ready={controller.ready} error={controller.error?.message} replacing={Boolean(snapshot)} onCancel={snapshot ? () => setConfiguring(false) : undefined}
+            onCreate={async scenario => { const result = snapshot ? await controller.reset(scenario) : await controller.enter(scenario); if (result !== undefined) { setConfiguring(false); setSelectedId(null) } }}
+            onDemo={async () => { const result = snapshot ? await controller.reset() : await controller.enter(); if (result !== undefined) { setConfiguring(false); setSelectedId(null) } }} />
         )
       ) : (
         <>
@@ -285,7 +292,7 @@ export default function App() {
               <div>
                 <strong>{stale.length} artifact versions need repair</strong>
                 <p>
-                  The corrected policy changed recorded inputs. Pending work stays stale until the
+                  The corrected source changed recorded inputs. Pending work stays stale until the
                   complete replacement set is published.
                 </p>
               </div>
@@ -325,8 +332,8 @@ export default function App() {
                           {activeRun
                             ? 'Every generated output records the input versions it read. Progress is recovered from the graph.'
                             : outputs.length
-                              ? 'Open Sources to correct the return window and trace its recorded dependencies.'
-                              : 'The analyst interprets policy, eligibility runs in application code, and the reply agent drafts from recorded evidence.'}
+                              ? 'Open Sources to correct a source and trace its recorded dependencies.'
+                              : knowledge ? 'The analyst records source notes and quotations. The writer answers your questions using their selected source versions.' : 'The analyst interprets policy, eligibility runs in application code, and the reply agent drafts from recorded evidence.'}
                         </p>
                         {outputs.length > 0 && !activeRun && (
                           <a

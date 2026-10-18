@@ -1,10 +1,10 @@
-import { correctionRequestSchema, repairPlanSchema, sourceBodySchema, type Artifact, type CorrectionRequest, type ImpactReport, type RepairPlan, type RepairReport } from '../shared/contracts'
+import { correctionRequestSchema, documentCorrectionSchema, repairPlanSchema, sourceBodySchema, type Artifact, type CorrectionRequest, type DocumentCorrection, type ImpactReport, type RepairPlan, type RepairReport } from '../shared/contracts'
 import { DomainError, hashCanonical, validateLineage } from './domain'
 import type { Env } from './env'
 import { findImpact, loadSnapshot, queryGraph } from './graph/store'
 
-export async function commitCorrection(env: Env, graphName: string, request: CorrectionRequest): Promise<ImpactReport> {
-  const input = correctionRequestSchema.parse(request)
+export async function commitCorrection(env: Env, graphName: string, request: CorrectionRequest | DocumentCorrection): Promise<ImpactReport> {
+  const input = 'text' in request ? documentCorrectionSchema.parse(request) : correctionRequestSchema.parse(request)
   const snapshot = await loadSnapshot(env, graphName)
   validateLineage(snapshot)
   const source = snapshot.artifacts.find((a) => a.id === input.sourceArtifactId)
@@ -12,10 +12,17 @@ export async function commitCorrection(env: Env, graphName: string, request: Cor
   if (snapshot.workspace.revision !== input.expectedRevision || !source.isCurrent) throw new DomainError('REVISION_CONFLICT', 'The source has changed. Refresh before correcting it.')
   if (snapshot.artifacts.length >= 250) throw new DomainError('ARTIFACT_LIMIT', 'This workspace reached its version limit. Export or reset it before continuing.', 429)
   const body = sourceBodySchema.parse(source.body)
-  const statements = [...body.text.matchAll(/Change-of-mind returns are accepted within (\d+) days of delivery\./g)]
-  if (body.category !== 'return-policy' || statements.length !== 1) throw new DomainError('INVALID_CORRECTION', 'Only the synthetic return-window field can be corrected.', 422)
-  if (Number(statements[0][1]) === input.returnWindowDays) throw new DomainError('NO_CHANGE', 'The source already has this return window.', 422)
-  const nextBody = { ...body, text: body.text.replace(statements[0][0], `Change-of-mind returns are accepted within ${input.returnWindowDays} days of delivery.`) }
+  let text: string
+  if ('text' in input) {
+    if (body.category !== 'document') throw new DomainError('INVALID_CORRECTION', 'Full-text correction requires a custom document source.', 422)
+    text = input.text
+  } else {
+    const statements = [...body.text.matchAll(/Change-of-mind returns are accepted within (\d+) days of delivery\./g)]
+    if (body.category !== 'return-policy' || statements.length !== 1) throw new DomainError('INVALID_CORRECTION', 'This source does not have an editable return window.', 422)
+    text = body.text.replace(statements[0][0], `Change-of-mind returns are accepted within ${input.returnWindowDays} days of delivery.`)
+  }
+  if (text === body.text) throw new DomainError('NO_CHANGE', 'The source already has this content.', 422)
+  const nextBody = { ...body, text }
   const impact = await findImpact(env, graphName, source.id)
   const id = `source_${crypto.randomUUID().replaceAll('-', '')}`
   const result = await queryGraph(env, graphName, 'commitCorrection', {
