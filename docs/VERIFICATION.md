@@ -1,6 +1,27 @@
 # Verification record
 
-Latest status (October 17, 2026, IST): the public Cloudflare preview and Railway HTTPS gateway passed the complete real-Workers-AI smoke. Browser verification also completed a public live build and recovered from network failure into the labeled simulation while offline. The original 111 backend cases, ten gateway cases and 65 HTTP-adapter graph/API/Workflow cases pass. CI passes its browser cases with live inference explicitly skipped; earlier local acceptance passed all 27 browser cases with real inference enabled. The operator confirmed a `/data` Railway volume; a forced public database restart was not performed. Earlier sections record their status at each milestone.
+Latest status (October 18, 2026, IST): custom workspaces are deployed and both project/research browser walkthroughs pass against the public app with real Workers AI, Workflows and FalkorDB. The original Northstar public smoke also passes. Runtime CI passes 63 unit cases, all Worker/native graph/gateway checks, 29 offline browser cases and the three Railway container scenarios; its three provider-dependent browser cases are explicitly skipped. The separate public workflow verifies actual inference. The operator confirmed a `/data` Railway volume; a forced public database restart was not performed. Earlier sections record their status at each milestone.
+
+## Public custom workspaces — October 18, 2026 (IST)
+
+- Website: <https://undograph-preview.the-workflow-worker.workers.dev>
+- Runtime commit: `57005a11bdb048d56e57cb4b792388a44e4d9a61`; [complete runtime CI passed](https://github.com/Tejas-Sands/undograph/actions/runs/39107536993).
+- [Public verification run 39108021219](https://github.com/Tejas-Sands/undograph/actions/runs/39108021219) passed using test commit `03ebfaf9ea35a36cbc29e7a1580472c260fb05dc`: two real browser walkthroughs and the original retail API smoke. That later commit changes only source-tab selection in the browser test.
+- Active Worker version: `2b3b2903-a38b-4769-8f28-dad35e315830`; deployment `c5af6786-fb88-420e-abce-484b9b1ff084` serves 100% of traffic.
+- Updated Workflow versions: build `1e804bac-5f04-4556-9d39-519fe7eb88d8`; repair `684592ad-671e-4b71-a598-490da5489fb4`.
+
+The Railway gateway was updated first and successfully initialized arbitrary document/question inputs. The Worker and its existing static assets were then activated with the existing AI, Workflow and secret bindings. Both Workflow definitions were explicitly refreshed: Workers API version activation alone left earlier Workflow code in place. Public liveness/readiness and the deployed client asset were checked.
+
+| Real public browser scenario | Correction | Stale/repaired outputs | Independent record |
+| --- | --- | --- | --- |
+| Project notes, two sources and three questions | Launch November 12 → November 19 | 3 / 3 | Checklist-owner answer unchanged |
+| Research notes, two sources and two questions | Butterfly species 42 → 51 | 2 / 2 | Collection-method answer unchanged |
+
+Both browser checks use the site's controls to create/build, inspect exact source quotations, inspect answer citations, correct text, verify stale review returns HTTP 409, repair and inspect the new source-version citation. They compare the complete independent artifact before and after, including its ID, content hash and version. The two cases passed in 50.2 seconds total. Their repaired-state screenshots in the run's `public-browser-results` artifact were inspected. Each browser deletes only its owned terminal workspace.
+
+The first live run exposed a model returning `reviewRequired: false` despite a valid grounded answer. Mandatory human review is application policy: the custom-answer adapter now validates the model's answer/citations and sets `reviewRequired: true` on the server before strict artifact persistence. Regressions for a false or omitted model flag failed before this fix and pass afterward; foreign citations remain rejected. The original retail validator is unchanged. An independent review reported no findings. A later research browser failure was a test selecting a hidden graph branch; selecting its source tab fixed the test without changing the deployed app.
+
+The original retail smoke again verified readiness, live build, correction, five affected/repaired artifacts, stale-review refusal, visitor isolation and audit export. It preserved account reply `run_f229dfb285481aa1f349a82712feb711_reply-A001_output` with SHA-256 `1a034ffbda4d28a16ceaa2f805f888c329c30d4025b2c43df0203b4c56a890b9`. The build used four model calls and 8.969 seconds; repair used three calls and 7.071 seconds. These are one run's persisted timings, not a fresh-build benchmark or performance guarantee. The smoke deleted its owned terminal workspace graphs.
 
 ## Public preview and free-plan Workflow correction — October 17, 2026 (IST)
 
@@ -211,4 +232,4 @@ The domain-independent extension accepts bounded pasted document sources and exp
 
 New graph/API/Workflow cases cover project and research inputs, initialization identity and concurrent recovery, changed source text, stale-review refusal, exact independent preservation and the maximum 3-source/3-question build and repair. The gateway budget case makes every question select all three sources, corrects all sources, verifies six stale outputs and exercises corrected model JSON plus a repeated save. Provider responses in those tests come only from the explicitly test-only helper; inference quota reservation and graph behavior remain real.
 
-Browser cases cover user-entered sources/questions, reload, source correction, audit export, missing-selection validation, mobile layout and cited source version navigation. The complete custom build/quote inspection/stale-review/repair/preservation browser case requires `UNDOGRAPH_LIVE_AI=1`, as does the existing retail live-inference check. CI skips these real-provider cases explicitly. This implementation has not yet been deployed or smoke-tested with real Workers AI; the earlier published verification applies to the retail scenario only.
+Browser cases cover user-entered sources/questions, reload, source correction, audit export, missing-selection validation, mobile layout and cited source version navigation. The complete custom build/quote inspection/stale-review/repair/preservation browser cases require `UNDOGRAPH_LIVE_AI=1`, as does the existing retail live-inference check. Regular CI skips these real-provider cases explicitly. Subsequent deployment and real-provider verification are recorded in the public custom-workspaces section above.

@@ -1,6 +1,6 @@
 # Local development and Cloudflare deployment
 
-The verified targets include local development, the Railway container and the [public Cloudflare preview](https://undograph-preview.the-workflow-worker.workers.dev). The complete public live smoke passed on October 17, 2026 (IST); see [observed verification](VERIFICATION.md). For the selected deployment route, follow [Railway setup](RAILWAY.md): a co-located FalkorDB and authenticated HTTPS gateway connect to Cloudflare. The direct database TLS alternative below remains a separate supported configuration.
+The verified targets include local development, the Railway container and the [public Cloudflare preview](https://undograph-preview.the-workflow-worker.workers.dev). Custom project/research browser walkthroughs and the original retail live smoke passed on October 18, 2026 (IST); see [observed verification](VERIFICATION.md). For the selected deployment route, follow [Railway setup](RAILWAY.md): a co-located FalkorDB and authenticated HTTPS gateway connect to Cloudflare. The direct database TLS alternative below remains a separate supported configuration.
 
 ## Local application
 
@@ -64,6 +64,10 @@ npm run deploy:preview
 
 Use a fresh random session secret of at least 32 bytes. Local `.dev.vars` is not a production credential source. Do not publish the server build directory or local secrets. Static assets come from `dist/client`; the browser has no database connection or AI credentials.
 
+This deploys a Worker with static assets, API routes, Workflows and Workers AI bindings. Its default public address ends in `workers.dev`. Cloudflare Pages projects receive `pages.dev` addresses; a Worker can serve the complete website at its existing address. See [Workers static assets](https://developers.cloudflare.com/workers/static-assets/) and [Workers domains](https://developers.cloudflare.com/workers/configuration/routing/workers-dev/).
+
+When deploying manually through the Workers Versions/Deployments API, refresh both Workflow definitions after activating the Worker version. `PUT /accounts/{account_id}/workflows/undograph-preview-build` with `{"script_name":"undograph-preview","class_name":"BuildWorkflow"}`, and repeat for `undograph-preview-repair` with `RepairWorkflow`. Confirm new Workflow versions before testing: activating a Worker version alone can leave its Workflows running the older code. Preserve existing secrets, assets and bindings when using this route.
+
 Run the full smoke against the returned preview URL. Verify API error sanitization, real graph paths inside Workflow steps, multi-hop impact, revision conflicts, source-version citations and preserved IDs/hashes. Also test refusal of wrong credentials and a real invalid-certificate endpoint before asserting the TLS runtime gate. The local plaintext test is not proof of deployed TLS behavior.
 
 ## Updating for custom workspaces
@@ -71,6 +75,8 @@ Run the full smoke against the returned preview URL. Verify API error sanitizati
 Deploy the updated Railway gateway first, then the Cloudflare Worker/assets. The Worker now uses the authenticated `logAttempt` gateway operation to reserve quota and record inference attempts in one round trip; an older gateway rejects it. The upgraded gateway also contains the new document/question validators and named configuration query. It remains compatible with the older Worker during the update. Existing Northstar workspaces retain their original build/correction flow; custom inputs start a fresh workspace generation.
 
 After deployment, verify a custom project workspace with real Workers AI: build, correct the release date, inspect stale answers, repair and compare the independent owner answer's ID/hash. Repeat with research text, then check the original retail flow. CI verifies graph behavior with a test-only model and does not replace this deployed inference check.
+
+This update is deployed and [all three public scenarios passed](https://github.com/Tejas-Sands/undograph/actions/runs/39108021219) on October 18. The active Worker and Workflow version IDs are in [the verification record](VERIFICATION.md). Existing browser sessions keep their workspace; choose **New workspace** to configure different inputs.
 
 The manual **verify public deployment** GitHub Actions workflow runs browser checks against the existing public URL with real Workers AI for both project and research inputs, then runs the original retail API smoke. It creates isolated visitors, checks quotations/citations, stale-review refusal and independent preservation, and deletes its owned terminal workspaces. Start it after the gateway and Worker update:
 
