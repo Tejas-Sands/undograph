@@ -23,6 +23,8 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: node scripts/capture-custom-demo.mjs
+        env:
+          UNDOGRAPH_RESEARCH_ONLY: '1'
       - uses: actions/upload-artifact@v7
         if: always()
         with:

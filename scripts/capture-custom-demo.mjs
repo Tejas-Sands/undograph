@@ -5,6 +5,7 @@ import { performance } from 'node:perf_hooks'
 import { chromium } from 'playwright'
 
 const base = 'https://undograph-preview.the-workflow-worker.workers.dev'
+const researchOnly = process.env.UNDOGRAPH_RESEARCH_ONLY === '1'
 const output = resolve('artifacts/custom-demo')
 await mkdir(output, { recursive: true })
 const browser = await chromium.launch({ headless: true })
@@ -75,6 +76,7 @@ try {
   await page.goto('/', { waitUntil: 'networkidle' })
   await page.evaluate(() => document.fonts.ready)
   await shot('landing')
+  if (!researchOnly) {
   await segment('configure', async () => {
     await click(page.getByRole('link', { name: 'Open workspace', exact: true }))
     await page.getByRole('heading', { name: 'Create your own workspace' }).waitFor()
@@ -161,12 +163,18 @@ try {
     await click(page.getByRole('button', { name: 'Export audit', exact: true }))
     await (await download).saveAs(`${output}/audit.json`)
   }, 2000)
+  }
   await segment('research-setup', async () => {
-    await click(page.getByRole('button', { name: 'New workspace', exact: true }))
+    if (researchOnly) await click(page.getByRole('link', { name: 'Open workspace', exact: true }))
+    else await click(page.getByRole('button', { name: 'New workspace', exact: true }))
     await click(page.getByRole('button', { name: 'Research notes', exact: true }))
     await page.getByLabel('Workspace name').fill('Campus ecology')
-    await page.getByRole('checkbox', { name: /Start a new workspace and close this one/ }).check()
+    const confirmation = page.getByRole('checkbox', { name: /Start a new workspace and close this one/ })
+    if (await confirmation.isVisible()) await confirmation.check()
+    const created = page.waitForResponse(r => new URL(r.url()).pathname === '/api/workspace' && r.request().method() === 'POST' && r.status() === 200)
     await click(page.getByRole('button', { name: 'Create live workspace', exact: true }))
+    await created
+    await nav('Overview')
     await page.getByRole('heading', { name: 'Your questions', exact: true }).waitFor()
   }, 1800)
   await segment('research-build', async item => {
