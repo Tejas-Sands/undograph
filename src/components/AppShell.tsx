@@ -7,6 +7,7 @@ export function AppShell({
   recorded,
   simulation = false,
   hasWorkspace,
+  settingUp = false,
   workspaceName = hasWorkspace ? 'Northstar Goods' : 'Your workspace',
   knowledge = false,
   onReset,
@@ -16,6 +17,7 @@ export function AppShell({
   recorded: boolean
   simulation?: boolean
   hasWorkspace: boolean
+  settingUp?: boolean
   workspaceName?: string
   knowledge?: boolean
   onReset: () => void
@@ -41,13 +43,13 @@ export function AppShell({
           UndoGraph<span className="brand-beta">BETA</span>
         </a>
         <div className="workspace-switch">
-          <span className="store-avatar">{workspaceName.slice(0,1)}</span>
+          <span className="store-avatar" aria-hidden="true">{hasWorkspace ? workspaceName.slice(0,1).toUpperCase() : <GitBranch size={20} />}</span>
           <div>
             <strong>{workspaceName}</strong>
-            <span>{knowledge ? 'Sources and questions' : 'Synthetic support workspace'}</span>
+            <span>{settingUp ? 'Add your sources and questions' : knowledge ? 'Sources and questions' : 'Synthetic support workspace'}</span>
           </div>
         </div>
-        <p className="nav-caption">WORKSPACE</p>
+        {!settingUp && <><p className="nav-caption">WORKSPACE</p>
         <nav aria-label="Workspace">
           {views.map(({ id, label, icon: Icon }) => (
             <a
@@ -59,7 +61,7 @@ export function AppShell({
               <span>{knowledge && id === 'replies' ? 'Answers' : label}</span>
             </a>
           ))}
-        </nav>
+        </nav></>}
         <div className="sidebar-bottom">
           <div className="sidebar-note">
             <GitBranch size={18} aria-hidden="true" />
@@ -92,7 +94,7 @@ export function AppShell({
           </span>
           <div className="topbar-right">
             <span className={`mode-dot ${recorded ? 'mode-recorded' : ''}`} />
-            {simulation ? 'Simulation · Read only' : recorded ? 'Recorded · Read only' : 'Live workspace'}
+            {simulation ? 'Simulation · Read only' : recorded ? 'Recorded · Read only' : settingUp ? 'Workspace setup' : 'Live workspace'}
             {hasWorkspace && !recorded && (
               <button
                 className="icon-button mobile-reset"
@@ -103,7 +105,7 @@ export function AppShell({
               </button>
             )}
             <span className="top-avatar" aria-hidden="true">
-              {workspaceName.slice(0,1)}
+              {hasWorkspace ? workspaceName.slice(0,1).toUpperCase() : <GitBranch size={16} />}
             </span>
           </div>
         </header>

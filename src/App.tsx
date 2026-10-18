@@ -70,8 +70,8 @@ export default function App() {
   const [confirmation, setConfirmation] = useState('')
   const [newSession, setNewSession] = useState(false)
   const [sessionLabel, setSessionLabel] = useState('')
-  const [configuring, setConfiguring] = useState(false)
-  const knowledge = !recorded && (!snapshot || snapshot.workspace.mode === 'knowledge')
+  const settingUp = !recorded && (hash === '#/setup' || !snapshot)
+  const knowledge = settingUp || (!recorded && snapshot?.workspace.mode === 'knowledge')
   const current = snapshot?.artifacts.filter((artifact) => artifact.isCurrent) ?? []
   const outputs = current.filter((artifact) => !['source', 'case'].includes(artifact.kind))
   const stale = current.filter((artifact) => artifact.status === 'stale')
@@ -87,8 +87,9 @@ export default function App() {
       view={view.id}
       recorded={recorded}
       simulation={simulation}
-      hasWorkspace={Boolean(snapshot)}
-      workspaceName={snapshot?.workspace.name}
+      hasWorkspace={Boolean(snapshot) && !settingUp}
+      workspaceName={settingUp ? 'Your workspace' : snapshot?.workspace.name}
+      settingUp={settingUp}
       knowledge={knowledge}
       onReset={() => {
         setConfirmation('')
@@ -96,7 +97,7 @@ export default function App() {
       }}
     >
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-        {snapshot
+        {snapshot && !settingUp
           ? `${recorded ? 'Recorded snapshot. ' : ''}${latestRun ? `${latestRun.type} run ${latestRun.status}. ` : ''}${outputs.length} current outputs. ${stale.length} pending artifacts require repair.`
           : ''}
       </p>
@@ -107,19 +108,19 @@ export default function App() {
             <strong>{simulation ? 'Simulation · Recorded synthetic data' : 'Recorded walkthrough · Read only'}</strong>
             <span>{simulation ? 'Captured evidence. No live AI or database calls.' : 'Frozen synthetic example. Live inference is separate.'}</span>
           </span>
-          <a href={`#/${view.id}`}>
+          <a href="#/setup">
             Open live mode <ArrowUpRight size={14} aria-hidden="true" />
           </a>
         </div>
       )}
       <div className="page-heading">
         <div>
-          <p className="eyebrow">{recorded ? 'EXPLORE THE SCENARIO' : 'AGENT OPERATIONS'}</p>
-          <h1 tabIndex={-1}>{knowledge && view.id === 'replies' ? 'Answer queue' : view.title}</h1>
-          <p>Trace what changed. Repair what depends on it.</p>
+          <p className="eyebrow">{settingUp ? 'GET STARTED' : recorded ? 'EXPLORE THE SCENARIO' : 'AGENT OPERATIONS'}</p>
+          <h1 tabIndex={-1}>{settingUp ? 'Set up your workspace' : knowledge && view.id === 'replies' ? 'Answer queue' : view.title}</h1>
+          <p>{settingUp ? 'Add a name, a source and a question to begin.' : 'Trace what changed. Repair what depends on it.'}</p>
         </div>
         <div className="page-actions">
-          {snapshot && !recorded && <button className="button button-secondary" disabled={busy} onClick={() => setConfiguring(true)}>New workspace</button>}
+          {snapshot && !recorded && !settingUp && <a className="button button-secondary" href="#/setup">New workspace</a>}
           {!recorded && (
             <button
               className="icon-button"
@@ -130,7 +131,7 @@ export default function App() {
               <RefreshCw size={17} className={loading ? 'spin' : ''} />
             </button>
           )}
-          {snapshot && (
+          {snapshot && !settingUp && (
             <button
               className="button button-secondary"
               onClick={() => void controller.exportAudit()}
@@ -141,6 +142,7 @@ export default function App() {
           )}
           {snapshot &&
             !recorded &&
+            !settingUp &&
             (controller.canRetryLaunch ? (
               <button
                 className="button button-primary"
@@ -226,7 +228,7 @@ export default function App() {
           ))}
         </div>
       )}
-      {!snapshot || configuring ? (
+      {!snapshot || settingUp ? (
         loading ? (
           <div className="loading-state" role="status">
             <LoaderCircle className="spin" size={26} aria-hidden="true" />
@@ -234,9 +236,15 @@ export default function App() {
             <p>Recovering confirmed graph state.</p>
           </div>
         ) : (
-          <ScenarioForm busy={busy} ready={controller.ready} replacing={Boolean(snapshot)} onCancel={snapshot ? () => setConfiguring(false) : undefined}
-            onCreate={async scenario => { const result = snapshot ? await controller.reset(scenario) : await controller.enter(scenario); if (result !== undefined) { setConfiguring(false); setSelectedId(null) } }}
-            onDemo={async () => { const result = snapshot ? await controller.reset() : await controller.enter(); if (result !== undefined) { setConfiguring(false); setSelectedId(null) } }} />
+          <>
+            {snapshot && <section className="panel setup-resume" aria-label="Saved workspace">
+              <div><strong>{snapshot.workspace.name ?? 'Northstar Goods'}</strong><p>Your saved workspace is available. Resume it or enter new details below.</p></div>
+              <a className="button button-secondary" href="#/overview">Resume saved workspace</a>
+            </section>}
+            <ScenarioForm busy={busy} ready={controller.ready} replacing={Boolean(snapshot)}
+              onCreate={async scenario => { const result = snapshot ? await controller.reset(scenario) : await controller.enter(scenario); if (result !== undefined) { window.location.hash = '/overview'; setSelectedId(null) } }}
+              onDemo={async () => { const result = snapshot ? await controller.reset() : await controller.enter(); if (result !== undefined) { window.location.hash = '/overview'; setSelectedId(null) } }} />
+          </>
         )
       ) : (
         <>

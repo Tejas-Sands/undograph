@@ -133,8 +133,9 @@ export function useWorkspace(recorded: boolean, simulation = false) {
     setError(null)
     try {
       const result = await work()
+      if (!mounted.current) return undefined
       await refresh(true)
-      return result
+      return mounted.current ? result : undefined
     } catch (failure) {
       if (!mounted.current) return undefined
       setError(

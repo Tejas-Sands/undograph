@@ -2,7 +2,7 @@ name: checks
 
 on:
   push:
-    branches: [main, build/undograph, feat/general-workspaces]
+    branches: [main, build/undograph, 'feat/**', 'fix/**']
   pull_request:
 
 permissions:

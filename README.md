@@ -4,7 +4,7 @@ UndoGraph repairs an agent's stored context and pending work after an operator c
 
 Create a workspace with your own document sources and questions. Build source notes and grounded answer drafts, correct a source, then inspect which dependent outputs are repaired and which keep their exact version and hash. Editable project-planning and research examples are included. The original fictional Northstar Goods return-policy workspace remains available as an example.
 
-Public demo: [website](https://undograph-preview.the-workflow-worker.workers.dev), [live workspace](https://undograph-preview.the-workflow-worker.workers.dev/#/overview), [guided simulation](https://undograph-preview.the-workflow-worker.workers.dev/#/simulation/overview).
+Public demo: [website](https://undograph-preview.the-workflow-worker.workers.dev), [live workspace](https://undograph-preview.the-workflow-worker.workers.dev/#/setup), [guided simulation](https://undograph-preview.the-workflow-worker.workers.dev/#/simulation/overview).
 
 ## Project documents
 
@@ -22,7 +22,7 @@ Deployment: a React application and API on Cloudflare Workers, durable runs on C
 
 ## Current status
 
-Custom workspaces are deployed on the public demo: 1–3 sources (up to 2,000 characters each) and 1–3 questions (up to 500 characters each), with explicit source selections. The [public verification](https://github.com/Tejas-Sands/undograph/actions/runs/39108021219) passed on October 18, 2026 with real Workers AI: both project and research browser walkthroughs completed build, source correction, stale-review refusal, repair, updated citations and exact independent preservation. The original Northstar live smoke also passed. Choose **New workspace** if your browser restores an older Northstar workspace.
+Custom workspaces are deployed on the public demo: 1–3 sources (up to 2,000 characters each) and 1–3 questions (up to 500 characters each), with explicit source selections. The [public verification](https://github.com/Tejas-Sands/undograph/actions/runs/39108021219) passed on October 18, 2026 with real Workers AI: both project and research browser walkthroughs completed build, source correction, stale-review refusal, repair, updated citations and exact independent preservation. The original Northstar live smoke also passed. The live entry always opens blank setup. Returning visitors can explicitly resume their saved workspace or confirm replacement.
 
 The complete [runtime CI run](https://github.com/Tejas-Sands/undograph/actions/runs/39107536993) passed, including 63 unit cases, real FalkorDB repair, 29 offline browser cases and Railway container checks. Its three real-inference browser cases are explicitly skipped; the separate public verification above exercises the deployed provider. Update the gateway before the Worker, as described in [deployment](docs/DEPLOY.md).
 
@@ -39,7 +39,7 @@ npm run db:up
 npm run dev
 ```
 
-Open <http://127.0.0.1:5173> for the landing page. Choose **Open workspace**, edit the project/research example or start blank, then choose **Create live workspace** and **Build agent work**. Use **Start live workspace** for the original Northstar inputs. The Sources, Sessions, Replies and Repair history views expose the actual persisted records. [UI and browser verification](docs/UI.md) describes the complete flow.
+Open <http://127.0.0.1:5173> for the landing page. Choose **Open workspace**, enter your details or load an editable project/research example, then choose **Create live workspace** and **Build agent work**. Use **Load support example** for the optional Northstar inputs. The Sources, Sessions, Replies and Repair history views expose the actual persisted records. [UI and browser verification](docs/UI.md) describes the complete flow.
 
 The read-only recorded example is at <http://127.0.0.1:5173/#/recorded/overview>. To explore it without a Cloudflare connection, run `UNDOGRAPH_OFFLINE=1 npm run dev`. Recorded mode stays labeled and sends no mutation requests; it never substitutes for a failed live run.
 
@@ -74,7 +74,7 @@ Enter a workspace name, source titles/text and questions. Select exactly which s
 
 Each source produces notes containing exact quotations with character offsets. Each answer records its question, all selected source versions and their notes as dependencies, with citations to supplied source versions. Those recorded inputs determine the repair scope even if an answer cites only one of its selected sources. Inspect any artifact to see its evidence and lineage. Generated answers are drafts; citation validation checks provenance and does not prove semantic accuracy.
 
-After building, open **Sources**, choose **Correct source text**, replace the text and explain the change. Impact and stale-answer status come from persisted graph descendants. Choose **Repair affected work** to replace only those outputs. Keep at least one question on an independent source to inspect exact preservation. **New workspace** opens configuration and requires explicit acknowledgement before replacing existing work. Reload restores the same workspace.
+After building, open **Sources**, choose **Correct source text**, replace the text and explain the change. Impact and stale-answer status come from persisted graph descendants. Choose **Repair affected work** to replace only those outputs. Keep at least one question on an independent source to inspect exact preservation. **New workspace** opens blank setup and requires explicit acknowledgement before replacing existing work. Reloading a workspace view restores the same workspace; reloading setup keeps the setup form open.
 
 ## How repair works
 

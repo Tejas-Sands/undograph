@@ -26,7 +26,7 @@ The original retail smoke again verified readiness, live build, correction, five
 ## Public preview and free-plan Workflow correction — October 17, 2026 (IST)
 
 - Website: <https://undograph-preview.the-workflow-worker.workers.dev>
-- Live workspace: <https://undograph-preview.the-workflow-worker.workers.dev/#/overview>
+- Live workspace: <https://undograph-preview.the-workflow-worker.workers.dev/#/setup>
 - Guided fallback: <https://undograph-preview.the-workflow-worker.workers.dev/#/simulation/overview>
 - Railway gateway: <https://undograph-production.up.railway.app/health>
 - Application code: `5841271d1924b633ed359e26e6ba22a8ed7cd2c9`; [CI passed](https://github.com/Tejas-Sands/undograph/actions/runs/38946088855).

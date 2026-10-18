@@ -66,7 +66,7 @@ test('a delayed live response stays isolated when switching to simulation and ba
   await page.getByRole('region', { name: 'Guided simulation' }).getByRole('button', { name: 'Next step' }).click()
   await expect(page.getByTestId('stale-count')).toHaveText('5')
   await page.getByRole('link', { name: 'Open live mode', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Start live workspace', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Load support example', exact: true })).toBeVisible()
   await expect(page.getByTestId('current-output-count')).toHaveCount(0)
 })
 
@@ -143,7 +143,7 @@ for (const phase of ['readiness', 'creation']) {
     await page.goto('/#/overview')
     await expect.poll(() => readyReads).toBe(1)
     if (phase === 'creation') {
-      await page.getByRole('button', { name: 'Start live workspace', exact: true }).click()
+      await page.getByRole('button', { name: 'Load support example', exact: true }).click()
       await expect.poll(() => writes).toBe(1)
     }
     const readsBefore = workspaceReads

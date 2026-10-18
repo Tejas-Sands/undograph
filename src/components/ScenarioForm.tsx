@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { generalWorkspaceSchema, type GeneralWorkspace } from '../../shared/contracts'
 import { projectExample, researchExample } from '../../shared/knowledge'
 
-export function ScenarioForm({ busy, ready, replacing = false, onCreate, onDemo, onCancel }: {
+const blankWorkspace = (): GeneralWorkspace => ({ name: '', sources: [{ id: 's1', title: '', text: '' }], questions: [{ id: 'q1', question: '', sourceIds: ['s1'] }] })
+
+export function ScenarioForm({ busy, ready, replacing = false, onCreate, onDemo }: {
   busy: boolean; ready: boolean; replacing?: boolean;
-  onCreate: (scenario: GeneralWorkspace) => Promise<void>; onDemo: () => Promise<void>; onCancel?: () => void;
+  onCreate: (scenario: GeneralWorkspace) => Promise<void>; onDemo: () => Promise<void>;
 }) {
-  const [value, setValue] = useState<GeneralWorkspace>(() => structuredClone(projectExample))
+  const [value, setValue] = useState<GeneralWorkspace>(blankWorkspace)
   const [issues, setIssues] = useState<string[]>([])
   const [confirmed, setConfirmed] = useState(false)
   const alert = useRef<HTMLDivElement>(null)
@@ -17,7 +19,7 @@ export function ScenarioForm({ busy, ready, replacing = false, onCreate, onDemo,
     <div className="scenario-examples" role="group" aria-label="Editable starting examples">
       <button type="button" className="button button-secondary" onClick={() => example(projectExample)}>Project notes</button>
       <button type="button" className="button button-secondary" onClick={() => example(researchExample)}>Research notes</button>
-      <button type="button" className="button button-secondary" onClick={() => example({ name: '', sources: [{ id: 's1', title: '', text: '' }], questions: [{ id: 'q1', question: '', sourceIds: ['s1'] }] })}>Start blank</button>
+      <button type="button" className="button button-secondary" onClick={() => example(blankWorkspace())}>Start blank</button>
     </div>
     <form onSubmit={async event => {
       event.preventDefault()
@@ -29,7 +31,7 @@ export function ScenarioForm({ busy, ready, replacing = false, onCreate, onDemo,
       await onCreate(parsed.data)
     }}>
       <label htmlFor="workspace-name">Workspace name</label>
-      <input id="workspace-name" required maxLength={80} value={value.name} onChange={event => setValue({ ...value, name: event.target.value })} />
+      <input id="workspace-name" placeholder="e.g. My project" required maxLength={80} value={value.name} onChange={event => setValue({ ...value, name: event.target.value })} />
       <div className="scenario-section"><h3>Sources</h3><p>Paste up to three text sources. You can edit each source after generating answers.</p></div>
       <div className="scenario-sources">{value.sources.map((source, index) => <fieldset className="scenario-fieldset" key={source.id}>
         <legend>Source {index+1}</legend>
@@ -57,10 +59,9 @@ export function ScenarioForm({ busy, ready, replacing = false, onCreate, onDemo,
       {issues.length>0 && <div className="inline-error" role="alert" ref={alert} tabIndex={-1}>{issues.map((issue,i) => <p key={i}>{issue}</p>)}</div>}
       <div className="scenario-actions">
         <button className="button button-primary" disabled={busy || !ready || (replacing && !confirmed)}>{busy ? 'Creating…' : 'Create live workspace'}</button>
-        <button type="button" className="button button-secondary" disabled={busy || !ready || (replacing && !confirmed)} onClick={() => void onDemo()}>Start live workspace</button>
-        {onCancel && <button type="button" className="text-button" onClick={onCancel}>Cancel</button>}
+        <button type="button" className="button button-secondary" disabled={busy || !ready || (replacing && !confirmed)} onClick={() => void onDemo()}>Load support example</button>
       </div>
-      <p className="muted">“Start live workspace” loads the Northstar support example. Custom workspaces use the text above. Generate answers next, then correct a source to test selective repair.</p>
+      <p className="muted">Create live workspace uses your details above. Load support example is optional and opens fictional customer-support data. Next, build answers and correct a source to test selective repair.</p>
     </form>
   </section>
 }

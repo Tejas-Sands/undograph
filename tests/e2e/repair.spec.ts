@@ -12,7 +12,7 @@ test('live build, reload, correction, blocked stale review and selective repair'
   )
   await page.goto('/')
   await page.getByRole('link', { name: 'Open workspace', exact: true }).click()
-  await page.getByRole('button', { name: 'Start live workspace', exact: true }).click()
+  await page.getByRole('button', { name: 'Load support example', exact: true }).click()
   await page.getByRole('button', { name: 'Build agent work', exact: true }).click()
   await expect(page.getByTestId('current-output-count')).toHaveText('6', { timeout: 90_000 })
   await expect(page.getByTestId('session-count')).toHaveText('2')
@@ -90,7 +90,7 @@ for (const width of [375, 768, 1024, 1440]) {
 
 test('a correction refreshes state after an older workspace read finishes', async ({ page }) => {
   await page.goto('/#/overview')
-  await page.getByRole('button', { name: 'Start live workspace', exact: true }).click()
+  await page.getByRole('button', { name: 'Load support example', exact: true }).click()
   await page.getByRole('link', { name: 'Sources', exact: true }).click()
   await page.getByRole('button', { name: 'Correct return window', exact: true }).click()
   let release: () => void = () => {}
@@ -153,7 +153,7 @@ test('the lineage refits after changing from desktop to phone width', async ({ p
 
 test('Escape from a correction dialog restores its keyboard trigger', async ({ page }) => {
   await page.goto('/#/overview')
-  await page.getByRole('button', { name: 'Start live workspace', exact: true }).click()
+  await page.getByRole('button', { name: 'Load support example', exact: true }).click()
   await page.getByRole('link', { name: 'Sources', exact: true }).click()
   const trigger = page.getByRole('button', { name: 'Correct return window', exact: true })
   await expect(trigger).toBeEnabled()

@@ -104,7 +104,7 @@ export function LandingPage() {
           <a href="#why-a-graph">Why a graph</a>
           <a href={`${repository}#readme`} target="_blank" rel="noreferrer">Docs <ArrowUpRight size={13} aria-hidden="true" /></a>
         </nav>
-        <a className="lp-button lp-button-small lp-button-outline" href="#/overview">Open workspace <ArrowUpRight size={15} aria-hidden="true" /></a>
+        <a className="lp-button lp-button-small lp-button-outline" href="#/setup">Open workspace <ArrowUpRight size={15} aria-hidden="true" /></a>
       </header>
 
       <main id="landing-main" tabIndex={-1}>

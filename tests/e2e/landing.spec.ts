@@ -27,8 +27,8 @@ test('landing illustration stays local and opens the recorded and live workspace
   await page.getByRole('link', { name: 'UndoGraph home', exact: true }).click()
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Agent memory.')
   await page.getByRole('link', { name: 'Open workspace', exact: true }).click()
-  await expect(page).toHaveURL(/#\/overview$/)
-  await expect(page.getByRole('button', { name: 'Start live workspace', exact: true })).toBeVisible()
+  await expect(page).toHaveURL(/#\/setup$/)
+  await expect(page.getByRole('button', { name: 'Load support example', exact: true })).toBeVisible()
 })
 
 test('landing skip link is readable on focus and moves focus to main content', async ({ page }) => {

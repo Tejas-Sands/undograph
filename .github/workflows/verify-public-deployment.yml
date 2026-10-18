@@ -30,7 +30,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e -- tests/e2e/general-workspace.spec.ts --grep 'custom live answers'
+      - run: npm run test:e2e -- tests/e2e/general-workspace.spec.ts --grep 'custom live answers|live setup'
       - run: node scripts/cloud-smoke.mjs --base-url "$UNDOGRAPH_BASE_URL"
       - uses: actions/upload-artifact@v7
         if: always()

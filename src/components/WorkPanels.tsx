@@ -45,7 +45,7 @@ export function Welcome({
             ) : (
               <Play size={17} aria-hidden="true" />
             )}
-            Start live workspace
+            Load support example
           </button>
           <a className="button button-secondary" href="#/recorded/overview">
             Explore recorded example <ArrowRight size={16} aria-hidden="true" />
