@@ -85,6 +85,7 @@ try {
     await pause(1600)
     await shot('source-selection')
     await click(page.getByRole('button', { name: 'Create live workspace', exact: true }))
+    await page.getByRole('heading', { name: 'Your questions', exact: true }).waitFor()
     evidence.seeded = await snapshot()
     assert.equal(evidence.seeded.workspace.mode, 'knowledge')
   }, 2600)
@@ -165,6 +166,7 @@ try {
     await page.getByLabel('Workspace name').fill('Campus ecology')
     await page.getByRole('checkbox', { name: /Start a new workspace and close this one/ }).check()
     await click(page.getByRole('button', { name: 'Create live workspace', exact: true }))
+    await page.getByRole('heading', { name: 'Your questions', exact: true }).waitFor()
   }, 1800)
   await segment('research-build', async item => {
     await run(item, 'Build agent work', 'current-output-count', 4)
