@@ -69,6 +69,7 @@ for (const scenario of [
   const changed = before.artifacts.find(artifact => artifact.logicalId === `answer:${question.id}` && artifact.isCurrent)!
   expect(before.runs.at(-1)?.origin).toBe('live')
   expect(before.runs.at(-1)?.modelCalls).toBeGreaterThan(0)
+  await page.getByRole('button', { name: source.title, exact: true }).click()
   await page.getByRole('button', { name: new RegExp(`Source notes · ${source.title}, version 1`) }).first().click()
   await expect(page.getByRole('region', { name: 'Artifact details' })).toContainText('Exact source quotations')
   await page.getByRole('button', { name: 'Close artifact details', exact: true }).click()
