@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { extractPolicy, draftReply, type ReplyInput } from '../worker/agents'
+import { extractPolicy, draftReply, answerQuestion, type ReplyInput } from '../worker/agents'
 import type { Env } from '../worker/env'
 import type { Artifact, JsonValue } from '../shared/contracts'
 import { logAttempt } from '../worker/runs'
@@ -39,6 +39,24 @@ function provider(responses: unknown[]) {
   }
   return { env: { AI: { run } } as unknown as Env, run, beforeCall: vi.fn(async () => {}) }
 }
+
+describe('custom answer review policy', () => {
+  const document = { ...artifact('source_methods_v1', 'source', { title: 'Collection method', category: 'document', text: 'Observers used visual counts. Lena coordinated the study.' }), logicalId: 'source:methods' }
+  const question = artifact('question_method_v1', 'case', { id: 'method', question: 'How were the observations collected?', sourceIds: ['source:methods'] })
+  const answer = { decision: 'answered', text: 'Observers used visual counts.', citations: [document.id] }
+  it.each([false, undefined])('requires operator review even when the model returns reviewRequired=%s', async (reviewRequired) => {
+    const { env, run, beforeCall } = provider([{ ...answer, ...(reviewRequired === undefined ? {} : { reviewRequired }) }])
+    const result = await answerQuestion(env, { artifacts: [question, document] }, beforeCall)
+    expect(result.value).toMatchObject({ ...answer, reviewRequired: true, sourceArtifactId: document.id })
+    expect(run).toHaveBeenCalledTimes(1)
+    expect(beforeCall).toHaveBeenCalledTimes(1)
+  })
+  it('still rejects foreign evidence when the model supplies a review flag', async () => {
+    const bad = { ...answer, citations: ['foreign-source'], reviewRequired: false }
+    const { env, beforeCall } = provider([bad, bad])
+    await expect(answerQuestion(env, { artifacts: [question, document] }, beforeCall)).rejects.toMatchObject({ code: 'INVALID_MODEL_OUTPUT' })
+  })
+})
 
 describe('bounded policy interpretation', () => {
   it('validates exact evidence, computes offsets and preserves provider usage', async () => {
