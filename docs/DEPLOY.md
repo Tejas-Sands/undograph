@@ -78,6 +78,8 @@ The manual **verify public deployment** GitHub Actions workflow runs browser che
 gh workflow run verify-public-deployment.yml --ref main
 ```
 
+Alternatively, push a new `verify-public-*` Git tag pointing to the commit to verify. This starts the same public checks through Git authentication without requiring a separate Actions API login.
+
 It uses the deployed app's existing AI/database quota, with no hosting secrets in GitHub. For a direct browser check, set `UNDOGRAPH_BASE_URL` and `UNDOGRAPH_LIVE_AI=1`; Playwright then targets that URL without starting a local Worker. The regular offline CI job continues to skip real inference.
 
 ## Production and rollback

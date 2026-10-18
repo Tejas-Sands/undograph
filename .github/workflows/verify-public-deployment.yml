@@ -2,6 +2,8 @@ name: verify public deployment
 
 on:
   workflow_dispatch:
+  push:
+    tags: ['verify-public-*']
 
 permissions:
   contents: read
