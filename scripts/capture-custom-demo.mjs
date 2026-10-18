@@ -98,7 +98,8 @@ try {
   }, 3000)
   await segment('notes', async () => {
     await click(page.getByRole('button', { name: 'Launch plan', exact: true }))
-    await click(page.getByRole('button', { name: /Source notes · Launch plan, version 1/ }).first())
+    await click(page.getByText('View recorded inputs as a list', { exact: true }))
+    await click(page.locator('.path-list').getByRole('button', { name: /Source notes · Launch plan/ }).first())
     await page.locator('.source-evidence').scrollIntoViewIfNeeded()
     assert.ok((await page.locator('.source-evidence').innerText()).includes('December 8'))
   }, 3500)
