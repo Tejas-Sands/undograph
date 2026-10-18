@@ -22,7 +22,7 @@ Deployment: a React application and API on Cloudflare Workers, durable runs on C
 
 ## Current status
 
-The custom-workspace implementation adds 1–3 sources (up to 2,000 characters each) and 1–3 questions (up to 500 characters each). Each question explicitly selects its sources. This repository change does not itself update the public deployment; the previously verified public flow below is the Northstar example. Deploy the updated gateway before the updated Worker, as described in [deployment](docs/DEPLOY.md).
+The custom-workspace implementation adds 1–3 sources (up to 2,000 characters each) and 1–3 questions (up to 500 characters each). Each question explicitly selects its sources. The complete [CI run](https://github.com/Tejas-Sands/undograph/actions/runs/39104290430) passed, including real FalkorDB repair and 29 browser cases. Offline CI explicitly skips the two real-inference browser cases. This repository change does not itself update the public deployment; the previously verified public flow below is the Northstar example. Deploy the updated gateway before the updated Worker, as described in [deployment](docs/DEPLOY.md).
 
 The public preview passed the complete real-Workers-AI build/correction/repair smoke on October 17, 2026 (IST), including exact preservation, visitor isolation and audit export. Browser verification also completed a live build and recovered from a network failure into the labeled simulation while offline. The operator confirmed the Railway volume is mounted at `/data`; a forced restart of the public database was not part of this check. See [the verification record](docs/VERIFICATION.md) for evidence and limits.
 

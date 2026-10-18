@@ -30,7 +30,7 @@ Files: shared/contracts.ts; shared/knowledge.ts (configuration/examples/expected
 - [x] Add document/question/source-note contracts and grounded generation. Persist initialization identity and workspace name. Support full-text correction through existing guarded mutation.
 - [x] Add custom build/repair stages and complete expected-set validation; retain the old retail branch.
 - [x] Add real graph/API/Workflow tests for two domains, retries, preservation, stale review, and the maximum supported request budget.
-- [ ] Run unit, graph, API and Workflow checks; report environment limitations explicitly.
+- [x] Run unit, graph, API and Workflow checks; report environment limitations explicitly.
 
 ## Task 2: Custom input and evidence UI
 
@@ -39,14 +39,14 @@ Files: src/components/{ScenarioForm,SourcePanel,AppShell,WorkPanels,ArtifactInsp
 - [x] Add a failing browser flow: enter project sources/questions, choose explicit source scope, create workspace, reload, edit source, inspect affected outputs and preserved branch. Add validation/mobile checks.
 - [x] Implement an accessible inline setup form using existing controls/styles, with editable project/research examples and custom mode as the default live entry.
 - [x] Adapt labels, source editing, notes, citations, graph default selection and new-workspace confirmation. Keep the retail example available.
-- [ ] Verify browser input, errors, mode separation and responsive layout.
+- [x] Verify browser input, errors, mode separation and responsive layout.
 
 ## Task 3: Verification, review, documentation, commit and push
 
-- [ ] Run npm test, typecheck, lint, browser tests, client and gateway builds; use CI for checks unavailable in the local sandbox.
+- [x] Run npm test, typecheck, lint, browser tests, client and gateway builds; use CI for checks unavailable in the local sandbox.
 - [x] Request one independent review and resolve concrete findings.
 - [x] Update README, graph/demo docs and evidence, distinguishing test-provider coverage from live inference.
-- [ ] Commit and push using the verified existing Tejas-Sands author/committer identity, as explicitly requested. Report the resulting commit and actual deployment status.
+- [x] Commit and push using the verified existing Tejas-Sands author/committer identity, as explicitly requested. Report the resulting commit and actual deployment status.
 
 ## Execution ledger
 
@@ -61,3 +61,8 @@ Files: src/components/{ScenarioForm,SourcePanel,AppShell,WorkPanels,ArtifactInsp
 - Independent read-only review requested; documentation updated for custom input, dependency semantics, evidence limits and coordinated deployment. Public custom inference has not been deployed or verified in this change.
 
 - Independent review completed: fixed concurrent same-configuration recovery, exposed exact cited source versions separately from inputs, expanded maximum budget coverage to all six outputs, and added the opt-in complete custom live browser flow. No outstanding code findings; merge is conditional on CI. Real provider output quality remains outside offline CI.
+
+- Final CI: [run 39104290430](https://github.com/Tejas-Sands/undograph/actions/runs/39104290430) passed on implementation commit `70d722e`: typecheck, lint, all unit/Worker/native graph tests, authenticated gateway and gateway Workflow suites, 29 browser cases, client/Worker/gateway builds, Docker image and all three Railway password/lifecycle checks. The two real-inference browser cases are explicitly skipped in offline CI.
+- CI initially found duplicate server-error announcements in the custom form and an incorrect recorded reply selector. Fixed both, added the generic empty-workspace name and reran the complete job successfully. Desktop/mobile custom-workspace screenshots were inspected.
+- Delivery: implementation commits `8041530` and `70d722e` use the verified Tejas-Sands author and committer identity and are pushed. Fast-forward the original main branch to the verified implementation plus this evidence-only update, then push main; the fetched remote main still equals the original base. No force push or new service is needed.
+- Deployment status: public preview remains on the earlier retail implementation. The new gateway must be deployed before the Worker/assets; real custom Workers AI smoke remains a deployment check, not a claim of this offline CI result.
