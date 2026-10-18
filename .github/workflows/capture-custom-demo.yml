@@ -1,0 +1,31 @@
+name: capture custom workspace demo
+on:
+  workflow_dispatch:
+  push:
+    branches: ['video/capture-custom-workspaces-20261018']
+permissions:
+  contents: read
+concurrency:
+  group: capture-custom-demo
+  cancel-in-progress: false
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/capture-custom-demo.mjs
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: custom-demo-capture
+          path: artifacts/custom-demo/
+          retention-days: 5
