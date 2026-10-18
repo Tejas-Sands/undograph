@@ -1,0 +1,39 @@
+name: verify public deployment
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-public-deployment
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      UNDOGRAPH_BASE_URL: https://undograph-preview.the-workflow-worker.workers.dev
+      UNDOGRAPH_LIVE_AI: '1'
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e -- tests/e2e/general-workspace.spec.ts --grep 'custom live answers'
+      - run: node scripts/cloud-smoke.mjs --base-url "$UNDOGRAPH_BASE_URL"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: public-browser-results
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 5

@@ -1,5 +1,16 @@
 import { expect, test } from '@playwright/test'
 import { workspaceSnapshotSchema } from '../../shared/contracts'
+import { projectExample, researchExample } from '../../shared/knowledge'
+
+test.afterEach(async ({ page, baseURL }) => {
+  if (!process.env.UNDOGRAPH_BASE_URL) return
+  const response = await page.request.get('/api/workspace')
+  if (!response.ok()) return
+  const snapshot = workspaceSnapshotSchema.parse(await response.json())
+  if (snapshot.workspace.activeRunId) return
+  const deleted = await page.request.delete('/api/workspace', { data: { confirmation: 'DELETE' }, headers: { Origin: baseURL! } })
+  expect(deleted.status()).toBe(200)
+})
 
 test('judges enter sources/questions, reopen their workspace and correct their own text', async ({ page }, testInfo) => {
   await page.goto('/#/overview')
@@ -39,39 +50,53 @@ test('a question must select a source and the input form fits a narrow viewport'
 })
 
 // Explicitly opt in: CI's offline binding must never be presented as live inference.
-test('custom live answers show quotes, block stale review and preserve independent work after repair', async ({ page, baseURL }) => {
+for (const scenario of [
+  { button: 'Project notes', example: projectExample, original: 'November 12', corrected: 'November 19', answer: /19/, affected: 3 },
+  { button: 'Research notes', example: researchExample, original: '42', corrected: '51', answer: /51|fifty.one/i, affected: 2 },
+]) test(`custom live answers for ${scenario.example.name} show quotes, block stale review and preserve independent work after repair`, async ({ page, baseURL }, testInfo) => {
   test.skip(process.env.UNDOGRAPH_LIVE_AI !== '1', 'Requires an explicitly enabled real Workers AI connection.')
   await page.goto('/#/overview')
+  await page.getByRole('button', { name: scenario.button, exact: true }).click()
   await page.getByRole('button', { name: 'Create live workspace', exact: true }).click()
   await page.getByRole('button', { name: 'Build agent work', exact: true }).click()
-  await expect(page.getByTestId('current-output-count')).toHaveText('5', { timeout: 90_000 })
+  await expect(page.getByTestId('current-output-count')).toHaveText(String(scenario.example.sources.length + scenario.example.questions.length), { timeout: 90_000 })
   const before = workspaceSnapshotSchema.parse(await (await page.request.get('/api/workspace')).json())
-  const independent = before.artifacts.find(artifact => artifact.logicalId === 'answer:owner' && artifact.isCurrent)!
-  const notes = before.artifacts.find(artifact => artifact.logicalId === 'notes:launch' && artifact.isCurrent)!
-  const changed = before.artifacts.find(artifact => artifact.logicalId === 'answer:date' && artifact.isCurrent)!
-  await page.getByRole('button', { name: /Source notes · Launch plan, version 1/ }).first().click()
+  const source = scenario.example.sources[0]
+  const question = scenario.example.questions[0]
+  const sourceArtifact = before.artifacts.find(artifact => artifact.logicalId === `source:${source.id}` && artifact.isCurrent)!
+  const independent = before.artifacts.find(artifact => artifact.logicalId === `answer:${scenario.example.questions.at(-1)!.id}` && artifact.isCurrent)!
+  const notes = before.artifacts.find(artifact => artifact.logicalId === `notes:${source.id}` && artifact.isCurrent)!
+  const changed = before.artifacts.find(artifact => artifact.logicalId === `answer:${question.id}` && artifact.isCurrent)!
+  expect(before.runs.at(-1)?.origin).toBe('live')
+  expect(before.runs.at(-1)?.modelCalls).toBeGreaterThan(0)
+  await page.getByRole('button', { name: new RegExp(`Source notes · ${source.title}, version 1`) }).first().click()
   await expect(page.getByRole('region', { name: 'Artifact details' })).toContainText('Exact source quotations')
   await page.getByRole('button', { name: 'Close artifact details', exact: true }).click()
-  expect(notes.inputIds).toEqual(['source_launch_v1'])
+  expect(notes.inputIds).toEqual([sourceArtifact.id])
   await page.getByRole('link', { name: 'Answers', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Pending and reviewed answers' })).toBeVisible()
-  await page.locator('.reply-card').filter({ hasText: 'date answer' }).click()
-  await expect(page.getByRole('region', { name: 'Cited sources', exact: true })).toContainText('source_launch_v1')
+  await page.locator('.reply-card').filter({ hasText: `${question.id} answer` }).click()
+  await expect(page.getByRole('region', { name: 'Cited sources', exact: true })).toContainText(sourceArtifact.id)
   await page.getByRole('button', { name: 'Close artifact details', exact: true }).click()
   await page.getByRole('link', { name: 'Sources', exact: true }).click()
-  await page.locator('.source-card').filter({ hasText: 'Launch plan' }).getByRole('button', { name: 'Correct source text' }).click()
-  await page.getByLabel('Source text', { exact: true }).fill('Atlas launches on November 19. Priya approves the release.')
-  await page.getByLabel('Reason for correction').fill('Verify a date change through the complete live UI.')
+  await page.locator('.source-card').filter({ hasText: source.title }).getByRole('button', { name: 'Correct source text' }).click()
+  await page.getByLabel('Source text', { exact: true }).fill(source.text.replace(scenario.original, scenario.corrected))
+  await page.getByLabel('Reason for correction').fill('Verify a user-entered correction through the complete live UI.')
   await page.getByRole('button', { name: 'Save correction', exact: true }).click()
-  await expect(page.getByTestId('stale-count')).toHaveText('3')
+  await expect(page.getByTestId('stale-count')).toHaveText(String(scenario.affected))
   const refused = await page.request.post(`/api/artifacts/${changed.id}/release`, { data: { expectedRevision: 1 }, headers: { Origin: baseURL! } })
   expect(refused.status()).toBe(409)
   await page.getByRole('button', { name: 'Repair affected work', exact: true }).click()
   await expect(page.getByTestId('stale-count')).toHaveText('0', { timeout: 90_000 })
   const after = workspaceSnapshotSchema.parse(await (await page.request.get('/api/workspace')).json())
-  expect(after.artifacts.find(artifact => artifact.logicalId === 'answer:owner' && artifact.isCurrent)).toEqual(independent)
-  expect(after.reports.at(-1)?.repairedLogicalIds).toHaveLength(3)
-  expect(JSON.stringify(after.artifacts.find(artifact => artifact.logicalId === 'answer:date' && artifact.isCurrent)?.body)).toContain('19')
+  expect(after.artifacts.find(artifact => artifact.logicalId === independent.logicalId && artifact.isCurrent)).toEqual(independent)
+  expect(after.reports.at(-1)?.repairedLogicalIds).toHaveLength(scenario.affected)
+  expect(JSON.stringify(after.artifacts.find(artifact => artifact.logicalId === changed.logicalId && artifact.isCurrent)?.body)).toMatch(scenario.answer)
+  await page.getByRole('link', { name: 'Answers', exact: true }).click()
+  await page.locator('.reply-card').filter({ hasText: `${question.id} answer` }).click()
+  const correctedSource = after.artifacts.find(artifact => artifact.logicalId === sourceArtifact.logicalId && artifact.isCurrent)!
+  await expect(page.getByRole('region', { name: 'Cited sources', exact: true })).toContainText(correctedSource.id)
+  await page.screenshot({ path: testInfo.outputPath(`live-${source.id}-repaired.png`), fullPage: true })
 })
 
 test('the inspector exposes cited source version links separately from recorded inputs', async ({ page }) => {

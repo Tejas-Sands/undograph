@@ -72,6 +72,14 @@ Deploy the updated Railway gateway first, then the Cloudflare Worker/assets. The
 
 After deployment, verify a custom project workspace with real Workers AI: build, correct the release date, inspect stale answers, repair and compare the independent owner answer's ID/hash. Repeat with research text, then check the original retail flow. CI verifies graph behavior with a test-only model and does not replace this deployed inference check.
 
+The manual **verify public deployment** GitHub Actions workflow runs browser checks against the existing public URL with real Workers AI for both project and research inputs, then runs the original retail API smoke. It creates isolated visitors, checks quotations/citations, stale-review refusal and independent preservation, and deletes its owned terminal workspaces. Start it after the gateway and Worker update:
+
+```sh
+gh workflow run verify-public-deployment.yml --ref main
+```
+
+It uses the deployed app's existing AI/database quota, with no hosting secrets in GitHub. For a direct browser check, set `UNDOGRAPH_BASE_URL` and `UNDOGRAPH_LIVE_AI=1`; Playwright then targets that URL without starting a local Worker. The regular offline CI job continues to skip real inference.
+
 ## Production and rollback
 
 Only deploy production after preview verification passes. Populate the same secret names with production-specific values using `--env production`, then run `npm run deploy:production`. Verify the returned `workers.dev` URL, `/#/sources`, `/#/recorded/overview`, health/readiness and the complete smoke. A custom domain is optional and requires an operator-supplied domain.
