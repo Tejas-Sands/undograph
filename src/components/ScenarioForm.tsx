@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { generalWorkspaceSchema, type GeneralWorkspace } from '../../shared/contracts'
 import { projectExample, researchExample } from '../../shared/knowledge'
 
-export function ScenarioForm({ busy, ready, error, replacing = false, onCreate, onDemo, onCancel }: {
-  busy: boolean; ready: boolean; error?: string; replacing?: boolean;
+export function ScenarioForm({ busy, ready, replacing = false, onCreate, onDemo, onCancel }: {
+  busy: boolean; ready: boolean; replacing?: boolean;
   onCreate: (scenario: GeneralWorkspace) => Promise<void>; onDemo: () => Promise<void>; onCancel?: () => void;
 }) {
   const [value, setValue] = useState<GeneralWorkspace>(() => structuredClone(projectExample))
@@ -54,7 +54,7 @@ export function ScenarioForm({ busy, ready, error, replacing = false, onCreate, 
       </fieldset>)}
       {value.questions.length<3 && <button type="button" className="button button-secondary" onClick={() => setValue({ ...value, questions: [...value.questions, { id: crypto.randomUUID(), question: '', sourceIds: value.sources.map(source => source.id) }] })}>Add question</button>}
       {replacing && <label className="scenario-check scenario-confirm"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} />Start a new workspace and close this one. Export the current audit first if needed.</label>}
-      {(issues.length>0 || error) && <div className="inline-error" role="alert" ref={alert} tabIndex={-1}>{issues.map((issue,i) => <p key={i}>{issue}</p>)}{error && <p>{error}</p>}</div>}
+      {issues.length>0 && <div className="inline-error" role="alert" ref={alert} tabIndex={-1}>{issues.map((issue,i) => <p key={i}>{issue}</p>)}</div>}
       <div className="scenario-actions">
         <button className="button button-primary" disabled={busy || !ready || (replacing && !confirmed)}>{busy ? 'Creating…' : 'Create live workspace'}</button>
         <button type="button" className="button button-secondary" disabled={busy || !ready || (replacing && !confirmed)} onClick={() => void onDemo()}>Start live workspace</button>

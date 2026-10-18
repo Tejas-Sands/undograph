@@ -7,7 +7,7 @@ export function AppShell({
   recorded,
   simulation = false,
   hasWorkspace,
-  workspaceName = 'Northstar Goods',
+  workspaceName = hasWorkspace ? 'Northstar Goods' : 'Your workspace',
   knowledge = false,
   onReset,
   children,

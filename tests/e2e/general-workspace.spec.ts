@@ -4,6 +4,7 @@ import { workspaceSnapshotSchema } from '../../shared/contracts'
 test('judges enter sources/questions, reopen their workspace and correct their own text', async ({ page }, testInfo) => {
   await page.goto('/#/overview')
   await expect(page.getByRole('heading', { name: 'Create your own workspace' })).toBeVisible()
+  await expect(page.locator('.breadcrumb')).toContainText('Your workspace')
   await page.getByLabel('Workspace name').fill('Judge project notes')
   await page.getByLabel('Source 1 text').fill('The launch is December 8. Noor approves it.')
   await page.getByLabel('Question 1', { exact: true }).fill('When is the launch?')
@@ -75,7 +76,7 @@ test('custom live answers show quotes, block stale review and preserve independe
 
 test('the inspector exposes cited source version links separately from recorded inputs', async ({ page }) => {
   await page.goto('/#/recorded/replies')
-  await page.locator('.reply-card').filter({ hasText: 'R021 reply' }).click()
+  await page.locator('.reply-card').filter({ hasText: 'R-021 reply' }).click()
   const citations = page.getByRole('region', { name: 'Cited sources', exact: true })
   await expect(citations).toContainText('source_return_policy_v1')
   await expect(citations).toContainText('v1')

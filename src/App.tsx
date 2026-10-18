@@ -71,7 +71,7 @@ export default function App() {
   const [newSession, setNewSession] = useState(false)
   const [sessionLabel, setSessionLabel] = useState('')
   const [configuring, setConfiguring] = useState(false)
-  const knowledge = snapshot?.workspace.mode === 'knowledge'
+  const knowledge = !recorded && (!snapshot || snapshot.workspace.mode === 'knowledge')
   const current = snapshot?.artifacts.filter((artifact) => artifact.isCurrent) ?? []
   const outputs = current.filter((artifact) => !['source', 'case'].includes(artifact.kind))
   const stale = current.filter((artifact) => artifact.status === 'stale')
@@ -234,7 +234,7 @@ export default function App() {
             <p>Recovering confirmed graph state.</p>
           </div>
         ) : (
-          <ScenarioForm busy={busy} ready={controller.ready} error={controller.error?.message} replacing={Boolean(snapshot)} onCancel={snapshot ? () => setConfiguring(false) : undefined}
+          <ScenarioForm busy={busy} ready={controller.ready} replacing={Boolean(snapshot)} onCancel={snapshot ? () => setConfiguring(false) : undefined}
             onCreate={async scenario => { const result = snapshot ? await controller.reset(scenario) : await controller.enter(scenario); if (result !== undefined) { setConfiguring(false); setSelectedId(null) } }}
             onDemo={async () => { const result = snapshot ? await controller.reset() : await controller.enter(); if (result !== undefined) { setConfiguring(false); setSelectedId(null) } }} />
         )
